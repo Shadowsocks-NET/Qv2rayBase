@@ -1,6 +1,10 @@
 cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.14)
 
+include(GenerateExportHeader)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
 project(Qv2ray-Base
     VERSION 3.0.0.0
     LANGUAGES CXX
@@ -61,117 +65,46 @@ option(BUILD_SHARED_LIBS "Build Qv2ray baselib as shared library" ON)
 find_package(Qt6 COMPONENTS Core Network REQUIRED)
 
 set(BASELIB_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/core/Qv2rayBaseApplication.cpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/utils/HTTPRequestHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/utils/HTTPRequestHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/utils/QvHelpers.cpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/plugins/PluginAPIHost.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/plugins/PluginManagerCore.cpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/ConnectionIO.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/generation/inbounds.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/generation/outbounds.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/generation/filters.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/generation/routing.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/generation/misc.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/Serialization.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/serialization/ss.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/serialization/ssd.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/serialization/vmess.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/serialization/vmess_new.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/connection/serialization/vless.cpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/core/CoreUtils.cpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/core/handler/ConfigHandler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/handler/KernelInstanceHandler.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/handler/RouteHandler.cpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/core/kernel/APIBackend.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/kernel/APIBackend.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/kernel/V2RayKernelInteractions.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/kernel/V2RayKernelInteractions.hpp
-    #
-    ${CMAKE_CURRENT_LIST_DIR}/core/settings/SettingsBackend.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/settings/SettingsBackend.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/core/settings/SettingsUpgrade.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/src/Base/SettingsUpgrade.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginAPIHost.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginManagerCore.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Generator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Profile/KernelManager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Profile/ProfileManager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Serialization.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/src/Utils/HTTPRequestHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Utils/HTTPRequestHelper.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Utils/ProfileHelpers.cpp)
 
 set(BASELIB_HEADERS
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/ConfigHandler.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/ConnectionIO.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/CoreUtils.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Generation.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/KernelInstanceHandler.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBase.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseApplication.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayFeatures.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayLog.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/QvHelpers.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/PluginAPIHost.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/PluginManagerCore.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/RouteHandler.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Serialization.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/models/CoreObjectModels.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/models/QvComplexConfigModels.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/models/QvCoreSettings.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/models/QvRuntimeConfig.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/models/QvSafeType.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/models/QvSettingsObject.hpp)
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/StorageProvider.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseLibrary.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseFeatures.hpp
 
-find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
-find_package(Protobuf REQUIRED)
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Models/Settings.hpp
 
-set(API_PROTO "${CMAKE_CURRENT_LIST_DIR}/assets/v2ray_api.proto")
-set(API_PROTO_PATH "${CMAKE_CURRENT_LIST_DIR}/assets")
-set(API_PROTO_SRCS "${CMAKE_CURRENT_BINARY_DIR}/v2ray_api.pb.cc")
-set(API_PROTO_HDRS "${CMAKE_CURRENT_BINARY_DIR}/v2ray_api.pb.h")
-set(API_GRPC_SRCS "${CMAKE_CURRENT_BINARY_DIR}/v2ray_api.grpc.pb.cc")
-set(API_GRPC_HDRS "${CMAKE_CURRENT_BINARY_DIR}/v2ray_api.grpc.pb.h")
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginAPIHost.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginManagerCore.hpp
 
-add_custom_command(
-    OUTPUT
-        "${API_GRPC_SRCS}"
-        "${API_GRPC_HDRS}"
-        "${API_PROTO_HDRS}"
-        "${API_PROTO_SRCS}"
-    COMMAND
-        ${Protobuf_PROTOC_EXECUTABLE}
-    ARGS
-        --grpc_out  "${CMAKE_CURRENT_BINARY_DIR}"
-        --cpp_out   "${CMAKE_CURRENT_BINARY_DIR}"
-        -I "${API_PROTO_PATH}"
-        --plugin=protoc-gen-grpc="${GRPC_CPP_PLUGIN}"
-        "${API_PROTO}"
-    DEPENDS
-        "${API_PROTO}"
-    )
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/Generator.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/KernelManager.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/ProfileManager.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/Serialization.hpp
 
-add_library(Qv2rayBase ${BASELIB_SOURCES} ${BASELIB_HEADERS} ${API_GRPC_SRCS} ${API_GRPC_HDRS} ${API_PROTO_HDRS} ${API_PROTO_SRCS})
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Utils.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/ProfileHelper.hpp)
+
+source_group(Plugin REGULAR_EXPRESSION "/Plugin/")
+source_group(Profile REGULAR_EXPRESSION "/Profile/")
+source_group(Common REGULAR_EXPRESSION "/Common/")
+
+add_library(Qv2rayBase ${BASELIB_SOURCES} ${BASELIB_HEADERS} #[[${API_GRPC_SRCS} ${API_GRPC_HDRS} ${API_PROTO_HDRS} ${API_PROTO_SRCS}]])
 add_library(Qv2ray::Qv2rayBase ALIAS Qv2rayBase)
-
-include(GenerateExportHeader)
-generate_export_header(Qv2rayBase)
-
-include(CMakePackageConfigHelpers)
-configure_package_config_file(cmake/Qv2rayBase.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
-  INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/Qv2rayBase)
-
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
-  COMPATIBILITY SameMinorVersion)
-
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_TWEAK=${CMAKE_PROJECT_VERSION_TWEAK})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${CMAKE_PROJECT_VERSION}")
-
-set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
-set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 target_include_directories(Qv2rayBase
     PUBLIC
@@ -185,19 +118,34 @@ target_link_libraries(Qv2rayBase
     PUBLIC
         Qt::Core
         Qt::Network
-        gRPC::gpr gRPC::grpc gRPC::grpc++ gRPC::grpc++_alts
-        protobuf::libprotobuf
         Qv2ray::QJsonStruct
         Qv2ray::QvPluginInterface)
 
-include(GNUInstallDirs)
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_TWEAK=${CMAKE_PROJECT_VERSION_TWEAK})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${CMAKE_PROJECT_VERSION}")
+
+set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
+
+generate_export_header(Qv2rayBase)
+
+configure_package_config_file(cmake/Qv2rayBase.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
+  INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/Qv2rayBase)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
+  COMPATIBILITY SameMajorVersion)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase)
 
-
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 install(TARGETS Qv2rayBase
     EXPORT Qv2rayBaseTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -208,6 +156,7 @@ install(EXPORT Qv2rayBaseTargets
         NAMESPACE Qv2ray::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase
 )
+
 export(EXPORT Qv2rayBaseTargets
        FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Qv2rayBaseTargets.cmake"
        NAMESPACE Qv2ray::

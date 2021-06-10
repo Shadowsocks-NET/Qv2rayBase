@@ -1,0 +1,42 @@
+#include "Models/Settings.hpp"
+#include "Qv2rayBaseLibrary.hpp"
+
+#include <QJsonObject>
+
+#define QV_MODULE_NAME "SettingsUpgrade"
+
+namespace Qv2rayBase
+{
+    QJsonObject UpgradeConfig_Inc(int fromVersion, const QJsonObject &original)
+    {
+        auto root = original;
+        switch (fromVersion)
+        {
+            default:
+            {
+                Qv2rayBaseLibrary::Warn(QObject::tr("Configuration Upgrade Failed"),
+                                        QObject::tr("Unsupported config version number: ") + QString::number(fromVersion) + NEWLINE + NEWLINE +
+                                            QObject::tr("Please go to https://github.com/Qv2ray/Qv2ray/issues to check for related announcements."));
+                LOG("The configuration version of your old Qv2ray installation is out-of-date and that"
+                    " version is not supported anymore, please try to update to an intermediate version of Qv2ray first.");
+                exit(1);
+            }
+        }
+        root["config_version"] = root["config_version"].toInt() + 1;
+        return root;
+    }
+
+    QJsonObject MigrateSettings(const QJsonObject &original)
+    {
+        auto root = original;
+
+        const auto fileVersion = original["config_version"].toInt(QV2RAY_SETTINGS_VERSION);
+
+        LOG("Migrating config from version ", fromVersion, "to", toVersion);
+
+        for (int i = fileVersion; i < QV2RAY_SETTINGS_VERSION; i++)
+            root = UpgradeConfig_Inc(i, root);
+
+        return root;
+    }
+} // namespace Qv2rayBase
