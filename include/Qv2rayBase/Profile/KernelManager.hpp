@@ -31,13 +31,13 @@ namespace Qv2rayBase::Profile
         void OnStatsDataAvailable(const ConnectionGroupPair &id, const QMap<Qv2rayBase::models::StatisticsType, Qv2rayBase::models::QvStatsSpeed> &data);
       private slots:
         void OnV2RayStatsDataRcvd_p(const QMap<Qv2rayBase::models::StatisticsType, Qv2rayBase::models::QvStatsSpeed> &data);
+        void OnPluginStatsDataRcvd_p(const long uploadSpeed, const long downloadSpeed);
 #endif
 
       private slots:
         void OnKernelCrashed_p(const QString &msg);
         void OnPluginKernelLog_p(const QString &log);
         void OnV2RayKernelLog_p(const QString &log);
-        void OnPluginStatsDataRcvd_p(const long uploadSpeed, const long downloadSpeed);
 
       private:
         void emitLogMessage(const QString &);

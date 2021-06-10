@@ -116,6 +116,21 @@ namespace Qv2rayBase
         return list;
     }
 
+    void Qv2rayBaseLibrary::Warn(const QString &title, const QString &text)
+    {
+        return instance()->p_MessageBoxWarn(title, text);
+    }
+
+    void Qv2rayBaseLibrary::Info(const QString &title, const QString &text)
+    {
+        return instance()->p_MessageBoxInfo(title, text);
+    }
+
+    Qv2rayBaseLibrary::MessageOpt Qv2rayBaseLibrary::Ask(const QString &title, const QString &text, const QList<MessageOpt> &options)
+    {
+        return instance()->p_MessageBoxAsk(title, text, options);
+    }
+
     Plugins::PluginAPIHost *Qv2rayBaseLibrary::PluginAPIHost()
     {
         return instance()->d_ptr->pluginAPIHost;

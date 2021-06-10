@@ -1,10 +1,5 @@
 cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.14)
-
-include(GenerateExportHeader)
-include(CMakePackageConfigHelpers)
-include(GNUInstallDirs)
-
 project(Qv2ray-Base
     VERSION 3.0.0.0
     LANGUAGES CXX
@@ -13,6 +8,15 @@ project(Qv2ray-Base
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_DEBUG_POSTFIX d)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+include(GenerateExportHeader)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 option(USE_SYSTEM_QJSONSTRUCT ON)
 option(USE_SYSTEM_PLUGIN_INTERFACE ON)
