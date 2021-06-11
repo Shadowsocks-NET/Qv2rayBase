@@ -1,5 +1,5 @@
 #pragma once
-#include "Common/ProfileHelper.hpp"
+#include "Common/ProfileHelpers.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 
@@ -16,9 +16,8 @@ namespace Qv2rayBase::Profile
         std::optional<QString> StartConnection(const ConnectionGroupPair &id, ProfileContent root);
         void StopConnection();
         const ConnectionGroupPair CurrentConnection() const;
-        size_t ActivePluginKernelsCount() const;
-        const QMap<QString, Qv2rayPlugin::Outbound::PluginIOBoundData> GetCurrentConnectionInboundInfo() const;
-        const QStringList GetActiveKernelProtocols() const;
+        size_t ActiveKernelCount() const;
+        const QMap<QString, PluginIOBoundData> GetCurrentConnectionInboundInfo() const;
 
       signals:
         void OnConnected(const ConnectionGroupPair &id);

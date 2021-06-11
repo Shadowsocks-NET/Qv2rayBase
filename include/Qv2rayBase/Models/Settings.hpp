@@ -25,12 +25,17 @@ namespace Qv2rayBase::Models
         QString ua = "Qv2rayBase/$VERSION WebRequestHelper";
     };
 
+    struct PluginConfigObject
+    {
+        QMap<QString, bool> plugin_states;
+        int plugin_port_allocation = 15490;
+    };
+
     struct Qv2rayBaseConfigObject
     {
         const int config_version = QV2RAY_SETTINGS_VERSION;
-        QMap<QString, bool> plugin_states;
-        int plugin_port_allocation = 15490;
         NetworkProxyConfig network_config;
+        PluginConfigObject plugin_config;
         QVariantMap extra_options;
     };
 

@@ -115,7 +115,7 @@ set(BASELIB_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/Serialization.hpp
 
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Utils.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/ProfileHelper.hpp)
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/ProfileHelpers.hpp)
 
 source_group(Plugin REGULAR_EXPRESSION "/Plugin/")
 source_group(Profile REGULAR_EXPRESSION "/Profile/")

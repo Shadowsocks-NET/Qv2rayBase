@@ -1,6 +1,6 @@
 #include "Profile/Serialization.hpp"
 
-#include "Common/ProfileHelper.hpp"
+#include "Common/ProfileHelpers.hpp"
 #include "Common/Utils.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Profile/ProfileManager.hpp"
@@ -12,15 +12,14 @@ namespace Qv2rayBase::Profile
 {
     std::optional<std::pair<QString, ProfileContent>> ConvertConfigFromString(const QString &link)
     {
-        const auto config = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Deserialize(link);
-        if (!config)
+        const auto optConf = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Deserialize(link);
+        if (!optConf)
             return std::nullopt;
 
-        const auto &[_alias, _protocol, _outbound, _stream] = *config;
+        const auto &[name, outbound] = *optConf;
         ProfileContent root;
-        const auto outbound = QJsonObject{ { "tag", "OUTBOUND_TAG_PROXY" }, { "protocol", _protocol }, { "settings", _outbound }, { "streamSettings", _stream } };
-        QJsonIO::SetValue(root, outbound, "outbounds", 0);
-        return std::pair{ _alias, root };
+        root.outbounds.append(outbound);
+        return std::pair{ name, root };
     }
 
     const QString ConvertConfigToString(const ConnectionId &id)
@@ -36,10 +35,7 @@ namespace Qv2rayBase::Profile
 
     const QString ConvertConfigToString(const QString &alias, const ProfileContent &server)
     {
-        const auto outbound = OUTBOUND(server["outbounds"].toArray().first().toObject());
-        const auto type = outbound["protocol"].toString();
-        const auto settings = outbound["settings"].toObject();
-        const auto streamSettings = outbound["streamSettings"].toObject();
-        return *Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(Qv2rayPlugin::PluginOutboundDescriptor{ alias, type, settings, streamSettings });
+        const auto outbound = server.outbounds.first();
+        return *Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
     }
 } // namespace Qv2rayBase::Profile

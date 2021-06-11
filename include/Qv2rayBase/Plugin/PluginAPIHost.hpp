@@ -18,9 +18,9 @@ namespace Qv2rayBase::Plugins
 
       public:
         // Kernel API
-        std::unique_ptr<Qv2rayPlugin::Kernel::PluginKernel> Kernel_Create(const QUuid &kid) const;
-        QString Kernel_GetName(const QUuid &kid) const;
-        QUuid Kernel_QueryProtocol(const QString &protocol) const;
+        Qv2rayPlugin::KernelFactory Kernel_GetInfo(const KernelId &kid) const;
+        KernelId Kernel_GetDefaultKernel() const;
+        KernelId Kernel_QueryProtocol(const QSet<QString> &protocols) const;
 
         // Event API
         template<typename E>
@@ -29,11 +29,13 @@ namespace Qv2rayBase::Plugins
             SendEventInternal(object);
         }
 
-        // Outbound API
-        std::optional<Qv2rayPlugin::Outbound::PluginOutboundDescriptor> Outbound_Deserialize(const QString &link) const;
-        std::optional<QString> Outbound_Serialize(const Qv2rayPlugin::Outbound::PluginOutboundDescriptor &outbound) const;
-        std::optional<Qv2rayPlugin::Outbound::PluginIOBoundData> Outbound_GetData(const QString &protocol, const QJsonObject &o) const;
-        bool Outbound_SetData(const QString &protocol, QJsonObject &o, const Qv2rayPlugin::Outbound::PluginIOBoundData &info) const;
+        // Outbound Get/Set Data
+        std::optional<PluginIOBoundData> Outbound_GetData(const OutboundObject &o) const;
+        bool Outbound_SetData(OutboundObject &o, const PluginIOBoundData &info) const;
+
+        // Outbound De/serialize
+        std::optional<QString> Outbound_Serialize(const QString &name, const OutboundObject &outbound) const;
+        std::optional<std::pair<QString, OutboundObject>> Outbound_Deserialize(const QString &link) const;
 
 #if QV2RAYBASE_FEATURE(subscriptions)
         // Subscription Adapter API

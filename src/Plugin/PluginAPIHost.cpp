@@ -18,7 +18,7 @@ namespace Qv2rayBase::Plugins
     class PluginAPIHostPrivate
     {
       public:
-        QHash<QUuid, Qv2rayPlugin::Kernel::KernelInfo> kernels;
+        QHash<KernelId, Qv2rayPlugin::Kernel::KernelFactory> kernels;
     };
 
     PluginAPIHost::PluginAPIHost()
@@ -29,44 +29,51 @@ namespace Qv2rayBase::Plugins
     {
     }
 
-    //    void PluginAPIHost::LoadPlugins()
-    //    {
-    //        Q_D(PluginAPIHost);
-    //        Qv2rayBaseLibrary::PluginManagerCore()->LoadPlugins();
-    //        for (const auto &p : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_KERNEL))
-    //            for (const auto &kinfo : p->pinterface->KernelInterface()->GetKernels())
-    //                d->kernels.insert(kinfo.Id, kinfo);
-    //    }
-
-    std::unique_ptr<PluginKernel> PluginAPIHost::Kernel_Create(const QUuid &kid) const
+    KernelFactory PluginAPIHost::Kernel_GetInfo(const KernelId &kid) const
     {
         Q_D(const PluginAPIHost);
-        return d->kernels[kid].Create();
+        return d->kernels[kid];
     }
 
-    QString PluginAPIHost::Kernel_GetName(const QUuid &kid) const
+    KernelId PluginAPIHost::Kernel_GetDefaultKernel() const
     {
         Q_D(const PluginAPIHost);
-        return d->kernels[kid].Name;
+        qsizetype supportedProtocolsCount = 0;
+        KernelId result;
+        for (auto it = d->kernels.constKeyValueBegin(); it != d->kernels.constKeyValueEnd(); it++)
+        {
+            if (it->second.Capabilities & KERNELCAP_ROUTER)
+                if (it->second.SupportedProtocols.size() > supportedProtocolsCount)
+                    result = it->first, supportedProtocolsCount = it->second.SupportedProtocols.size();
+        }
+        return result;
     }
 
-    QUuid PluginAPIHost::Kernel_QueryProtocol(const QString &protocol) const
+    KernelId PluginAPIHost::Kernel_QueryProtocol(const QSet<QString> &protocols) const
     {
         Q_D(const PluginAPIHost);
+        const KernelFactory *bestMatch = nullptr;
+        qsizetype maxIntersections = 0;
         for (const auto &k : d->kernels)
-            if (k.SupportedProtocols.contains(protocol))
-                return k.Id;
-        return {};
+        {
+            const auto intersection = (k.SupportedProtocols & protocols).size();
+            if (maxIntersections < intersection)
+            {
+                maxIntersections = intersection;
+                bestMatch = &k;
+            }
+        }
+        return bestMatch ? bestMatch->Id : NullKernelId;
     }
 
-    std::optional<PluginIOBoundData> PluginAPIHost::Outbound_GetData(const QString &protocol, const QJsonObject &o) const
+    std::optional<PluginIOBoundData> PluginAPIHost::Outbound_GetData(const OutboundObject &o) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(protocol))
+            if (serializer && serializer->SupportedProtocols().contains(o.protocol))
             {
-                auto info = serializer->GetOutboundInfo(protocol, o);
+                auto info = serializer->GetOutboundInfo(o.protocol, o.settings);
                 if (info)
                     return info;
             }
@@ -74,14 +81,14 @@ namespace Qv2rayBase::Plugins
         return std::nullopt;
     }
 
-    bool PluginAPIHost::Outbound_SetData(const QString &protocol, QJsonObject &o, const PluginIOBoundData &info) const
+    bool PluginAPIHost::Outbound_SetData(OutboundObject &o, const PluginIOBoundData &info) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(protocol))
+            if (serializer && serializer->SupportedProtocols().contains(o.protocol))
             {
-                bool result = serializer->SetOutboundInfo(protocol, o, info);
+                bool result = serializer->SetOutboundInfo(o.protocol, o.settings, info);
                 if (result)
                     return result;
             }
@@ -117,14 +124,14 @@ namespace Qv2rayBase::Plugins
     }
 #endif
 
-    std::optional<QString> PluginAPIHost::Outbound_Serialize(const PluginOutboundDescriptor &info) const
+    std::optional<QString> PluginAPIHost::Outbound_Serialize(const QString &name, const OutboundObject &outbound) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(info.Protocol))
+            if (serializer && serializer->SupportedProtocols().contains(outbound.protocol))
             {
-                const auto result = serializer->Serialize(info);
+                const auto result = serializer->Serialize(name, outbound);
                 if (result)
                     return result;
             }
@@ -132,7 +139,7 @@ namespace Qv2rayBase::Plugins
         return std::nullopt;
     }
 
-    std::optional<PluginOutboundDescriptor> PluginAPIHost::Outbound_Deserialize(const QString &link) const
+    std::optional<std::pair<QString, OutboundObject>> PluginAPIHost::Outbound_Deserialize(const QString &link) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {

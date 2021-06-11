@@ -185,12 +185,12 @@ namespace Qv2rayBase::Plugins
 
     bool PluginManagerCore::GetPluginEnabled(const PluginId &pid) const
     {
-        return Qv2rayBaseLibrary::GetConfig()->plugin_states.value(pid.toString(), true);
+        return Qv2rayBaseLibrary::GetConfig()->plugin_config.plugin_states.value(pid.toString(), true);
     }
 
     void PluginManagerCore::SetPluginEnabled(const PluginId &pid, bool isEnabled) const
     {
-        Qv2rayBaseLibrary::GetConfig()->plugin_states.insert(pid.toString(), isEnabled);
+        Qv2rayBaseLibrary::GetConfig()->plugin_config.plugin_states.insert(pid.toString(), isEnabled);
     }
 
     void PluginManagerCore::SavePluginSettings() const
