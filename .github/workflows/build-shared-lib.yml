@@ -14,11 +14,14 @@ jobs:
     env:
       CC: ${{ matrix.config.cc }}
       CXX: ${{ matrix.config.cxx }}
-    name: ${{ matrix.config.name }}
+    name: '${{ matrix.config.name }} S:${{ matrix.FEAT_subscriptions }} L:${{ matrix.FEAT_latency }} STAT:${{ matrix.FEAT_statistics }}' 
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
+        FEAT_subscriptions: [ON, OFF]
+        FEAT_latency: [ON, OFF]
+        FEAT_statistics: [ON, OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows-MSVC",
@@ -73,6 +76,9 @@ jobs:
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_INSTALL_PREFIX=installed \
+          -DQVFEATURE_subscriptions=${{ matrix.FEAT_subscriptions }} \
+          -DQVFEATURE_latency=${{ matrix.FEAT_latency }} \
+          -DQVFEATURE_statistics=${{ matrix.FEAT_statistics }} \
           -G${{ matrix.config.generator }} \
           ${{ matrix.config.extra_cmake_args }}
         cmake --build . --config Release --parallel
