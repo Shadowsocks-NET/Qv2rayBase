@@ -16,8 +16,6 @@ namespace Qv2rayBase::Utils
             return r.outbounds.at(index);
     }
 
-    QV2RAYBASE_EXPORT bool IsComplexConfig(const ProfileContent &root);
-    QV2RAYBASE_EXPORT bool IsComplexConfig(const ConnectionId &id);
     QV2RAYBASE_EXPORT QString GetDisplayName(const GroupId &id);
     QV2RAYBASE_EXPORT QString GetDisplayName(const ConnectionId &id);
 

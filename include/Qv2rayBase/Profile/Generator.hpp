@@ -8,7 +8,7 @@ namespace Qv2rayBase::Profile
     class IConfigurationGenerator
     {
       public:
-        explicit IConfigurationGenerator();
+        IConfigurationGenerator() = default;
         virtual ~IConfigurationGenerator() = default;
 
         virtual ProfileContent ApplyRouting(const ProfileContent &profile, const RoutingObject &route) = 0;

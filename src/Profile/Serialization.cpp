@@ -25,10 +25,6 @@ namespace Qv2rayBase::Profile
     const QString ConvertConfigToString(const ConnectionId &id)
     {
         auto alias = GetDisplayName(id);
-        if (IsComplexConfig(id))
-        {
-            return "QV2RAY_SERIALIZATION_COMPLEX_CONFIG_PLACEHOLDER";
-        }
         auto server = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
         return ConvertConfigToString(alias, server);
     }
