@@ -26,6 +26,7 @@ namespace Qv2rayBase::Profile
         int pingAllTimerId;
         QHash<GroupId, GroupObject> groups;
         QHash<ConnectionId, ConnectionObject> connections;
+        QHash<RoutingId, RoutingObject> routings;
         QHash<ConnectionId, ProfileContent> connectionRootCache;
     };
 
@@ -33,8 +34,10 @@ namespace Qv2rayBase::Profile
     {
         Q_D(ProfileManager)
         DEBUG("ConnectionHandler Constructor.");
+
         const auto _connections = Qv2rayBaseLibrary::StorageProvider()->Connections();
         const auto _groups = Qv2rayBaseLibrary::StorageProvider()->Groups();
+        const auto _routings = Qv2rayBaseLibrary::StorageProvider()->Routings();
 
         for (auto it = _connections.constKeyValueBegin(); it != _connections.constKeyValueEnd(); it++)
         {
@@ -54,6 +57,11 @@ namespace Qv2rayBase::Profile
             {
                 d->connections[connId]._group_ref++;
             }
+        }
+
+        for (auto it = _routings.constKeyValueBegin(); it != _routings.constKeyValueEnd(); it++)
+        {
+            d->routings.insert(it->first, it->second);
         }
 
         for (auto it = _connections.constKeyValueBegin(); it != _connections.constKeyValueEnd(); it++)
@@ -80,21 +88,6 @@ namespace Qv2rayBase::Profile
             d->groups.insert(DefaultGroupId, GroupObject{});
             d->groups[DefaultGroupId].name = tr("Default Group");
         }
-        //
-        //        kernelHandler = new KernelInstanceHandler(this);
-        //        connect(kernelHandler, &KernelInstanceHandler::OnCrashed, this, &ProfileManager::p_OnKernelCrashed);
-        //        connect(kernelHandler, &KernelInstanceHandler::OnStatsDataAvailable, this, &ProfileManager::p_OnStatsDataArrived);
-        //        connect(kernelHandler, &KernelInstanceHandler::OnKernelLogAvailable, this, &ProfileManager::OnKernelLogAvailable);
-        //        connect(kernelHandler, &KernelInstanceHandler::OnConnected, this, &ProfileManager::OnConnected);
-        //        connect(kernelHandler, &KernelInstanceHandler::OnDisconnected, this, &ProfileManager::OnDisconnected);
-        //        //
-
-        //#pragma message("TODO")
-        //        //        pingHelper = new LatencyTestHost(5, this);
-        //        //        connect(pingHelper, &LatencyTestHost::OnLatencyTestCompleted, this, &ProfileManager::p_OnLatencyDataArrived);
-        //        //
-        //        // Save per 1 hour.
-        //        saveTimerId = startTimer(1 * 60 * 60 * 1000);
     }
 
     void ProfileManager::SaveConnectionConfig()
@@ -302,10 +295,8 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(identifier, false);
         d->connections[identifier.connectionId].last_connected = system_clock::now();
-        //
         ProfileContent root = GetConnection(identifier.connectionId);
-        const auto fullConfig = Qv2rayBaseLibrary::ConfigurationGenerator()->ApplyRouting(root, d->groups[identifier.groupId].route_id);
-        //
+        const auto fullConfig = Qv2rayBaseLibrary::ConfigurationGenerator()->ApplyRouting(root, d->routings.value(d->groups[identifier.groupId].route_id));
         auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, fullConfig);
         if (errMsg)
         {

@@ -87,7 +87,7 @@ namespace Qv2rayBase
         explicit Qv2rayBaseLibrary();
         ~Qv2rayBaseLibrary();
 
-        QV2RAYBASE_INITIALIZATION_FAILED_REASON Initialize(QFlags<Qv2rayStartFlags> flags, IStorageProvider *storageProvider);
+        QV2RAYBASE_INITIALIZATION_FAILED_REASON Initialize(QFlags<Qv2rayStartFlags> flags, Profile::IConfigurationGenerator *g = nullptr, IStorageProvider *s = nullptr);
 
       public:
         ///
@@ -100,11 +100,6 @@ namespace Qv2rayBase
         /// \brief Get configurations for Qv2ray base library.
         ///
         static Qv2rayBase::Models::Qv2rayBaseConfigObject *GetConfig();
-
-        ///
-        /// \brief Get the path to the configuration file.
-        ///
-        static QString GetConfigPath();
 
         ///
         /// \brief Get search paths for assets, (e.g. when searching for plugins)

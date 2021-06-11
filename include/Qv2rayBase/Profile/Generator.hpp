@@ -5,13 +5,13 @@
 
 namespace Qv2rayBase::Profile
 {
-    class QV2RAYBASE_EXPORT IConfigurationGenerator
+    class IConfigurationGenerator
     {
       public:
         explicit IConfigurationGenerator();
         virtual ~IConfigurationGenerator() = default;
 
-        virtual ProfileContent ApplyRouting(const ProfileContent &pair, const RoutingId &rid) = 0;
+        virtual ProfileContent ApplyRouting(const ProfileContent &profile, const RoutingObject &route) = 0;
 
         //        void SaveRoutes() const;
         //        //
@@ -34,7 +34,6 @@ namespace Qv2rayBase::Profile
         //        ProfileContent GenerateFinalConfig(ProfileContent root, const GroupRoutingId &routingId, bool hasAPI = true) const;
         //        //
         //        bool ExpandChainedOutbounds(ProfileContent &) const;
-
         //      private:
         //        QHash<GroupRoutingId, GroupRoutingConfig> configs;
     };

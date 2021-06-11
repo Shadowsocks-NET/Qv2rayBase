@@ -87,6 +87,12 @@ set(BASELIB_SOURCES
 
     ${CMAKE_CURRENT_LIST_DIR}/src/Base/SettingsUpgrade.cpp
 
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseStorageProvider.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseStorageProvider.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseConfigurationGenerator.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseConfigurationGenerator.cpp
+
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginAPIHost.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginManagerCore.cpp
 

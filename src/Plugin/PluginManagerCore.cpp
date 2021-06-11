@@ -9,8 +9,6 @@
 #include <QDir>
 #include <QPluginLoader>
 
-#define QV2RAY_PLUGIN_SETTINGS_DIR (Qv2rayBaseLibrary::GetConfigPath() + "/plugin_settings/")
-
 using namespace Qv2rayPlugin;
 
 #define QV_MODULE_NAME "PluginManagerCore"
@@ -43,11 +41,6 @@ namespace Qv2rayBase::Plugins
     void PluginManagerCore::LoadPlugins()
     {
         Q_D(PluginManagerCore);
-        if (auto dir = QDir(QV2RAY_PLUGIN_SETTINGS_DIR); !dir.exists())
-        {
-            dir.mkpath(QV2RAY_PLUGIN_SETTINGS_DIR);
-        }
-
         LOG("Reloading plugin list");
         for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths("plugins"))
         {

@@ -16,11 +16,10 @@ namespace Qv2rayBase
 
         virtual QHash<ConnectionId, ConnectionObject> Connections() = 0;
         virtual QHash<GroupId, GroupObject> Groups() = 0;
-        virtual QHash<RoutingId, RoutingObject> Routes() = 0;
+        virtual QHash<RoutingId, RoutingObject> Routings() = 0;
 
         virtual ProfileContent LoadConnection(const ConnectionId &) = 0;
         virtual bool StoreConnection(const ConnectionId &, ProfileContent) = 0;
-
         virtual bool DeleteConnection(const ConnectionId &id) = 0;
 
         virtual QDir GetPluginWorkingDirectory(const PluginId &pid) = 0;

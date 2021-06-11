@@ -2,11 +2,15 @@
 
 #include "Plugin/PluginAPIHost.hpp"
 #include "Plugin/PluginManagerCore.hpp"
+#include "Profile/Generator.hpp"
 #include "Profile/KernelManager.hpp"
 #include "Profile/ProfileManager.hpp"
 #include "StorageProvider.hpp"
 
-#include <QCoreApplication>
+// Private headers
+#include "src/private/BaseConfigurationGenerator.hpp"
+#include "src/private/BaseStorageProvider.hpp"
+
 #include <QDir>
 #include <QStandardPaths>
 
@@ -14,6 +18,8 @@
 
 namespace Qv2rayBase
 {
+    using namespace Qv2rayBase::Profile;
+    using namespace Qv2rayBase::Plugins;
     QJsonObject MigrateSettings(int fromVersion, int toVersion, const QJsonObject &original);
     Qv2rayBaseLibrary *m_instance = nullptr;
     class Qv2rayBaseLibraryPrivate
@@ -31,13 +37,21 @@ namespace Qv2rayBase
         IStorageProvider *storageProvider;
     };
 
-    QV2RAYBASE_INITIALIZATION_FAILED_REASON Qv2rayBaseLibrary::Initialize(QFlags<Qv2rayStartFlags> flags, IStorageProvider *storageProvider)
+    QV2RAYBASE_INITIALIZATION_FAILED_REASON Qv2rayBaseLibrary::Initialize(QFlags<Qv2rayStartFlags> flags, IConfigurationGenerator *gen, IStorageProvider *stor)
     {
         Q_ASSERT_X(m_instance == nullptr, "Qv2rayBaseLibrary", "m_instance is not null! Cannot construct another Qv2rayBaseLibrary when there's one existed");
         m_instance = this;
         Q_D(Qv2rayBaseLibrary);
-        d->storageProvider = storageProvider;
         d->startupFlags = flags;
+        if (stor)
+            d->storageProvider = stor;
+        else
+            d->storageProvider = new _private::Qv2rayBasePrivateStorageProvider;
+
+        if (gen)
+            d->configGenerator = gen;
+        else
+            d->configGenerator = new _private::Qv2rayBasePrivateConfigurationGenerator;
 
         // TODO load configurations
 
@@ -141,18 +155,12 @@ namespace Qv2rayBase
         return instance()->d_ptr->configuration;
     }
 
-    QString Qv2rayBaseLibrary::GetConfigPath()
-    {
-        return 0;
-        // return instance()->d_ptr->configurationPaths;
-    }
-
-    Plugins::PluginManagerCore *Qv2rayBaseLibrary::PluginManagerCore()
+    PluginManagerCore *Qv2rayBaseLibrary::PluginManagerCore()
     {
         return instance()->d_ptr->pluginCore;
     }
 
-    Profile::IConfigurationGenerator *Qv2rayBaseLibrary::ConfigurationGenerator()
+    IConfigurationGenerator *Qv2rayBaseLibrary::ConfigurationGenerator()
     {
         return instance()->d_ptr->configGenerator;
     }
@@ -162,12 +170,12 @@ namespace Qv2rayBase
         return instance()->d_ptr->storageProvider;
     }
 
-    Profile::ProfileManager *Qv2rayBaseLibrary::ProfileManager()
+    ProfileManager *Qv2rayBaseLibrary::ProfileManager()
     {
         return instance()->d_ptr->profileManager;
     }
 
-    Profile::KernelManager *Qv2rayBaseLibrary::KernelManager()
+    KernelManager *Qv2rayBaseLibrary::KernelManager()
     {
         return instance()->d_ptr->kernelManager;
     }
