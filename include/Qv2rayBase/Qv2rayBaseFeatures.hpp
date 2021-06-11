@@ -2,9 +2,17 @@
 
 // clang-format off
 
-#define QVFEATURE_subscriptions                  -1
-#define QVFEATURE_statistics                     -1
-#define QVFEATURE_latency                        -1
+#ifndef QVFEATURE_subscriptions
+    #define QVFEATURE_subscriptions                  -1
+#endif
+
+#ifndef QVFEATURE_statistics
+    #define QVFEATURE_statistics                     -1
+#endif
+
+#ifndef QVFEATURE_latency
+    #define QVFEATURE_latency                        -1
+#endif
 
 // clang-format on
 

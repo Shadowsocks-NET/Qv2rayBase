@@ -18,8 +18,8 @@ include(GenerateExportHeader)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-option(USE_SYSTEM_QJSONSTRUCT ON)
-option(USE_SYSTEM_PLUGIN_INTERFACE ON)
+set(USE_SYSTEM_QJSONSTRUCT OFF)
+set(USE_SYSTEM_PLUGIN_INTERFACE OFF)
 
 if(USE_SYSTEM_QJSONSTRUCT)
     find_package(QJsonStruct REQUIRED)
@@ -67,6 +67,20 @@ endif()
 option(BUILD_SHARED_LIBS "Build Qv2ray baselib as shared library" ON)
 
 find_package(Qt6 COMPONENTS Core Network REQUIRED)
+
+macro(Qv2rayBase_Features feat)
+    # WARNING TODO Change to configure_file
+    # option(QV2RAY_FEATURE_${feat} ON)
+    if(QV2RAY_FEATURE_${feat})
+        add_compile_definitions(QVFEATURE_${feat}=1)
+    else()
+        add_compile_definitions(QVFEATURE_${feat}=-1)
+    endif()
+endmacro()
+
+Qv2rayBase_Features(subscriptions)
+Qv2rayBase_Features(latency)
+Qv2rayBase_Features(statistics)
 
 set(BASELIB_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
