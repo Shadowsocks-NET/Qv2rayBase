@@ -71,7 +71,7 @@ find_package(Qt6 COMPONENTS Core Network REQUIRED)
 macro(Qv2rayBase_Features feat)
     # WARNING TODO Change to configure_file
     # option(QV2RAY_FEATURE_${feat} ON)
-    if(QV2RAY_FEATURE_${feat})
+    if(QVFEATURE_${feat})
         add_compile_definitions(QVFEATURE_${feat}=1)
     else()
         add_compile_definitions(QVFEATURE_${feat}=-1)
