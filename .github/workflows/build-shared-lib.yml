@@ -19,9 +19,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        FEAT_subscriptions: [ON, OFF]
-        FEAT_latency: [ON, OFF]
-        FEAT_statistics: [ON, OFF]
+        FEAT_subscriptions: [OFF]
+        FEAT_latency: [OFF]
+        FEAT_statistics: [OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows-MSVC",
