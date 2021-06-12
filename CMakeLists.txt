@@ -24,7 +24,7 @@ set(USE_SYSTEM_PLUGIN_INTERFACE OFF)
 if(USE_SYSTEM_PLUGIN_INTERFACE)
     find_package(QvPluginInterface REQUIRED)
 else()
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/3rdparty/QvPluginInterface)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/PluginInterface)
     install(TARGETS QvPluginInterface)
 endif()
 
@@ -60,19 +60,6 @@ endif()
 option(BUILD_SHARED_LIBS "Build Qv2ray baselib as shared library" ON)
 
 find_package(Qt6 COMPONENTS Core Network REQUIRED)
-
-macro(Qv2rayBase_Features feat)
-    # WARNING TODO Change to configure_file
-    # option(QV2RAY_FEATURE_${feat} ON)
-    if(QVFEATURE_${feat})
-        add_compile_definitions(QVFEATURE_${feat}=1)
-    else()
-        add_compile_definitions(QVFEATURE_${feat}=-1)
-    endif()
-endmacro()
-
-Qv2rayBase_Features(latency)
-Qv2rayBase_Features(statistics)
 
 set(BASELIB_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
@@ -142,7 +129,7 @@ target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_PATCH=${PR
 target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_TWEAK=${PROJECT_VERSION_TWEAK})
 target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${PROJECT_VERSION}")
 
-set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
+set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION 0)
 set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)

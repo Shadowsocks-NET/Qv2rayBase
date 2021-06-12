@@ -36,6 +36,13 @@ namespace Qv2rayBase::_private
 
       private:
         Q_DECLARE_PRIVATE(Qv2rayBasePrivateStorageProvider)
+
+        // IStorageProvider interface
+      public:
+        virtual void EnsureSaved() override;
+        virtual void StoreConnections(const QHash<ConnectionId, ConnectionObject> &) override;
+        virtual void StoreGroups(const QHash<GroupId, GroupObject> &) override;
+        virtual void StoreRoutings(const QHash<RoutingId, RoutingObject> &) override;
     };
 
 } // namespace Qv2rayBase::_private

@@ -14,6 +14,7 @@
 #define CheckValidId(id, returnValue)                                                                                                                                    \
     if (!IsValidId(id))                                                                                                                                                  \
         return returnValue;
+
 #define nothing
 
 namespace Qv2rayBase::Profile
@@ -69,7 +70,7 @@ namespace Qv2rayBase::Profile
         {
             auto id = it->first;
             auto conn = it->second;
-            auto const &connectionObject = d->connections[id];
+            const auto &connectionObject = d->connections[id];
             if (connectionObject._group_ref == 0)
             {
                 d->connections.remove(id);
@@ -142,17 +143,19 @@ namespace Qv2rayBase::Profile
 #if QV2RAYBASE_FEATURE(statistics)
     void ProfileManager::ClearGroupUsage(const GroupId &id)
     {
-        for (const auto &conn : *groups[id].connections)
+        Q_D(ProfileManager);
+        for (const auto &conn : d->groups[id].connections)
         {
             ClearConnectionUsage({ conn, id });
         }
     }
     void ProfileManager::ClearConnectionUsage(const ConnectionGroupPair &id)
     {
+        Q_D(ProfileManager);
         CheckValidId(id.connectionId, nothing);
-        d->connections[id.connectionId].stats->Clear();
+        d->connections[id.connectionId].statistics.clear();
         emit OnStatsAvailable(id, {});
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ GetDisplayName(id.connectionId), 0, 0, 0, 0 });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ id.connectionId, {} });
         return;
     }
 #endif
@@ -174,7 +177,7 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(id, nothing);
         emit OnConnectionRenamed(id, d->connections[id].name, newName);
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Renamed, newName, d->connections[id].name });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Renamed, NullGroupId, id, d->connections[id].name });
         d->connections[id].name = newName;
         SaveConnectionConfig();
     }
@@ -196,7 +199,7 @@ namespace Qv2rayBase::Profile
         }
 
         // Emit everything first then clear the connection map.
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::RemovedFromGroup, GetDisplayName(id), "" });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::RemovedFromGroup, gid, id, "" });
         emit OnConnectionRemovedFromGroup({ id, gid });
 
         if (d->connections[id]._group_ref <= 0)
@@ -220,7 +223,7 @@ namespace Qv2rayBase::Profile
         }
         d->groups[newGroupId].connections.append(id);
         d->connections[id]._group_ref++;
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::LinkedWithGroup, d->connections[id].name, "" });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::LinkedWithGroup, newGroupId, id, d->connections[id].name });
         emit OnConnectionLinkedWithGroup({ id, newGroupId });
         return true;
     }
@@ -270,7 +273,7 @@ namespace Qv2rayBase::Profile
             MoveToGroup(conn, id, DefaultGroupId);
         }
 
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::FullyRemoved, d->groups[id].name, "" });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::FullyRemoved, id, NullConnectionId, d->groups[id].name });
         d->groups.remove(id);
         SaveConnectionConfig();
         emit OnGroupDeleted(id, list);
@@ -336,7 +339,7 @@ namespace Qv2rayBase::Profile
         d->connectionRootCache[id] = root;
         Qv2rayBaseLibrary::StorageProvider()->StoreConnection(id, root);
         emit OnConnectionModified(id);
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Edited, d->connections[id].name, "" });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Edited, NullGroupId, id, d->connections[id].name });
     }
 
     const GroupId ProfileManager::CreateGroup(const QString &displayName)
@@ -345,7 +348,7 @@ namespace Qv2rayBase::Profile
         GroupId id(GenerateRandomString());
         d->groups[id].name = displayName;
         d->groups[id].created = system_clock::now();
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Created, displayName, "" });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Created, id, NullConnectionId, displayName });
         emit OnGroupCreated(id, displayName);
         SaveConnectionConfig();
         return id;
@@ -366,7 +369,7 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(id, tr("Group does not exist"));
         emit OnGroupRenamed(id, d->groups[id].name, newName);
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Renamed, newName, d->groups[id].name });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Renamed, id, NullConnectionId, d->groups[id].name });
         d->groups[id].name = newName;
         return {};
     }
@@ -617,42 +620,38 @@ namespace Qv2rayBase::Profile
 #endif
 
 #if QV2RAYBASE_FEATURE(statistics)
-    void ProfileManager::p_OnStatsDataArrived(const ConnectionGroupPair &id, const QMap<StatisticsType, QvStatsSpeed> &data)
+    void ProfileManager::p_OnStatsDataArrived(const ConnectionGroupPair &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speedData)
     {
         Q_D(ProfileManager);
-        if (id.isEmpty())
+        if (id.isNull())
             return;
 
         const auto &cid = id.connectionId;
-        QMap<StatisticsType, QvStatsSpeedData> result;
-        for (const auto t : data.keys())
+        QMap<StatisticsObject::StatisticsType, quint64> result;
+        for (const auto t : speedData.keys())
         {
-            const auto &stat = data[t];
-            d->connections[cid].stats->get(t).upLinkData += stat.first;
-            d->connections[cid].stats->get(t).downLinkData += stat.second;
-            result[t] = { stat, d->connections[cid].stats->get(t).toData() };
+            const auto &stat = speedData[t];
+            d->connections[cid].statistics[t].up += stat.up;
+            d->connections[cid].statistics[t].down += stat.down;
+            result[t] = {};
         }
 
-        emit OnStatsAvailable(id, result);
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ GetDisplayName(cid),                     //
-                                                                          result[CurrentStatAPIType].first.first,  //
-                                                                          result[CurrentStatAPIType].first.second, //
-                                                                          result[CurrentStatAPIType].second.first, //
-                                                                          result[CurrentStatAPIType].second.second });
+        emit OnStatsAvailable(id, speedData);
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ cid, d->connections[cid].statistics });
     }
 #endif
 
-    const ConnectionGroupPair ProfileManager::CreateConnection(const ProfileContent &root, const QString &displayName, const GroupId &groupId)
+    const ConnectionGroupPair ProfileManager::CreateConnection(const ProfileContent &root, const QString &name, const GroupId &groupId)
     {
         Q_D(ProfileManager);
-        QvLog() << "Creating new connection:" << displayName;
+        QvLog() << "Creating new connection:" << name;
         ConnectionId newId(GenerateRandomString());
         d->groups[groupId].connections << newId;
         d->connections[newId].created = system_clock::now();
-        d->connections[newId].name = displayName;
+        d->connections[newId].name = name;
         d->connections[newId]._group_ref = 1;
-        emit OnConnectionCreated({ newId, groupId }, displayName);
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Created, displayName, "" });
+        emit OnConnectionCreated({ newId, groupId }, name);
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Created, groupId, newId, name });
         UpdateConnection(newId, root);
         return { newId, groupId };
     }

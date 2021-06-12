@@ -27,10 +27,9 @@ namespace Qv2rayBase::Profile
 
 #if QV2RAYBASE_FEATURE(statistics)
       signals:
-        void OnStatsDataAvailable(const ConnectionGroupPair &id, const QMap<Qv2rayBase::models::StatisticsType, Qv2rayBase::models::QvStatsSpeed> &data);
+        void OnStatsDataAvailable(const ConnectionGroupPair &id, StatisticsObject::StatisticsType type, quint64 upspeed, quint64 downspeed);
       private slots:
-        void OnV2RayStatsDataRcvd_p(const QMap<Qv2rayBase::models::StatisticsType, Qv2rayBase::models::QvStatsSpeed> &data);
-        void OnPluginStatsDataRcvd_p(const long uploadSpeed, const long downloadSpeed);
+        void OnPluginStatsDataRcvd_p(const quint64 uploadSpeed, const quint64 downloadSpeed);
 #endif
 
       private slots:

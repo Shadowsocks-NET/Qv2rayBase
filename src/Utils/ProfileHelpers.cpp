@@ -9,20 +9,6 @@
 
 namespace Qv2rayBase::Utils
 {
-#if QV2RAYBASE_FEATURE(statistics)
-    const std::tuple<quint64, quint64> GetConnectionUsageAmount(const ConnectionId &id)
-    {
-        auto connection = ConnectionManager->GetConnectionMetaObject(id);
-        return { *connection.stats->get(CurrentStatAPIType).upLinkData, *connection.stats->get(CurrentStatAPIType).downLinkData };
-    }
-
-    uint64_t GetConnectionTotalData(const ConnectionId &id)
-    {
-        const auto &[a, b] = GetConnectionUsageAmount(id);
-        return a + b;
-    }
-#endif
-
 #if QV2RAYBASE_FEATURE(latency)
     int64_t GetConnectionLatency(const ConnectionId &id)
     {

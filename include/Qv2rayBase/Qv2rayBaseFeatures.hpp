@@ -1,13 +1,10 @@
 #pragma once
 
 // clang-format off
-
-#ifndef QVFEATURE_subscriptions
-    #define QVFEATURE_subscriptions                  1
-#endif
+    #define QVFEATURE_subscriptions 1
 
 #ifndef QVFEATURE_statistics
-    #define QVFEATURE_statistics                     -1
+    #define QVFEATURE_statistics                     1
 #endif
 
 #ifndef QVFEATURE_latency

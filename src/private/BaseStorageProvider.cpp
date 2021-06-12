@@ -240,4 +240,20 @@ namespace Qv2rayBase::_private
         return {};
     }
 
+    void Qv2rayBasePrivateStorageProvider::EnsureSaved()
+    {
+    }
+
+    void Qv2rayBasePrivateStorageProvider::StoreConnections(const QHash<ConnectionId, ConnectionObject> &)
+    {
+    }
+
+    void Qv2rayBasePrivateStorageProvider::StoreGroups(const QHash<GroupId, GroupObject> &)
+    {
+    }
+
+    void Qv2rayBasePrivateStorageProvider::StoreRoutings(const QHash<RoutingId, RoutingObject> &)
+    {
+    }
+
 } // namespace Qv2rayBase::_private

@@ -64,12 +64,12 @@ namespace Qv2rayBase::Profile
 
 #if QV2RAYBASE_FEATURE(statistics)
       public:
-        void ClearGroupUsage(const GroupId &id) override;
-        void ClearConnectionUsage(const ConnectionGroupPair &id) override;
+        void ClearGroupUsage(const GroupId &id);
+        void ClearConnectionUsage(const ConnectionGroupPair &id);
       private slots:
-        void p_OnStatsDataArrived(const ConnectionGroupPair &id, const QMap<Qv2rayBase::models::StatisticsType, Qv2rayBase::models::QvStatsSpeed> &data);
+        void p_OnStatsDataArrived(const ConnectionGroupPair &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speed);
       signals:
-        void OnStatsAvailable(const ConnectionGroupPair &id, const QMap<StatisticsType, QvStatsSpeedData> &data);
+        void OnStatsAvailable(const ConnectionGroupPair &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speed);
 #endif
 
 #if QV2RAYBASE_FEATURE(latency)

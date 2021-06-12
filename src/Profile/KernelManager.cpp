@@ -164,7 +164,7 @@ namespace Qv2rayBase::Profile
 
         d->current = id;
         emit OnConnected(id);
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Connected, GetDisplayName(id.connectionId), d->inboundInfo, d->outboundInfo });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Connected, id, d->inboundInfo, d->outboundInfo });
         return std::nullopt;
     }
 
@@ -211,7 +211,7 @@ namespace Qv2rayBase::Profile
             return;
         }
 
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Disconnecting, GetDisplayName(d->current.connectionId) });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Disconnecting, d->current });
 
         for (const auto &[kernel, kernelObject] : d->kernels)
         {
@@ -220,7 +220,7 @@ namespace Qv2rayBase::Profile
         }
 
         d->logPadding = 0;
-        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Disconnected, GetDisplayName(d->current.connectionId) });
+        Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Disconnected, d->current });
         emit OnDisconnected(d->current);
 
         d->current.clear();
@@ -228,17 +228,10 @@ namespace Qv2rayBase::Profile
     }
 
 #if QV2RAYBASE_FEATURE(statistics)
-    void KernelManager::OnV2RayStatsDataRcvd_p(const QMap<StatisticsType, QvStatsSpeed> &data)
+    void KernelManager::OnPluginStatsDataRcvd_p(const quint64 uploadSpeed, const quint64 downloadSpeed)
     {
-        if (isConnected)
-        {
-            emit OnStatsDataAvailable(currentId, data);
-        }
-    }
-
-    void KernelManager::OnPluginStatsDataRcvd_p(const long uploadSpeed, const long downloadSpeed)
-    {
-        OnV2RayStatsDataRcvd_p({ { API_OUTBOUND_PROXY, { uploadSpeed, downloadSpeed } } });
+        Q_D(KernelManager);
+        emit OnStatsDataAvailable(d->current, StatisticsObject::API_OUTBOUND_PROXY, uploadSpeed, downloadSpeed);
     }
 #endif
 } // namespace Qv2rayBase::Profile

@@ -21,11 +21,6 @@ namespace Qv2rayBase::Utils
     QV2RAYBASE_EXPORT int64_t GetConnectionLatency(const ConnectionId &id);
 #endif
 
-#if QV2RAYBASE_FEATURE(statistics)
-    QV2RAYBASE_EXPORT uint64_t GetConnectionTotalData(const ConnectionId &id);
-    QV2RAYBASE_EXPORT const std::tuple<quint64, quint64> GetConnectionUsageAmount(const ConnectionId &id);
-#endif
-
     QV2RAYBASE_EXPORT PluginIOBoundData GetInboundInfo(const InboundObject &in);
     QV2RAYBASE_EXPORT std::tuple<QString, QString, int> GetInboundInfoTuple(const InboundObject &in);
     QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetInboundsInfo(const ProfileContent &root);
