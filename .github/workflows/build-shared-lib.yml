@@ -14,14 +14,11 @@ jobs:
     env:
       CC: ${{ matrix.config.cc }}
       CXX: ${{ matrix.config.cxx }}
-    name: '${{ matrix.config.name }} S:${{ matrix.FEAT_subscriptions }} L:${{ matrix.FEAT_latency }} STAT:${{ matrix.FEAT_statistics }}' 
+    name: '${{ matrix.config.name }}'
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        FEAT_subscriptions: [OFF]
-        FEAT_latency: [OFF]
-        FEAT_statistics: [OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows-MSVC",
@@ -76,9 +73,6 @@ jobs:
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_INSTALL_PREFIX=installed \
-          -DQVFEATURE_subscriptions=${{ matrix.FEAT_subscriptions }} \
-          -DQVFEATURE_latency=${{ matrix.FEAT_latency }} \
-          -DQVFEATURE_statistics=${{ matrix.FEAT_statistics }} \
           -G${{ matrix.config.generator }} \
           ${{ matrix.config.extra_cmake_args }}
         cmake --build . --config Release --parallel
@@ -98,5 +92,5 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: Qv2rayBase-${{ matrix.config.artifact }}-S=${{ matrix.FEAT_subscriptions }}-L=${{ matrix.FEAT_latency }}-STAT=${{ matrix.FEAT_statistics }}
+        name: Qv2rayBase-${{ matrix.config.artifact }}
         path: build/installed
