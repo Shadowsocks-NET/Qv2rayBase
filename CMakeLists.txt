@@ -19,15 +19,7 @@ include(GenerateExportHeader)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-set(USE_SYSTEM_QJSONSTRUCT OFF)
 set(USE_SYSTEM_PLUGIN_INTERFACE OFF)
-
-if(USE_SYSTEM_QJSONSTRUCT)
-    find_package(QJsonStruct REQUIRED)
-else()
-    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/3rdparty/QJsonStruct)
-    install(TARGETS QJsonStruct)
-endif()
 
 if(USE_SYSTEM_PLUGIN_INTERFACE)
     find_package(QvPluginInterface REQUIRED)
@@ -79,7 +71,6 @@ macro(Qv2rayBase_Features feat)
     endif()
 endmacro()
 
-Qv2rayBase_Features(subscriptions)
 Qv2rayBase_Features(latency)
 Qv2rayBase_Features(statistics)
 
@@ -128,7 +119,7 @@ source_group(Plugin REGULAR_EXPRESSION "/Plugin/")
 source_group(Profile REGULAR_EXPRESSION "/Profile/")
 source_group(Common REGULAR_EXPRESSION "/Common/")
 
-add_library(Qv2rayBase ${BASELIB_SOURCES} ${BASELIB_HEADERS} #[[${API_GRPC_SRCS} ${API_GRPC_HDRS} ${API_PROTO_HDRS} ${API_PROTO_SRCS}]])
+add_library(Qv2rayBase ${BASELIB_SOURCES} ${BASELIB_HEADERS})
 add_library(Qv2ray::Qv2rayBase ALIAS Qv2rayBase)
 
 target_include_directories(Qv2rayBase
@@ -143,7 +134,6 @@ target_link_libraries(Qv2rayBase
     PUBLIC
         Qt::Core
         Qt::Network
-        Qv2ray::QJsonStruct
         Qv2ray::QvPluginInterface)
 
 target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
@@ -154,6 +144,12 @@ target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${PROJECT
 
 set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
+
+if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  if(UNIX AND NOT APPLE)
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-z,defs")
+  endif()
+endif()
 
 generate_export_header(Qv2rayBase EXPORT_FILE_NAME ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBase_export.h)
 

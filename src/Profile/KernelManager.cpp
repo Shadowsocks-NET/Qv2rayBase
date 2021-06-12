@@ -5,8 +5,6 @@
 #include "Models/Settings.hpp"
 #include "Profile/Generator.hpp"
 
-#include <QJsonIO.hpp>
-
 #define QV_MODULE_NAME "KernelHandler"
 
 namespace Qv2rayBase::Profile
@@ -94,7 +92,7 @@ namespace Qv2rayBase::Profile
             if (kid.isNull())
             {
                 // Expected a plugin, but found nothing
-                LOG("Outbound protocol " + outProtocol + " is not a registered plugin outbound.");
+                QvLog() << "Outbound protocol" << outbound.protocol << "is not a registered plugin outbound.";
                 return tr("Cannot find a kernel for outbound protocol: ") + outbound.protocol;
             }
 
@@ -108,7 +106,7 @@ namespace Qv2rayBase::Profile
                 // inboundSettings[KERNEL_SOCKS_UDP_ENABLED] = *GlobalConfig.inboundConfig->socksSettings->enableUDP;
                 // inboundSettings[KERNEL_SOCKS_LOCAL_ADDRESS] = *GlobalConfig.inboundConfig->socksSettings->localIP;
                 kernelOption[KERNEL_LISTEN_ADDRESS] = "127.0.0.1";
-                LOG("Sending connection settings to kernel.");
+                QvLog() << "Sending connection settings to kernel.";
                 pkernel->SetConnectionSettings(kernelOption, outbound.settings);
             }
 
@@ -123,20 +121,20 @@ namespace Qv2rayBase::Profile
             pluginPort++;
         }
 
-        LOG("Applying new outbound settings.");
+        QvLog() << "Applying new outbound settings.";
         fullProfile.outbounds = processedOutbounds;
 
         bool hasAllKernelStarted = true;
-        for (auto &[_, kernel] : d->kernels)
+        for (auto &[protocol, kernel] : d->kernels)
         {
-            LOG("Starting kernel for protocol: " + outboundProtocol);
+            QvLog() << "Starting kernel for protocol:" << protocol;
             bool status = kernel->Start();
             connect(kernel.get(), SIGNAL(OnCrashed), this, SLOT(OnKernelCrashed_p), Qt::QueuedConnection);
             connect(kernel.get(), SIGNAL(OnKernelLog), this, SLOT(OnPluginKernelLog_p), Qt::QueuedConnection);
             hasAllKernelStarted &= status;
             if (!status)
             {
-                LOG("Plugin Kernel: " + outboundProtocol + " failed to start.");
+                QvLog() << "Plugin Kernel:" << protocol << "failed to start.";
                 break;
             }
         }
@@ -209,7 +207,7 @@ namespace Qv2rayBase::Profile
 
         if (d->kernels.empty())
         {
-            LOG("Cannot disconnect when there's nothing connected.");
+            QvLog() << "Cannot disconnect when there's nothing connected.";
             return;
         }
 
@@ -217,7 +215,7 @@ namespace Qv2rayBase::Profile
 
         for (const auto &[kernel, kernelObject] : d->kernels)
         {
-            LOG("Stopping plugin kernel: " + kernel);
+            QvLog() << "Stopping plugin kernel:" << kernel;
             kernelObject->Stop();
         }
 

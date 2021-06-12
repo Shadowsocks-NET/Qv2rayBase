@@ -3,7 +3,7 @@
 // clang-format off
 
 #ifndef QVFEATURE_subscriptions
-    #define QVFEATURE_subscriptions                  -1
+    #define QVFEATURE_subscriptions                  1
 #endif
 
 #ifndef QVFEATURE_statistics

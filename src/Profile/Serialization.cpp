@@ -6,8 +6,6 @@
 #include "Profile/ProfileManager.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 
-#include <QJsonIO.hpp>
-
 namespace Qv2rayBase::Profile
 {
     std::optional<std::pair<QString, ProfileContent>> ConvertConfigFromString(const QString &link)

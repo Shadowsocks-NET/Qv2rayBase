@@ -15,7 +15,7 @@ namespace Qv2rayBase::Utils
         ~NetworkRequestHelper() = default;
 
       public:
-        static void AsyncHttpGet(const QString &url, std::function<void(const QByteArray &)> funcPtr);
+        static void AsyncHttpGet(const QString &url, QObject *context, std::function<void(const QByteArray &)> funcPtr);
         static QByteArray HttpGet(const QUrl &url);
 
       private:

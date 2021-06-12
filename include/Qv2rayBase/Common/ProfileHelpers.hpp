@@ -1,9 +1,7 @@
 #pragma once
 #include "Qv2rayBaseFeatures.hpp"
+#include "Qv2rayBase_export.h"
 #include "QvPluginInterface.hpp"
-#include "qv2raybase_export.h"
-
-//#define CurrentStatAPIType (*GlobalConfig.uiConfig->graphConfig->useOutboundStats ? API_OUTBOUND_PROXY : API_INBOUND)
 
 namespace Qv2rayBase::Utils
 {

@@ -39,25 +39,6 @@ namespace Qv2rayBase::Models
         QVariantMap extra_options;
     };
 
-#if QV2RAYBASE_FEATURE(subscriptions)
-    enum SubscriptionFilterRelation
-    {
-        RELATION_AND = 0,
-        RELATION_OR = 1
-    };
-
-    struct SubscriptionConfigObject
-    {
-        QString address;
-        QString type = "sip008";
-        float updateInterval = 10;
-        QList<QString> includeKeywords;
-        QList<QString> excludeKeywords;
-        SubscriptionFilterRelation includeRelation = RELATION_OR;
-        SubscriptionFilterRelation excludeRelation = RELATION_AND;
-    };
-#endif
-
 #if QV2RAYBASE_FEATURE(statistics)
     enum StatisticsType
     {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Qv2rayBaseLibrary.hpp"
-
 #include <QDir>
 #include <QFileInfo>
 #include <QHostAddress>
@@ -13,7 +11,7 @@
 
 namespace Qv2rayBase::Utils
 {
-    Q_ALWAYS_INLINE std::optional<QString> VerifyJsonString(const QString &source)
+    inline std::optional<QString> VerifyJsonString(const QString &source)
     {
         QJsonParseError error;
         QJsonDocument doc = QJsonDocument::fromJson(source.toUtf8(), &error);
@@ -21,7 +19,7 @@ namespace Qv2rayBase::Utils
         return error.error == QJsonParseError::NoError ? std::nullopt : std::optional{ error.errorString() };
     }
 
-    Q_ALWAYS_INLINE QString JsonToString(const QJsonValue &json, QJsonDocument::JsonFormat format = QJsonDocument::Indented)
+    inline QString JsonToString(const QJsonValue &json, QJsonDocument::JsonFormat format = QJsonDocument::Indented)
     {
         if (json.isArray())
             return JsonToString(json.toArray(), format);
@@ -30,21 +28,21 @@ namespace Qv2rayBase::Utils
         return json.toVariant().toString();
     }
 
-    Q_ALWAYS_INLINE QString JsonToString(const QJsonObject &json, QJsonDocument::JsonFormat format = QJsonDocument::Indented)
+    inline QString JsonToString(const QJsonObject &json, QJsonDocument::JsonFormat format = QJsonDocument::Indented)
     {
         QJsonDocument doc;
         doc.setObject(json);
         return doc.toJson(format);
     }
 
-    Q_ALWAYS_INLINE QString JsonToString(const QJsonArray &array, QJsonDocument::JsonFormat format = QJsonDocument::Indented)
+    inline QString JsonToString(const QJsonArray &array, QJsonDocument::JsonFormat format = QJsonDocument::Indented)
     {
         QJsonDocument doc;
         doc.setArray(array);
         return doc.toJson(format);
     }
 
-    Q_ALWAYS_INLINE QByteArray ReadFile(const QString &filePath)
+    inline QByteArray ReadFile(const QString &filePath)
     {
         QFile f(filePath);
         f.open(QFile::ReadOnly);
@@ -53,7 +51,7 @@ namespace Qv2rayBase::Utils
         return data;
     }
 
-    Q_ALWAYS_INLINE bool WriteFile(const QByteArray &content, const QString &targetpath)
+    inline bool WriteFile(const QByteArray &content, const QString &targetpath)
     {
         bool override = false;
         {
@@ -69,13 +67,13 @@ namespace Qv2rayBase::Utils
         return override;
     }
 
-    Q_ALWAYS_INLINE QJsonObject JsonFromString(const QString &string)
+    inline QJsonObject JsonFromString(const QString &string)
     {
         QJsonDocument doc = QJsonDocument::fromJson(string.toUtf8());
         return doc.object();
     }
 
-    Q_ALWAYS_INLINE QString GenerateRandomString(int len = 12)
+    inline QString GenerateRandomString(int len = 12)
     {
         static const QString possibleCharacters("abcdefghijklmnopqrstuvwxyz");
         QString randomString;
@@ -91,27 +89,27 @@ namespace Qv2rayBase::Utils
         return randomString.toLower();
     }
 
-    Q_ALWAYS_INLINE QString Base64Encode(QString string)
+    inline QString Base64Encode(QString string)
     {
         return string.toUtf8().toBase64();
     }
 
-    Q_ALWAYS_INLINE QString Base64Decode(QString string)
+    inline QString Base64Decode(QString string)
     {
         return QByteArray::fromBase64(string.toUtf8());
     }
 
-    Q_ALWAYS_INLINE QString SafeBase64Encode(QString string)
+    inline QString SafeBase64Encode(QString string)
     {
         return Base64Encode(string).replace(QChar('+'), QChar('-')).replace(QChar('/'), QChar('_'));
     }
 
-    Q_ALWAYS_INLINE QString SafeBase64Decode(QString string)
+    inline QString SafeBase64Decode(QString string)
     {
         return Base64Decode(string.replace(QChar('-'), QChar('+')).replace(QChar('_'), QChar('/')));
     }
 
-    Q_ALWAYS_INLINE QString FormatBytes(const int64_t b)
+    inline QString FormatBytes(const int64_t b)
     {
         const static char *sizes[5] = { "B", "KB", "MB", "GB", "TB" };
         auto _bytes = b;
@@ -126,32 +124,32 @@ namespace Qv2rayBase::Utils
         return QString(str) + " " + QString(sizes[i]);
     }
 
-    Q_ALWAYS_INLINE QStringList SplitLines(const QString &_string)
+    inline QStringList SplitLines(const QString &_string)
     {
         return _string.split(QRegularExpression{ "[\r\n]" }, Qt::SkipEmptyParts);
     }
 
-    Q_ALWAYS_INLINE QString TimeToString(const time_t &t)
+    inline QString TimeToString(const time_t &t)
     {
         return QDateTime::fromSecsSinceEpoch(t).toString();
     }
 
-    Q_ALWAYS_INLINE bool IsIPv4Address(const QString &addr)
+    inline bool IsIPv4Address(const QString &addr)
     {
         return QHostAddress(addr).protocol() == QAbstractSocket::IPv4Protocol;
     }
 
-    Q_ALWAYS_INLINE bool IsIPv6Address(const QString &addr)
+    inline bool IsIPv6Address(const QString &addr)
     {
         return QHostAddress(addr).protocol() == QAbstractSocket::IPv6Protocol;
     }
 
-    Q_ALWAYS_INLINE bool IsValidIPAddress(const QString &addr)
+    inline bool IsValidIPAddress(const QString &addr)
     {
         return !addr.isEmpty() && (IsIPv4Address(addr) || IsIPv6Address(addr));
     }
 
-    Q_ALWAYS_INLINE bool IsValidV2RayDNSServer(const QString &addr)
+    inline bool IsValidV2RayDNSServer(const QString &addr)
     {
         return IsIPv4Address(addr)                  //
                || IsIPv6Address(addr)               //
@@ -162,3 +160,5 @@ namespace Qv2rayBase::Utils
                || addr == "fakedns";
     }
 } // namespace Qv2rayBase::Utils
+
+using namespace Qv2rayBase::Utils;

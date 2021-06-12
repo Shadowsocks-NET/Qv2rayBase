@@ -2,6 +2,8 @@
 
 #include "Common/Utils.hpp"
 #include "Connections/ConnectionsBase.hpp"
+#include "Qv2rayBaseFeatures.hpp"
+#include "Qv2rayBase_export.h"
 
 namespace Qv2rayBase::Profile
 {
@@ -53,13 +55,7 @@ namespace Qv2rayBase::Profile
         void IgnoreSubscriptionUpdate(const GroupId &group);
         void UpdateSubscriptionAsync(const GroupId &id);
         bool UpdateSubscription(const GroupId &id);
-        bool SetSubscriptionData(const GroupId &id, std::optional<bool> isSubscription = std::nullopt,
-                                 const std::optional<QString> &address = std::nullopt, std::optional<float> updateInterval = std::nullopt);
-        bool SetSubscriptionType(const GroupId &id, const QString &type);
-        bool SetSubscriptionIncludeKeywords(const GroupId &id, const QStringList &Keywords);
-        bool SetSubscriptionExcludeKeywords(const GroupId &id, const QStringList &Keywords);
-        bool SetSubscriptionIncludeRelation(const GroupId &id, SubscriptionFilterRelation relation);
-        bool SetSubscriptionExcludeRelation(const GroupId &id, SubscriptionFilterRelation relation);
+        void SetSubscriptionData(const GroupId &id, const SubscriptionConfigObject &config);
       signals:
         void OnSubscriptionAsyncUpdateFinished(const GroupId &id);
       private slots:
@@ -108,6 +104,7 @@ namespace Qv2rayBase::Profile
         void p_OnKernelCrashed(const ConnectionGroupPair &id, const QString &errMessage);
 
       private:
+        QScopedPointer<ProfileManagerPrivate> d_ptr;
         Q_DECLARE_PRIVATE(ProfileManager)
     };
 } // namespace Qv2rayBase::Profile

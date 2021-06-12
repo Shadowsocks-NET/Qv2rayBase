@@ -1,6 +1,3 @@
-[submodule "3rdparty/QJsonStruct"]
-	path = 3rdparty/QJsonStruct
-	url = git@github.com:moodyhunter/QJsonStruct.git
 [submodule "3rdparty/QvPluginInterface"]
 	path = 3rdparty/QvPluginInterface
 	url = git@github.com:moodyhunter/QvPlugin-Interface.git

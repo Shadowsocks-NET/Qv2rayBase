@@ -6,13 +6,18 @@
 
 namespace Qv2rayBase
 {
+    struct StorageContext
+    {
+        bool isDebug;
+    };
+
     class IStorageProvider
     {
       public:
         explicit IStorageProvider() = default;
         virtual ~IStorageProvider() = default;
 
-        virtual bool LookupConfigurations() = 0;
+        virtual bool LookupConfigurations(StorageContext) = 0;
 
         virtual QStringList GetAssetsPath(const QString &) = 0;
 

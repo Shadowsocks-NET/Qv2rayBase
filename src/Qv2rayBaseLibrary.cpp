@@ -75,6 +75,7 @@ namespace Qv2rayBase
     {
         qInfo() << "Qv2ray Base Library" << QV2RAY_BASELIB_VERSION << "on" << QSysInfo::prettyProductName() << QSysInfo::currentCpuArchitecture();
         qDebug() << "Qv2ray Start Time:" << QTime::currentTime().msecsSinceStartOfDay();
+        d_ptr.reset(new Qv2rayBaseLibraryPrivate);
     }
 
     Qv2rayBaseLibrary::~Qv2rayBaseLibrary()

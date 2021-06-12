@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Qv2rayBase_export.h"
 #include "QvPluginInterface.hpp"
-#include "qv2raybase_export.h"
 
 #include <QObject>
 

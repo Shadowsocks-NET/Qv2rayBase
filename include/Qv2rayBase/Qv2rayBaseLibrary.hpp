@@ -4,30 +4,19 @@
 #include "Qv2rayBase_export.h"
 
 #include <QtCore>
+#include <QtDebug>
 
 // Base folder suffix.
 #ifdef QT_DEBUG
-#define QV2RAY_CONFIG_DIR_SUFFIX "_debug/"
 #define _BOMB_ (static_cast<QObject *>(nullptr)->event(nullptr))
 #else
-#define QV2RAY_CONFIG_DIR_SUFFIX "/"
 #define _BOMB_
 #endif
 
 #define NEWLINE "\n"
 
-// constexpr auto OUTBOUND_TAG_BLACKHOLE = "BLACKHOLE";
-// constexpr auto OUTBOUND_TAG_DIRECT = "DIRECT";
-// constexpr auto OUTBOUND_TAG_PROXY = "PROXY";
-// constexpr auto OUTBOUND_TAG_FORWARD_PROXY = "QV2RAY_FORWARD_PROXY";
-
-// constexpr auto API_TAG_DEFAULT = "QV2RAY_API";
-// constexpr auto API_TAG_INBOUND = "QV2RAY_API_INBOUND";
-
-// constexpr auto QV2RAY_USE_FPROXY_KEY = "_QV2RAY_USE_GLOBAL_FORWARD_PROXY_";
-
-#define DEBUG(...)
-#define LOG(...)
+#define QvLog() qInfo() << QV_MODULE_NAME << ":"
+#define QvDebug() qDebug() << QV_MODULE_NAME << ":"
 
 namespace Qv2rayBase
 {

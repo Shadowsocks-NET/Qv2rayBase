@@ -14,7 +14,7 @@ namespace Qv2rayBase::Utils
 {
     void NetworkRequestHelper::setHeader(QNetworkRequest &request, const QByteArray &key, const QByteArray &value)
     {
-        DEBUG("Adding HTTP request header: " + key + ":" + value);
+        QvDebug() << "Adding HTTP request header:" << key << ":" << value;
         request.setRawHeader(key, value);
     }
 
@@ -25,7 +25,7 @@ namespace Qv2rayBase::Utils
         {
             case Models::NetworkProxyConfig::PROXY_NONE:
             {
-                DEBUG("Get without proxy.");
+                QvDebug() << "Get without proxy.";
                 accessManager.setProxy(QNetworkProxy(QNetworkProxy::ProxyType::NoProxy));
                 break;
             }
@@ -71,24 +71,22 @@ namespace Qv2rayBase::Utils
         }
         //
         // Data or timeout?
-        LOG(_reply->errorString());
+        QvLog() << "QNetworkReply:" << _reply->errorString();
         auto data = _reply->readAll();
         return data;
     }
 
-    void NetworkRequestHelper::AsyncHttpGet(const QString &url, std::function<void(const QByteArray &)> funcPtr)
+    void NetworkRequestHelper::AsyncHttpGet(const QString &url, QObject *context, std::function<void(const QByteArray &)> funcPtr)
     {
         QNetworkRequest request;
         request.setUrl(url);
         auto accessManagerPtr = new QNetworkAccessManager();
         setAccessManagerAttributes(request, *accessManagerPtr);
         auto reply = accessManagerPtr->get(request);
-        QObject::connect(reply, &QNetworkReply::finished,
+        QObject::connect(reply, &QNetworkReply::finished, context,
                          [=]()
                          {
-                             if (reply->error() != QNetworkReply::NoError)
-                                 LOG("Network error: " + QString(QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error())));
-
+                             QvLog() << QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error());
                              funcPtr(reply->readAll());
                              accessManagerPtr->deleteLater();
                          });

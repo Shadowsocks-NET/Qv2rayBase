@@ -1,7 +1,7 @@
 #pragma once
 #include "Qv2rayBaseFeatures.hpp"
+#include "Qv2rayBase_export.h"
 #include "QvPluginInterface.hpp"
-#include "qv2raybase_export.h"
 
 namespace Qv2rayBase::Plugins
 {
@@ -39,8 +39,8 @@ namespace Qv2rayBase::Plugins
 
 #if QV2RAYBASE_FEATURE(subscriptions)
         // Subscription Adapter API
-        std::optional<std::shared_ptr<Qv2rayPlugin::subscription::SubscriptionDecoder>> Subscription_QueryType(const QString &type) const;
-        QList<std::pair<const QvPluginInfo *, Qv2rayPlugin::subscription::SubscriptionInfoObject>> Subscription_GetAllAdapters() const;
+        std::optional<std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionDecoder>> Subscription_QueryType(const QString &type) const;
+        QList<std::pair<const PluginInfo *, Qv2rayPlugin::Subscription::SubscriptionInfoObject>> Subscription_GetAllAdapters() const;
 #endif
 
       private:
