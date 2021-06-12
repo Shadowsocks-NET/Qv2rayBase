@@ -1,5 +1,6 @@
 cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.14)
+
 project(Qv2ray-Base
     VERSION 3.0.0.0
     LANGUAGES CXX
@@ -44,10 +45,10 @@ if(WIN32)
         NAME               "Qv2ray Base Library"
         BUNDLE             "Qv2ray Project Family"
         ICON               "${CMAKE_CURRENT_LIST_DIR}/assets/qv2ray.ico"
-        VERSION_MAJOR      ${CMAKE_PROJECT_VERSION_MAJOR}
-        VERSION_MINOR      ${CMAKE_PROJECT_VERSION_MINOR}
-        VERSION_PATCH      ${CMAKE_PROJECT_VERSION_PATCH}
-        VERSION_REVISION   ${CMAKE_PROJECT_VERSION_TWEAK}
+        VERSION_MAJOR      ${PROJECT_VERSION_MAJOR}
+        VERSION_MINOR      ${PROJECT_VERSION_MINOR}
+        VERSION_PATCH      ${PROJECT_VERSION_PATCH}
+        VERSION_REVISION   ${PROJECT_VERSION_TWEAK}
         COMPANY_NAME       "Qv2ray Workgroup"
         COMPANY_COPYRIGHT  "Qv2ray Workgroup 2021"
         FILE_DESCRIPTION   "Qv2ray Base Library"
@@ -145,16 +146,16 @@ target_link_libraries(Qv2rayBase
         Qv2ray::QJsonStruct
         Qv2ray::QvPluginInterface)
 
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_TWEAK=${CMAKE_PROJECT_VERSION_TWEAK})
-target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${CMAKE_PROJECT_VERSION}")
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_MINOR=${PROJECT_VERSION_MINOR})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_PATCH=${PROJECT_VERSION_PATCH})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION_TWEAK=${PROJECT_VERSION_TWEAK})
+target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${PROJECT_VERSION}")
 
-set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${CMAKE_PROJECT_VERSION_MAJOR})
+set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
-generate_export_header(Qv2rayBase)
+generate_export_header(Qv2rayBase EXPORT_FILE_NAME ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBase_export.h)
 
 configure_package_config_file(cmake/Qv2rayBase.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake

@@ -2,6 +2,11 @@
 
 namespace Qv2rayBase::_private
 {
+    bool Qv2rayBasePrivateStorageProvider::LookupConfigurations()
+    {
+        return false;
+    }
+
     QJsonObject Qv2rayBasePrivateStorageProvider::GetBaseConfiguration()
     {
         return {};
@@ -22,10 +27,9 @@ namespace Qv2rayBase::_private
         return {};
     }
 
-    ProfileContent Qv2rayBasePrivateStorageProvider::LoadConnection(const ConnectionId &)
+    ProfileContent Qv2rayBasePrivateStorageProvider::GetConnectionContent(const ConnectionId &)
     {
-        ProfileContent p;
-        return p;
+        return {};
     }
 
     bool Qv2rayBasePrivateStorageProvider::StoreConnection(const ConnectionId &, ProfileContent)
@@ -51,5 +55,15 @@ namespace Qv2rayBase::_private
     void Qv2rayBasePrivateStorageProvider::SetPluginSettings(const PluginId &pid, const QJsonObject &obj)
     {
         return;
+    }
+
+    QStringList Qv2rayBasePrivateStorageProvider::GetAssetsPath(const QString &)
+    {
+        return {};
+    }
+
+    bool Qv2rayBasePrivateStorageProvider::StoreBaseConfiguration(const QJsonObject &)
+    {
+        return {};
     }
 } // namespace Qv2rayBase::_private

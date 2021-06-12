@@ -77,7 +77,7 @@ namespace Qv2rayBase::Profile
             }
             else
             {
-                d->connectionRootCache[id] = Qv2rayBaseLibrary::StorageProvider()->LoadConnection(id);
+                d->connectionRootCache[id] = Qv2rayBaseLibrary::StorageProvider()->GetConnectionContent(id);
                 DEBUG("Loaded connection id: " + id.toString() + " into cache.");
             }
         }

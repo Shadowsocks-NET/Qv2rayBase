@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Qv2rayBaseFeatures.hpp"
-#include "qv2raybase_export.h"
+#include "Qv2rayBase_export.h"
 
 #include <QtCore>
 
@@ -56,8 +56,6 @@ namespace Qv2rayBase
 
     enum Qv2rayStartFlags
     {
-        NO_API,
-        NO_AUTOMATIC_CONNECTION,
         NO_PLUGINS,
     };
     Q_ENUM_NS(Qv2rayStartFlags)
@@ -70,7 +68,7 @@ namespace Qv2rayBase
     class QV2RAYBASE_EXPORT Qv2rayBaseLibrary
     {
       public:
-        enum MessageOpt
+        enum class MessageOpt
         {
             // clang-format off
             OK,     Cancel,
@@ -127,7 +125,7 @@ namespace Qv2rayBase
         /// \param text The content of message
         /// \param options The possible options to the user
         ///
-        static MessageOpt Ask(const QString &title, const QString &text, const QList<MessageOpt> &options = { Yes, No });
+        static MessageOpt Ask(const QString &title, const QString &text, const QList<MessageOpt> &options = { MessageOpt::Yes, MessageOpt::No });
 
         ///
         /// \brief OpenURL Opens a URL in external app
@@ -176,10 +174,22 @@ namespace Qv2rayBase
         virtual void p_MessageBoxInfo(const QString &title, const QString &text) = 0;
         virtual MessageOpt p_MessageBoxAsk(const QString &title, const QString &text, const QList<MessageOpt> &options) = 0;
         virtual void p_OpenURL(const QUrl &url) = 0;
-        virtual QStringList p_ExtraAssetsPaths(const QString &dirname) = 0;
 
       private:
         Q_DECLARE_PRIVATE_D(d_ptr, Qv2rayBaseLibrary)
         QScopedPointer<Qv2rayBaseLibraryPrivate> d_ptr;
     };
+
 } // namespace Qv2rayBase
+
+// clang-format off
+#define QvBaselib                           Qv2rayBase::Qv2rayBaseLibrary::instance()
+#if 0
+    #define QvKernelManager                 Qv2rayBase::Qv2rayBaseLibrary::KernelManager()
+    #define QvProfileManager                Qv2rayBase::Qv2rayBaseLibrary::ProfileManager()
+    #define QvPluginManagerCore             Qv2rayBase::Qv2rayBaseLibrary::PluginManagerCore()
+    #define QvPluginHost                    Qv2rayBase::Qv2rayBaseLibrary::PluginAPIHost()
+    #define QvConfigurationGenerator        Qv2rayBase::Qv2rayBaseLibrary::ConfigurationGenerator()
+    #define QvStorageProvider               Qv2rayBase::Qv2rayBaseLibrary::StorageProvider()
+#endif
+// clang-format on

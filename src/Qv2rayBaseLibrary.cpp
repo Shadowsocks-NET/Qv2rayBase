@@ -119,12 +119,12 @@ namespace Qv2rayBase
         list << makeAbs("/lib/qv2ray/" + dirName);
 #endif
 
-#ifndef Q_OS_MAC
+#ifdef Q_OS_MAC
         // macOS platform directories.
         list << QDir(QCoreApplication::applicationDirPath() + "/../Resources/" + dirName).absolutePath();
 #endif
 
-        list << instance()->p_ExtraAssetsPaths(dirName);
+        list << instance()->StorageProvider()->GetAssetsPath(dirName);
 
         list.removeDuplicates();
         return list;
