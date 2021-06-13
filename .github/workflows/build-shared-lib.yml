@@ -34,7 +34,6 @@ jobs:
             os: windows-latest,
             cc: "gcc", cxx: "g++",
             arch: "win64_mingw81",
-            extra_cmake_args: "-DUSE_MINGW=ON",
             generator: "\"MinGW Makefiles\""
           }
         - {

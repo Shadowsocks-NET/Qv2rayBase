@@ -14,12 +14,7 @@ generate_product_version(
     )
 add_definitions(-DUNICODE -D_UNICODE -DNOMINMAX)
 
-option(USE_MINGW "Use MinGW on Windows" OFF)
-if(USE_MINGW)
-    if(NOT DEFINED MinGW_ROOT)
-        set(MinGW_ROOT "C:/msys64/mingw64")
-    endif()
-else()
+if(NOT MINGW)
     add_compile_options("/utf-8")
     add_compile_options("/std:c++17")
     add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)

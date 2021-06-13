@@ -224,26 +224,28 @@ namespace Qv2rayBase::StaticPlugin
 } // namespace Qv2rayBase::StaticPlugin
 #elif defined(Q_OS_WIN)
 
-namespace Qv2rayBase::StaticPlugin
+typedef struct _IO_STATUS_BLOCK
 {
-    typedef struct _IO_STATUS_BLOCK
+    union
     {
-        union
-        {
-            NTSTATUS Status;
-            PVOID Pointer;
-        } DUMMYUNIONNAME;
-        ULONG_PTR Information;
-    } IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
-    typedef VOID(NTAPI *PIO_APC_ROUTINE)(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG Reserved);
-#define PIO_APC_ROUTINE_DEFINED
+        NTSTATUS Status;
+        PVOID Pointer;
+    } DUMMYUNIONNAME;
+    ULONG_PTR Information;
+} IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
+typedef VOID(NTAPI *PIO_APC_ROUTINE)(IN PVOID ApcContext, IN PIO_STATUS_BLOCK IoStatusBlock, IN ULONG Reserved);
+
 #include <WS2tcpip.h>
 //
 #include <Windows.h>
 //
 #include <iphlpapi.h>
 //
+#define PIO_APC_ROUTINE_DEFINED
 #include <IcmpAPI.h>
+
+namespace Qv2rayBase::StaticPlugin
+{
 
     Static_ICMP_LatencyTestEngine ::~Static_ICMP_LatencyTestEngine()
     {
