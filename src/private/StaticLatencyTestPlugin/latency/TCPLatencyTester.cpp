@@ -20,10 +20,10 @@ namespace Qv2rayBase::StaticPlugin
 #ifndef TCP_MAXRT
 #define TCP_MAXRT 5
 #endif
-        setsockopt(fd, IPPROTO_TCP, TCP_MAXRT, (char *) &conn_timeout_sec, sizeof(conn_timeout_sec));
+        setsockopt(fd, IPPROTO_TCP, TCP_MAXRT, (char *) &TCP_CONNECTION_TIMEOUT_SECS, sizeof(TCP_CONNECTION_TIMEOUT_SECS));
 #elif defined(__APPLE__)
         // (billhoo) MacOS uses TCP_CONNECTIONTIMEOUT to do so.
-        setsockopt(fd, IPPROTO_TCP, TCP_CONNECTIONTIMEOUT, (char *) &conn_timeout_sec, sizeof(conn_timeout_sec));
+        setsockopt(fd, IPPROTO_TCP, TCP_CONNECTIONTIMEOUT, (char *) &TCP_CONNECTION_TIMEOUT_SECS, sizeof(TCP_CONNECTION_TIMEOUT_SECS));
 #else // Linux like systems
         uint32_t conn_timeout_ms = TCP_CONNECTION_TIMEOUT_SECS * 1000;
         setsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, (char *) &conn_timeout_ms, sizeof(conn_timeout_ms));
