@@ -244,7 +244,7 @@ typedef VOID(NTAPI *PIO_APC_ROUTINE)(IN PVOID ApcContext, IN PIO_STATUS_BLOCK Io
 #define PIO_APC_ROUTINE_DEFINED
 #include <IcmpAPI.h>
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::Latency
 {
 
     Static_ICMP_LatencyTestEngine ::~Static_ICMP_LatencyTestEngine()

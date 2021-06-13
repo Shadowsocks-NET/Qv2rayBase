@@ -6,9 +6,9 @@
 
 using namespace Qv2rayPlugin;
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::V2RayCore
 {
-    class BuiltinLatencyTesterPlugin
+    class BuiltinV2RayCorePlugin
         : public QObject
         , Qv2rayInterface
     {
@@ -18,7 +18,7 @@ namespace Qv2rayBase::StaticPlugin
 
       public:
         const QvPluginMetadata GetMetadata() const override;
-        ~BuiltinLatencyTesterPlugin();
+        ~BuiltinV2RayCorePlugin();
         bool InitializePlugin() override;
         void SettingsUpdated() override;
 

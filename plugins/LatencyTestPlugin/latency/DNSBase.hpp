@@ -40,7 +40,7 @@
 #define coco_yield __co_yield_impl(__LINE__)
 #define coro(f) [this, ptr = (std::enable_shared_from_this<T>::shared_from_this())](auto &&e, auto &&h) { f(std::forward<decltype(e)>(e), std::forward<decltype(h)>(h)); }
 
-namespace Qv2rayBase::StaticPlugin::details
+namespace Qv2rayBase::BuiltinPlugins::Latency::details
 {
     struct coroutine_ref;
     struct coroutine
@@ -72,7 +72,7 @@ namespace Qv2rayBase::StaticPlugin::details
 
 } // namespace Qv2rayBase::StaticPlugin::details
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::Latency
 {
     template<typename T>
     class CommonDNSBasedAsyncLatencyTestEngine

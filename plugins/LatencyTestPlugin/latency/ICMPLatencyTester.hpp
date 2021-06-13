@@ -2,7 +2,7 @@
 
 #include "DNSBase.hpp"
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::Latency
 {
     class Static_ICMP_LatencyTestEngine : public CommonDNSBasedAsyncLatencyTestEngine<Static_ICMP_LatencyTestEngine>
     {

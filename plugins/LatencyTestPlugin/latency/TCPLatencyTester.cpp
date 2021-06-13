@@ -1,6 +1,6 @@
 #include "TCPLatencyTester.hpp"
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::Latency
 {
     constexpr int TCP_CONNECTION_TIMEOUT_SECS = 5;
 

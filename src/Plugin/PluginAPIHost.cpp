@@ -8,9 +8,6 @@
 
 using namespace Qv2rayPlugin;
 
-// Statically built into Qv2rayBase
-Q_IMPORT_PLUGIN(BuiltinLatencyTesterPlugin)
-
 namespace Qv2rayBase::Plugin
 {
     using namespace Qv2rayPlugin::Event;

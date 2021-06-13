@@ -2,7 +2,7 @@
 
 #include "latency/TCPLatencyTester.hpp"
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::Latency
 {
     class LatencyHandler : public ILatencyHandler
     {
