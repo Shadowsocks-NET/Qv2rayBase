@@ -17,7 +17,7 @@
 #define SOL_IP 0
 #endif
 
-namespace Qv2rayBase::StaticPlugin
+namespace Qv2rayBase::BuiltinPlugins::Latency
 {
     /// 1s complementary checksum
     uint16_t ping_checksum(const char *buf, size_t size)
@@ -221,7 +221,7 @@ namespace Qv2rayBase::StaticPlugin
             } while (n < 0 && errno == EINTR);
         }
     }
-} // namespace Qv2rayBase::StaticPlugin
+} // namespace Qv2rayBase::BuiltinPlugins::Latency
 #elif defined(Q_OS_WIN)
 
 typedef struct _IO_STATUS_BLOCK
