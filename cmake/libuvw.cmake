@@ -1,10 +1,9 @@
-option(USE_SYSTEM_LIBUV "Use system libuv" ON)
+option(USE_SYSTEM_LIBUV "Use system libuv" OFF)
 
 if(NOT USE_SYSTEM_LIBUV)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/libuv EXCLUDE_FROM_ALL)
-    set_target_properties(uv PROPERTIES EXCLUDE_FROM_ALL TRUE POSITION_INDEPENDENT_CODE 1)
-    target_link_libraries(uv_a PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/libuv/include)
-    add_library(Qv2ray::libuv ALIAS ${LibUV_LIBRARY})
+    set_target_properties(uv_a PROPERTIES EXCLUDE_FROM_ALL TRUE POSITION_INDEPENDENT_CODE 1)
+    add_library(Qv2ray::libuv ALIAS uv_a)
 else()
     if(NOT WIN32)
         find_package(LibUV REQUIRED)
@@ -41,10 +40,9 @@ set(UVW_SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src/uvw/udp.cpp
 )
 
-set(UVW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src)
 add_library(UVW_LIB STATIC ${UVW_SOURCES})
 target_compile_definitions(UVW_LIB PRIVATE UVW_AS_LIB)
 target_link_libraries(UVW_LIB Qv2ray::libuv)
-target_include_directories(UVW_LIB PUBLIC ${UVW_INCLUDE_DIR})
+target_include_directories(UVW_LIB PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src)
 
 add_library(Qv2ray::libuvw ALIAS UVW_LIB)
