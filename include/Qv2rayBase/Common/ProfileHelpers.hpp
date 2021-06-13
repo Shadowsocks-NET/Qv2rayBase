@@ -5,15 +5,8 @@
 
 namespace Qv2rayBase::Utils
 {
-    template<typename R>
-    R GetConnectionPart(const ProfileContent &r, int index)
-    {
-        if constexpr (std::is_same_v<R, InboundObject>)
-            return r.inbounds.at(index);
-        if constexpr (std::is_same_v<R, OutboundObject>)
-            return r.outbounds.at(index);
-    }
-
+    QV2RAYBASE_EXPORT InboundObject GetInbound(const ConnectionId &id, int index);
+    QV2RAYBASE_EXPORT OutboundObject GetOutbound(const ConnectionId &id, int index);
     QV2RAYBASE_EXPORT QString GetDisplayName(const GroupId &id);
     QV2RAYBASE_EXPORT QString GetDisplayName(const ConnectionId &id);
 

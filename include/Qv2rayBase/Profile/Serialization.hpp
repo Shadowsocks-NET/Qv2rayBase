@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Connections/ConnectionsBaseTypes.hpp"
+#include "Common/CommonTypes.hpp"
 #include "Qv2rayBase_export.h"
 
 #include <QString>

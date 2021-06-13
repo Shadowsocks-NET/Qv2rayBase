@@ -3,7 +3,7 @@
 #include "Qv2rayBase_export.h"
 #include "QvPluginInterface.hpp"
 
-namespace Qv2rayBase::Plugins
+namespace Qv2rayBase::Plugin
 {
     struct PluginInfo;
     class GuiPluginAPIHost;
@@ -17,6 +17,9 @@ namespace Qv2rayBase::Plugins
         ~PluginAPIHost();
 
       public:
+        // Latency tester API
+        Qv2rayPlugin::Latency::LatencyTestEngineInfo Latency_GetEngine(const LatencyTestEngineId &id) const;
+
         // Kernel API
         Qv2rayPlugin::KernelFactory Kernel_GetInfo(const KernelId &kid) const;
         KernelId Kernel_GetDefaultKernel() const;
@@ -91,4 +94,4 @@ namespace Qv2rayBase::Plugins
         }
         return typesList;
     }
-} // namespace Qv2rayBase::Plugins
+} // namespace Qv2rayBase::Plugin

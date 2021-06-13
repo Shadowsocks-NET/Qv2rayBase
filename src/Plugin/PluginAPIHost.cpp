@@ -8,7 +8,10 @@
 
 using namespace Qv2rayPlugin;
 
-namespace Qv2rayBase::Plugins
+// Statically built into Qv2rayBase
+Q_IMPORT_PLUGIN(BuiltinLatencyTesterPlugin)
+
+namespace Qv2rayBase::Plugin
 {
     using namespace Qv2rayPlugin::Event;
     using namespace Qv2rayPlugin::Kernel;
@@ -19,6 +22,7 @@ namespace Qv2rayBase::Plugins
     {
       public:
         QHash<KernelId, Qv2rayPlugin::Kernel::KernelFactory> kernels;
+        QHash<LatencyTestEngineId, Qv2rayPlugin::Latency::LatencyTestEngineInfo> latencyTesters;
     };
 
     PluginAPIHost::PluginAPIHost()
@@ -27,6 +31,12 @@ namespace Qv2rayBase::Plugins
 
     PluginAPIHost::~PluginAPIHost()
     {
+    }
+
+    LatencyTestEngineInfo PluginAPIHost::Latency_GetEngine(const LatencyTestEngineId &id) const
+    {
+        Q_D(const PluginAPIHost);
+        return d->latencyTesters[id];
     }
 
     KernelFactory PluginAPIHost::Kernel_GetInfo(const KernelId &kid) const

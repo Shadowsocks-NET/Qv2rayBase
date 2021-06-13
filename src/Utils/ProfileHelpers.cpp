@@ -12,10 +12,21 @@ namespace Qv2rayBase::Utils
 #if QV2RAYBASE_FEATURE(latency)
     int64_t GetConnectionLatency(const ConnectionId &id)
     {
-        const auto connection = ConnectionManager->GetConnectionMetaObject(id);
-        return std::max(*connection.latency, {});
+        const auto connection = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id);
+        //        return std::max(*connection., {});
+        return 0;
     }
 #endif
+
+    InboundObject GetInbound(const ConnectionId &id, int index)
+    {
+        return Qv2rayBaseLibrary::ProfileManager()->GetConnection(id).inbounds.at(index);
+    }
+
+    OutboundObject GetOutbound(const ConnectionId &id, int index)
+    {
+        return Qv2rayBaseLibrary::ProfileManager()->GetConnection(id).outbounds.at(index);
+    }
 
     QString GetDisplayName(const ConnectionId &id)
     {

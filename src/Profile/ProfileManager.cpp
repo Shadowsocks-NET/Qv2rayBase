@@ -1,6 +1,7 @@
 #include "Profile/ProfileManager.hpp"
 
 #include "Common/Utils.hpp"
+#include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Profile/Generator.hpp"
 #include "Profile/KernelManager.hpp"
@@ -97,46 +98,17 @@ namespace Qv2rayBase::Profile
     }
 
 #if QV2RAYBASE_FEATURE(latency)
-    void ProfileManager::StartLatencyTest()
+    void ProfileManager::StartLatencyTest(const GroupId &id, const LatencyTestEngineId &engine)
     {
-        for (const auto &connection : d->connections.keys())
-        {
-            emit OnLatencyTestStarted(connection);
-        }
-#pragma message("TODO")
-        //        pingHelper->TestLatency(connections.keys(), GlobalConfig.networkConfig->latencyTestingMethod);
+        Q_D(ProfileManager);
+        for (const auto &connection : d->groups[id].connections)
+            StartLatencyTest(connection, engine);
     }
 
-    void ProfileManager::StartLatencyTest(const GroupId &id)
-    {
-        for (const auto &connection : *groups[id].connections)
-        {
-            emit OnLatencyTestStarted(connection);
-        }
-#pragma message("TODO")
-        //        pingHelper->TestLatency(groups[id].connections, GlobalConfig.networkConfig->latencyTestingMethod);
-    }
-
-    void ProfileManager::StartLatencyTest(const ConnectionId &id, Qv2rayLatencyTestingMethod method)
+    void ProfileManager::StartLatencyTest(const ConnectionId &id, const LatencyTestEngineId &engine)
     {
         emit OnLatencyTestStarted(id);
-#pragma message("TODO")
-        //        pingHelper->TestLatency(id, method);
-    }
-
-    const QList<GroupId> ProfileManager::Subscriptions() const
-    {
-        QList<GroupId> subsList;
-
-        for (const auto &group : groups)
-        {
-            if (group.isSubscription)
-            {
-                subsList.push_back(groups.key(group));
-            }
-        }
-
-        return subsList;
+        Qv2rayBaseLibrary::LatencyTestHost()->TestLatency(id, engine);
     }
 #endif
 
@@ -324,10 +296,11 @@ namespace Qv2rayBase::Profile
     }
 
 #if QV2RAYBASE_FEATURE(latency)
-    void ProfileManager::p_OnLatencyDataArrived(const ConnectionId &id, const LatencyTestResult &result)
+    void ProfileManager::p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &result)
     {
+        Q_D(ProfileManager);
         CheckValidId(id, nothing);
-        d->connections[id].latency = result.avg;
+        //        d->connections[id].latency = result.avg;
         emit OnLatencyTestFinished(id, result.avg);
     }
 #endif

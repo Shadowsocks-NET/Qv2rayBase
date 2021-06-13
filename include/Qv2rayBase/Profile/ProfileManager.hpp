@@ -4,6 +4,7 @@
 #include "Connections/ConnectionsBase.hpp"
 #include "Qv2rayBaseFeatures.hpp"
 #include "Qv2rayBase_export.h"
+#include "QvPluginInterface.hpp"
 
 namespace Qv2rayBase::Profile
 {
@@ -74,14 +75,13 @@ namespace Qv2rayBase::Profile
 
 #if QV2RAYBASE_FEATURE(latency)
       public:
-        void StartLatencyTest();
-        void StartLatencyTest(const GroupId &id);
-        void StartLatencyTest(const ConnectionId &id, Qv2rayLatencyTestingMethod method = GlobalConfig.networkConfig->latencyTestingMethod);
+        void StartLatencyTest(const ConnectionId &id, const LatencyTestEngineId &engine);
+        void StartLatencyTest(const GroupId &id, const LatencyTestEngineId &engine);
       signals:
         void OnLatencyTestStarted(const ConnectionId &id);
         void OnLatencyTestFinished(const ConnectionId &id, const int average);
       private slots:
-        void p_OnLatencyDataArrived(const ConnectionId &id, const LatencyTestResult &data);
+        void p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &data);
 #endif
 
       signals:

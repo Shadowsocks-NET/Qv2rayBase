@@ -13,7 +13,7 @@ using namespace Qv2rayPlugin;
 
 #define QV_MODULE_NAME "PluginManagerCore"
 
-namespace Qv2rayBase::Plugins
+namespace Qv2rayBase::Plugin
 {
     class PluginManagerCorePrivate
     {
@@ -194,4 +194,4 @@ namespace Qv2rayBase::Plugins
             Qv2rayBaseLibrary::StorageProvider()->SetPluginSettings(name, d->plugins[name].pinterface->m_Settings);
         }
     }
-} // namespace Qv2rayBase::Plugins
+} // namespace Qv2rayBase::Plugin

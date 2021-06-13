@@ -7,7 +7,7 @@
 
 class QPluginLoader;
 
-namespace Qv2rayBase::Plugins
+namespace Qv2rayBase::Plugin
 {
     struct PluginInfo
     {
@@ -57,4 +57,4 @@ namespace Qv2rayBase::Plugins
       private:
         Q_DECLARE_PRIVATE(PluginManagerCore)
     };
-} // namespace Qv2rayBase::Plugins
+} // namespace Qv2rayBase::Plugin

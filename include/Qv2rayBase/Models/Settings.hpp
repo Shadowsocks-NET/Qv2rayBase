@@ -39,10 +39,4 @@ namespace Qv2rayBase::Models
         PluginConfigObject plugin_config;
         QJsonObject extra_options;
     };
-
-#if QV2RAYBASE_FEATURE(latency)
-    constexpr unsigned int LATENCY_TEST_VALUE_ERROR = 99999;
-    constexpr unsigned int LATENCY_TEST_VALUE_NODATA = LATENCY_TEST_VALUE_ERROR - 1;
-#endif
-
 } // namespace Qv2rayBase::Models

@@ -24,9 +24,10 @@ namespace Qv2rayBase
 
     // clang-format off
     class IStorageProvider;
-    namespace Models { struct Qv2rayBaseConfigObject; }
-    namespace Plugins { class PluginManagerCore; }
-    namespace Plugins { class PluginAPIHost; }
+    namespace Models  { struct Qv2rayBaseConfigObject; }
+    namespace Plugin  { class LatencyTestHost; }
+    namespace Plugin  { class PluginManagerCore; }
+    namespace Plugin  { class PluginAPIHost; }
     namespace Profile { class ProfileManager; }
     namespace Profile { class KernelManager; }
     namespace Profile { class IConfigurationGenerator; }
@@ -126,13 +127,18 @@ namespace Qv2rayBase
         /// \brief PluginAPIHost returns Plugin API host
         /// \return The pointer to the Plugin API Host
         ///
-        static Qv2rayBase::Plugins::PluginAPIHost *PluginAPIHost();
+        static Qv2rayBase::Plugin::PluginAPIHost *PluginAPIHost();
 
         ///
         /// \brief PluginManagerCore Get the core plugin manager
         /// \return The pointer to the core plugin manager
         ///
-        static Qv2rayBase::Plugins::PluginManagerCore *PluginManagerCore();
+        static Qv2rayBase::Plugin::PluginManagerCore *PluginManagerCore();
+
+        ///
+        /// \brief LatencyTestHost Get the latency tester host
+        /// \return The pointer to the latency test host.
+        static Qv2rayBase::Plugin::LatencyTestHost *LatencyTestHost();
 
         ///
         /// \brief ProfileManager Get the profile manager.

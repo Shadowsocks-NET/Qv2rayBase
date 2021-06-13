@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Connections/ConnectionsBaseTypes.hpp"
+#include "Common/CommonTypes.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 
 namespace Qv2rayBase::Profile

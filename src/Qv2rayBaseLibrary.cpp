@@ -1,5 +1,6 @@
 #include "Qv2rayBaseLibrary.hpp"
 
+#include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Plugin/PluginManagerCore.hpp"
 #include "Profile/Generator.hpp"
@@ -19,7 +20,7 @@
 namespace Qv2rayBase
 {
     using namespace Qv2rayBase::Profile;
-    using namespace Qv2rayBase::Plugins;
+    using namespace Qv2rayBase::Plugin;
     QJsonObject MigrateSettings(int fromVersion, int toVersion, const QJsonObject &original);
     Qv2rayBaseLibrary *m_instance = nullptr;
     class Qv2rayBaseLibraryPrivate
@@ -27,8 +28,9 @@ namespace Qv2rayBase
       public:
         Qv2rayBase::Models::Qv2rayBaseConfigObject *configuration;
 
-        Plugins::PluginAPIHost *pluginAPIHost;
-        Plugins::PluginManagerCore *pluginCore;
+        Plugin::LatencyTestHost *latencyTestHost;
+        Plugin::PluginAPIHost *pluginAPIHost;
+        Plugin::PluginManagerCore *pluginCore;
         Profile::ProfileManager *profileManager;
         Profile::KernelManager *kernelManager;
         QFlags<Qv2rayStartFlags> startupFlags;
@@ -55,10 +57,12 @@ namespace Qv2rayBase
 
         // TODO load configurations
 
-        d->pluginCore = new Plugins::PluginManagerCore;
+        d->pluginCore = new Plugin::PluginManagerCore;
+
         if (!flags.testFlag(NO_PLUGINS))
             d->pluginCore->LoadPlugins();
 
+        d->latencyTestHost = new Plugin::LatencyTestHost;
         d->profileManager = new Profile::ProfileManager;
         d->kernelManager = new Profile::KernelManager;
 
@@ -146,12 +150,12 @@ namespace Qv2rayBase
         return instance()->p_MessageBoxAsk(title, text, options);
     }
 
-    Plugins::PluginAPIHost *Qv2rayBaseLibrary::PluginAPIHost()
+    PluginAPIHost *Qv2rayBaseLibrary::PluginAPIHost()
     {
         return instance()->d_ptr->pluginAPIHost;
     }
 
-    Qv2rayBase::Models::Qv2rayBaseConfigObject *Qv2rayBaseLibrary::GetConfig()
+    Models::Qv2rayBaseConfigObject *Qv2rayBaseLibrary::GetConfig()
     {
         return instance()->d_ptr->configuration;
     }
@@ -159,6 +163,11 @@ namespace Qv2rayBase
     PluginManagerCore *Qv2rayBaseLibrary::PluginManagerCore()
     {
         return instance()->d_ptr->pluginCore;
+    }
+
+    LatencyTestHost *Qv2rayBaseLibrary::LatencyTestHost()
+    {
+        return instance()->d_ptr->latencyTestHost;
     }
 
     IConfigurationGenerator *Qv2rayBaseLibrary::ConfigurationGenerator()
