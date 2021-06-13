@@ -6,11 +6,7 @@
  * to set allowed groups in /proc/sys/net/ipv4/ping_group_range */
 #include "ICMPLatencyTester.hpp"
 
-namespace Qv2rayBase::StaticPlugin
-{
 #ifdef Q_OS_UNIX
-#include "ICMPLatencyTester.hpp"
-
 #include <netinet/in.h>
 #include <netinet/ip.h> //macos need that
 #include <netinet/ip_icmp.h>
@@ -21,6 +17,8 @@ namespace Qv2rayBase::StaticPlugin
 #define SOL_IP 0
 #endif
 
+namespace Qv2rayBase::StaticPlugin
+{
     /// 1s complementary checksum
     uint16_t ping_checksum(const char *buf, size_t size)
     {
@@ -223,8 +221,11 @@ namespace Qv2rayBase::StaticPlugin
             } while (n < 0 && errno == EINTR);
         }
     }
+} // namespace Qv2rayBase::StaticPlugin
 #elif defined(Q_OS_WIN)
 
+namespace Qv2rayBase::StaticPlugin
+{
     typedef struct _IO_STATUS_BLOCK
     {
         union
@@ -243,32 +244,34 @@ namespace Qv2rayBase::StaticPlugin
 #include <iphlpapi.h>
 //
 #include <IcmpAPI.h>
-//
-#include <QString>
 
     Static_ICMP_LatencyTestEngine ::~Static_ICMP_LatencyTestEngine()
     {
     }
-    void Static_ICMP_LatencyTestEngine::ping()
+
+    void Static_ICMP_LatencyTestEngine::Prepare(std::shared_ptr<uvw::Loop>)
+    {
+    }
+
+    void Static_ICMP_LatencyTestEngine::StartTest(std::shared_ptr<uvw::Loop> loop)
     {
         waitHandleTimer = loop->resource<uvw::TimerHandle>();
-        waitHandleTimer->on<uvw::TimerEvent>(
-            [ptr = shared_from_this(), this](auto &&, auto &&)
+        waitHandleTimer->on<uvw::TimerEvent>([ptr = shared_from_this(), this](auto &&, auto &&) {
+            SleepEx(0, TRUE);
+            if (response.failed + successCount == response.total)
             {
-                SleepEx(0, TRUE);
-                if (data.failedCount + successCount == data.totalCount)
-                {
-                    waitHandleTimer->stop();
-                    waitHandleTimer->close();
-                    waitHandleTimer->clear();
-                }
-            });
-        for (; data.totalCount < req.totalCount; ++data.totalCount)
+                waitHandleTimer->stop();
+                waitHandleTimer->close();
+                waitHandleTimer->clear();
+            }
+        });
+        for (; response.total < TOTAL_TEST_COUNT; ++response.total)
         {
             pingImpl();
         }
         waitHandleTimer->start(uvw::TimerHandle::Time{ 500 }, uvw::TimerHandle::Time{ 500 });
     }
+
     void Static_ICMP_LatencyTestEngine::pingImpl()
     {
         constexpr WORD payload_size = 1;
@@ -289,36 +292,37 @@ namespace Qv2rayBase::StaticPlugin
                     IcmpCloseHandle(hIcmpFile);
             }
         };
-        auto icmpReply = new ICMPReply{ [this, id = req.id](bool isSuccess, long res, const QString &message, HANDLE h)
-                                        {
-                                            if (!isSuccess)
-                                            {
-                                                data.errorMessage = message;
-                                                data.failedCount++;
-                                            }
-                                            else
-                                            {
-                                                data.avg += res;
-                                                data.best = std::min(res, data.best);
-                                                data.worst = std::max(res, data.worst);
-                                                successCount++;
-                                            }
-                                            notifyTestHost(testHost, id);
-                                        } };
+
+        auto icmpReply = new ICMPReply{ [this](bool isSuccess, long res, const QString &message, HANDLE) {
+            if (!isSuccess)
+            {
+                response.error = message;
+                response.failed++;
+            }
+            else
+            {
+                response.avg += res;
+                response.best = std::min(res, response.best);
+                response.worst = std::max(res, response.worst);
+                successCount++;
+            }
+            checkAndFinalize();
+        } };
+
         if (icmpReply->hIcmpFile == INVALID_HANDLE_VALUE)
         {
-            data.errorMessage = "IcmpCreateFile failed";
-            data.failedCount++;
-            notifyTestHost(testHost, req.id);
+            response.error = "IcmpCreateFile failed";
+            response.failed++;
+            checkAndFinalize();
             delete icmpReply;
             return;
         }
         IcmpSendEcho2(
             icmpReply->hIcmpFile, NULL,
-            [](PVOID ctx, PIO_STATUS_BLOCK b, ULONG r)
-            {
-                static int i = 1;
-                LOG("hit" + QSTRN(i++));
+            [](PVOID ctx, PIO_STATUS_BLOCK b, ULONG r) {
+                Q_UNUSED(r)
+                // static int i = 1;
+                // LOG("hit" + QSTRN(i++));
                 auto replyPtr = reinterpret_cast<ICMPReply *>(ctx);
                 auto isSuccess = (NTSTATUS(b->Status)) >= 0;
                 long res = 0;
@@ -342,32 +346,10 @@ namespace Qv2rayBase::StaticPlugin
             icmpReply, reinterpret_cast<IPAddr &>(reinterpret_cast<sockaddr_in &>(storage).sin_addr), icmpReply->payload, payload_size, NULL, icmpReply->reply_buf,
             reply_buf_size, 10000);
     }
-    bool Static_ICMP_LatencyTestEngine::notifyTestHost(LatencyTestHost *testHost, const ::Qv2ray::base::ConnectionId &id)
+
+    bool Static_ICMP_LatencyTestEngine::checkAndFinalize()
     {
-        if (data.failedCount + successCount == data.totalCount)
-        {
-            if (data.failedCount == data.totalCount)
-                data.avg = LATENCY_TEST_VALUE_ERROR;
-            else
-                data.errorMessage.clear(), data.avg = data.avg / successCount / 1000;
-            testHost->OnLatencyTestCompleted(id, data);
-            return true;
-        }
-        return false;
+        return response.failed + successCount == response.total;
     }
-    void Static_ICMP_LatencyTestEngine::start()
-    {
-        data.totalCount = 0;
-        data.failedCount = 0;
-        data.worst = 0;
-        data.avg = 0;
-        af = isAddr();
-        if (af == -1)
-        {
-            getAddrHandle = loop->resource<uvw::GetAddrInfoReq>();
-            sprintf(digitBuffer, "%d", req.port);
-        }
-        async_DNS_lookup(0, 0);
-    }
-#endif
 } // namespace Qv2rayBase::StaticPlugin
+#endif

@@ -15,6 +15,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+if(WIN32)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/Windows.cmake)
+endif()
+
 include(GenerateExportHeader)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
@@ -113,9 +117,6 @@ if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILE
   endif()
 endif()
 
-if(WIN32)
-    include(${CMAKE_CURRENT_LIST_DIR}/cmake/Windows.cmake)
-endif()
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/Deployment.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/libuvw.cmake)
 

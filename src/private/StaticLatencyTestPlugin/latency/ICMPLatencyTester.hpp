@@ -15,6 +15,8 @@ namespace Qv2rayBase::StaticPlugin
         virtual void StartTest(std::shared_ptr<uvw::Loop>) override;
 
       private:
+        bool checkAndFinalize();
+
 #ifdef Q_OS_UNIX
         // unix
         void deinit();
@@ -25,13 +27,12 @@ namespace Qv2rayBase::StaticPlugin
         std::shared_ptr<uvw::TimerHandle> timeoutTimer;
         std::shared_ptr<uvw::PollHandle> pollHandle;
         std::vector<timeval> startTimevals;
-        bool checkAndFinalize();
 #elif defined(Q_OS_WIN)
       private:
         void pingImpl();
 
       private:
-        uint64_t timeout = DEFAULT_TIMEOUT;
+        uint64_t timeout = 3000;
         std::shared_ptr<uvw::TimerHandle> waitHandleTimer;
 #endif
     };

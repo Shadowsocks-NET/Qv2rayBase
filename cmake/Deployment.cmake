@@ -1,4 +1,5 @@
-generate_export_header(Qv2rayBase EXPORT_FILE_NAME ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBase_export.h)
+generate_export_header(Qv2rayBase
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBase_export.h)
 
 configure_package_config_file(cmake/Qv2rayBase.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
@@ -7,6 +8,9 @@ configure_package_config_file(cmake/Qv2rayBase.cmake.in
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBase_export.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase/)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake

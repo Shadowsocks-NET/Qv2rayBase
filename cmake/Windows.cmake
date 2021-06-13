@@ -3,7 +3,7 @@ generate_product_version(
     QV2RAY_RC
     NAME               "Qv2ray Base Library"
     BUNDLE             "Qv2ray Project Family"
-    ICON               "${CMAKE_CURRENT_LIST_DIR}/assets/qv2ray.ico"
+    ICON               "${CMAKE_CURRENT_SOURCE_DIR}/assets/qv2ray.ico"
     VERSION_MAJOR      ${PROJECT_VERSION_MAJOR}
     VERSION_MINOR      ${PROJECT_VERSION_MINOR}
     VERSION_PATCH      ${PROJECT_VERSION_PATCH}
@@ -22,5 +22,5 @@ if(USE_MINGW)
 else()
     add_compile_options("/utf-8")
     add_compile_options("/std:c++17")
-    add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
 endif()
