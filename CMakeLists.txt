@@ -89,9 +89,6 @@ source_group(Plugin REGULAR_EXPRESSION "/Plugin/")
 source_group(Profile REGULAR_EXPRESSION "/Profile/")
 source_group(Common REGULAR_EXPRESSION "/Common/")
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/plugins/LatencyTestPlugin)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/plugins/V2RayCorePlugin)
-
 add_library(Qv2rayBase ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_HEADERS} ${BASELIB_PRIVATE_SOURCES})
 add_library(Qv2ray::Qv2rayBase ALIAS Qv2rayBase)
 
