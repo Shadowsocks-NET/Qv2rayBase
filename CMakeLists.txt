@@ -96,7 +96,7 @@ target_include_directories(Qv2rayBase
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Qv2rayBase>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase>"
-)
+    )
 
 target_include_directories(Qv2rayBase PRIVATE ${QVPLUGIN_INTERFACE_INCLUDE_PATH})
 
@@ -110,9 +110,9 @@ set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION
 set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-  if(UNIX AND NOT APPLE)
-    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-z,defs")
-  endif()
+    if(UNIX AND NOT APPLE)
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-z,defs")
+    endif()
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/Deployment.cmake)
@@ -124,4 +124,5 @@ target_link_libraries(Qv2rayBase
         Qt::Network
         Qv2ray::QvPluginInterface
     PRIVATE
-        Qv2ray::libuvw)
+        Qv2ray::libuvw
+    )
