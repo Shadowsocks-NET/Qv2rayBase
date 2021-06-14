@@ -13,10 +13,6 @@ GUI developers could link against this library to enjoy the functionalities of:
   - Connection Management Plugins (Add, Remove, Update, Query)
   - Subscription Provider Plugins
 
-## XRAY
-
-As the original Qv2ray repository mentioned, there's no XRAY support.
-
 ## Super Easy Usage
 
 ### As a system package
