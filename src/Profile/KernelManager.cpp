@@ -1,9 +1,10 @@
 #include "Profile/KernelManager.hpp"
 
+#include "Common/Settings.hpp"
 #include "Common/Utils.hpp"
 #include "Handlers/KernelHandler.hpp"
-#include "Models/Settings.hpp"
-#include "Profile/Generator.hpp"
+#include "Interfaces/IConfigurationGenerator.hpp"
+#include "private/Profile/KernelManager_p.hpp"
 
 #define QV_MODULE_NAME "KernelHandler"
 
@@ -12,17 +13,6 @@ namespace Qv2rayBase::Profile
     using namespace Qv2rayPlugin::Kernel;
     using namespace Qv2rayPlugin::Outbound;
     using namespace Qv2rayPlugin::Event;
-
-    class KernelManagerPrivate
-    {
-      public:
-        const static inline QString QV2RAYBASE_DEFAULT_KERNEL_PLACEHOLDER = "__default__";
-        QMap<QString, PluginIOBoundData> inboundInfo;
-        QMap<QString, PluginIOBoundData> outboundInfo;
-        qsizetype logPadding = 0;
-        ConnectionGroupPair current;
-        std::list<std::pair<QString, std::unique_ptr<PluginKernel>>> kernels;
-    };
 
     KernelManager::KernelManager(QObject *parent) : QObject(parent)
     {

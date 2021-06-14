@@ -1,13 +1,13 @@
-#include "Models/Settings.hpp"
-#include "Qv2rayBaseLibrary.hpp"
+#include "private/Common/SettingsUpgrade_p.hpp"
 
-#include <QJsonObject>
+#include "Common/Settings.hpp"
+#include "Qv2rayBaseLibrary.hpp"
 
 #define QV_MODULE_NAME "SettingsUpgrade"
 
-namespace Qv2rayBase
+namespace Qv2rayBase::_private
 {
-    QJsonObject UpgradeConfig_Inc(int fromVersion, const QJsonObject &original)
+    QJsonObject UpgradeConfigInc(int fromVersion, const QJsonObject &original)
     {
         auto root = original;
         switch (fromVersion)
@@ -33,8 +33,8 @@ namespace Qv2rayBase
 
         auto root = original;
         for (int i = fileVersion; i < QV2RAY_SETTINGS_VERSION; i++)
-            root = UpgradeConfig_Inc(i, root);
+            root = UpgradeConfigInc(i, root);
 
         return root;
     }
-} // namespace Qv2rayBase
+} // namespace Qv2rayBase::_private

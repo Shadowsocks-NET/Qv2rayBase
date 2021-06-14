@@ -40,9 +40,9 @@ set(UVW_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src/uvw/udp.cpp
     )
 
-add_library(libuvw STATIC ${UVW_SOURCES})
-target_compile_definitions(libuvw PRIVATE UVW_AS_LIB)
-target_link_libraries(libuvw Qv2ray::libuv)
-target_include_directories(libuvw PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src)
-
-add_library(Qv2ray::libuvw ALIAS libuvw)
+add_library(uvw STATIC ${UVW_SOURCES})
+target_compile_definitions(uvw PRIVATE UVW_AS_LIB)
+target_link_libraries(uvw Qv2ray::libuv)
+target_include_directories(uvw PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src)
+set_target_properties(uvw PROPERTIES EXCLUDE_FROM_ALL TRUE)
+add_library(Qv2ray::libuvw ALIAS uvw)

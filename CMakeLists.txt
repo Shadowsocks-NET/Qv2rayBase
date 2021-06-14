@@ -28,70 +28,72 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(USE_SYSTEM_PLUGIN_INTERFACE OFF)
 
 if(USE_SYSTEM_PLUGIN_INTERFACE)
-    find_package(QvPluginInterface REQUIRED)
+    find_package(QvPluginInterface 4.0 REQUIRED)
 else()
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/PluginInterface)
     install(TARGETS QvPluginInterface)
 endif()
 
-option(BUILD_SHARED_LIBS "Build Qv2ray baselib as shared library" ON)
-
 find_package(Qt6 COMPONENTS Core Network REQUIRED)
+include(cmake/libuvw.cmake)
 
 set(BASELIB_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/Base/SettingsUpgrade.cpp
-
+    ${CMAKE_CURRENT_LIST_DIR}/src/Common/HTTPRequestHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/Common/ProfileHelpers.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/LatencyTestHost.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginAPIHost.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginManagerCore.cpp
-
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Generator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/KernelManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/ProfileManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Serialization.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/Utils/HTTPRequestHelper.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/Utils/HTTPRequestHelper.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/Utils/ProfileHelpers.cpp)
-
-set(BASELIB_PRIVATE_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseStorageProvider.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseStorageProvider.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseConfigurationGenerator.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/BaseConfigurationGenerator.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/LatencyTestThread.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/LatencyTestThread.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
+    )
 
 set(BASELIB_HEADERS
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/StorageProvider.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseLibrary.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseFeatures.hpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Models/Settings.hpp
-
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/HTTPRequestHelper.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/ProfileHelpers.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Settings.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Utils.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IConfigurationGenerator.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IStorageProvider.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/LatencyTestHost.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginAPIHost.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginManagerCore.hpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/Generator.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/KernelManager.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/ProfileManager.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/Serialization.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseFeatures.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseLibrary.hpp
+    )
 
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Utils.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/ProfileHelpers.hpp)
+set(BASELIB_P_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Common/SettingsUpgrade_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Interfaces/BaseConfigurationGenerator_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Interfaces/BaseStorageProvider_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Plugin/LatencyTestHost_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Plugin/LatencyTestThread_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Plugin/PluginAPIHost_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Plugin/PluginManagerCore_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Profile/KernelManager_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Profile/ProfileManager_p.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/private/Qv2rayBaseLibrary_p.cpp
+    )
 
-source_group(Plugin REGULAR_EXPRESSION "/Plugin/")
-source_group(Profile REGULAR_EXPRESSION "/Profile/")
-source_group(Common REGULAR_EXPRESSION "/Common/")
+set(BASELIB_P_HEADERS
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Common/SettingsUpgrade_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Interfaces/BaseConfigurationGenerator_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Interfaces/BaseStorageProvider_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Plugin/LatencyTestHost_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Plugin/LatencyTestThread_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Plugin/PluginAPIHost_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Plugin/PluginManagerCore_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Profile/KernelManager_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Profile/ProfileManager_p.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Qv2rayBaseLibrary_p.hpp
+    )
 
-add_library(Qv2rayBase ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_HEADERS} ${BASELIB_PRIVATE_SOURCES})
-add_library(Qv2ray::Qv2rayBase ALIAS Qv2rayBase)
-
+add_library(Qv2rayBase SHARED ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCES} ${BASELIB_HEADERS} ${BASELIB_P_HEADERS})
 target_include_directories(Qv2rayBase
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Qv2rayBase>"
@@ -116,7 +118,8 @@ if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILE
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/Deployment.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/libuvw.cmake)
+
+add_library(Qv2ray::Qv2rayBase ALIAS Qv2rayBase)
 
 target_link_libraries(Qv2rayBase
     PUBLIC
@@ -126,3 +129,8 @@ target_link_libraries(Qv2rayBase
     PRIVATE
         Qv2ray::libuvw
     )
+
+include(CTest)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

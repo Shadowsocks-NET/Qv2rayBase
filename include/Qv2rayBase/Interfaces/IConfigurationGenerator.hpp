@@ -3,7 +3,7 @@
 #include "Common/CommonTypes.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 
-namespace Qv2rayBase::Profile
+namespace Qv2rayBase::Interfaces
 {
     class IConfigurationGenerator
     {

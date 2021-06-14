@@ -1,13 +1,14 @@
 #include "Profile/ProfileManager.hpp"
 
+#include "Common/HTTPRequestHelper.hpp"
 #include "Common/Utils.hpp"
+#include "Interfaces/IConfigurationGenerator.hpp"
+#include "Interfaces/IStorageProvider.hpp"
 #include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
-#include "Profile/Generator.hpp"
 #include "Profile/KernelManager.hpp"
 #include "Profile/Serialization.hpp"
-#include "StorageProvider.hpp"
-#include "src/Utils/HTTPRequestHelper.hpp"
+#include "private/Profile/ProfileManager_p.hpp"
 
 #include <QTimerEvent>
 
@@ -22,15 +23,6 @@ namespace Qv2rayBase::Profile
 {
     using namespace Qv2rayPlugin::Event;
     using namespace Qv2rayBase::Utils;
-    class ProfileManagerPrivate
-    {
-      public:
-        int pingAllTimerId;
-        QHash<GroupId, GroupObject> groups;
-        QHash<ConnectionId, ConnectionObject> connections;
-        QHash<RoutingId, RoutingObject> routings;
-        QHash<ConnectionId, ProfileContent> connectionRootCache;
-    };
 
     ProfileManager::ProfileManager(QObject *parent) : QObject(parent)
     {

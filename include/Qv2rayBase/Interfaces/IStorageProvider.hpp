@@ -3,7 +3,7 @@
 
 #include <QDir>
 
-namespace Qv2rayBase
+namespace Qv2rayBase::Interfaces
 {
     struct StorageContext
     {

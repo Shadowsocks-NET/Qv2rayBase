@@ -1,6 +1,6 @@
-#include "BaseConfigurationGenerator.hpp"
+#include "private/Interfaces/BaseConfigurationGenerator_p.hpp"
 
-namespace Qv2rayBase::_private
+namespace Qv2rayBase::Interfaces
 {
     ProfileContent Qv2rayBasePrivateConfigurationGenerator::ApplyRouting(const ProfileContent &pair, const RoutingObject &rid)
     {

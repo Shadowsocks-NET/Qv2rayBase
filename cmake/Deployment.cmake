@@ -23,13 +23,13 @@ install(TARGETS Qv2rayBase
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+export(EXPORT Qv2rayBaseTargets
+       FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Qv2rayBaseTargets.cmake"
+       NAMESPACE Qv2ray::
+)
+
 install(EXPORT Qv2rayBaseTargets
         FILE Qv2rayBaseTargets.cmake
         NAMESPACE Qv2ray::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase
-)
-
-export(EXPORT Qv2rayBaseTargets
-       FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Qv2rayBaseTargets.cmake"
-       NAMESPACE Qv2ray::
 )

@@ -1,23 +1,15 @@
 #include "Plugin/LatencyTestHost.hpp"
 
-#include "src/private/LatencyTestThread.hpp"
+#include "private/Plugin/LatencyTestHost_p.hpp"
+#include "private/Plugin/LatencyTestThread_p.hpp"
 
 namespace Qv2rayBase::Plugin
 {
-    class LatencyTestHostPrivate
-    {
-      public:
-        // we're not introduce multi latency test thread for now,
-        // cause it's easy to use a scheduler like round-robin scheme
-        // and libuv event loop is fast.
-        Qv2rayBase::_private::LatencyTestThread *latencyThread;
-    };
-
     LatencyTestHost::LatencyTestHost(QObject *parent) : QObject(parent)
     {
         d_ptr.reset(new LatencyTestHostPrivate);
         Q_D(LatencyTestHost);
-        d->latencyThread = new Qv2rayBase::_private::LatencyTestThread(this);
+        d->latencyThread = new LatencyTestThread(this);
         d->latencyThread->start();
     }
 

@@ -1,26 +1,19 @@
 #include "Plugin/PluginManagerCore.hpp"
 
+#include "Common/Settings.hpp"
 #include "Common/Utils.hpp"
-#include "Models/Settings.hpp"
+#include "Interfaces/IStorageProvider.hpp"
 #include "Profile/ProfileManager.hpp"
 #include "Qv2rayBaseLibrary.hpp"
-#include "StorageProvider.hpp"
+#include "private/Plugin/PluginManagerCore_p.hpp"
 
 #include <QDir>
-#include <QPluginLoader>
-
-using namespace Qv2rayPlugin;
 
 #define QV_MODULE_NAME "PluginManagerCore"
 
 namespace Qv2rayBase::Plugin
 {
-    class PluginManagerCorePrivate
-    {
-      public:
-        QHash<PluginId, PluginInfo> plugins;
-    };
-
+    using namespace Qv2rayPlugin;
     PluginManagerCore::PluginManagerCore(QObject *parent) : QObject(parent)
     {
     }

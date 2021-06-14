@@ -1,10 +1,9 @@
-#include "StorageProvider.hpp"
+#include "Interfaces/IStorageProvider.hpp"
 
 #include <QObject>
 
-namespace Qv2rayBase::_private
+namespace Qv2rayBase::Interfaces
 {
-    class Qv2rayBasePrivateStorageProviderPrivate;
     class Qv2rayBasePrivateStorageProvider
         : public QObject
         , public IStorageProvider
@@ -34,15 +33,17 @@ namespace Qv2rayBase::_private
 
         virtual QStringList GetAssetsPath(const QString &) override;
 
-      private:
-        Q_DECLARE_PRIVATE(Qv2rayBasePrivateStorageProvider)
-
-        // IStorageProvider interface
       public:
         virtual void EnsureSaved() override;
         virtual void StoreConnections(const QHash<ConnectionId, ConnectionObject> &) override;
         virtual void StoreGroups(const QHash<GroupId, GroupObject> &) override;
         virtual void StoreRoutings(const QHash<RoutingId, RoutingObject> &) override;
+
+      private:
+        QString ConfigFilePath;
+        QString ConfigDirPath;
+        StorageContext RuntimeContext;
+        QString ExecutableDirPath;
     };
 
 } // namespace Qv2rayBase::_private

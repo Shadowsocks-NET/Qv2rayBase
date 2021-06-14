@@ -1,6 +1,6 @@
-#include "HTTPRequestHelper.hpp"
+#include "Common/HTTPRequestHelper.hpp"
 
-#include "Models/Settings.hpp"
+#include "Common/Settings.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 
 #include <QByteArray>

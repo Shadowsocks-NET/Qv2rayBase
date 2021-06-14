@@ -1,4 +1,4 @@
-#include "BaseStorageProvider.hpp"
+#include "private/Interfaces/BaseStorageProvider_p.hpp"
 
 #include <Common/Utils.hpp>
 #include <Qv2rayBaseLibrary.hpp>
@@ -12,15 +12,6 @@ const auto QV2RAY_CONFIG_GROUPS_BASENAME = "groups";
 const auto QV2RAY_CONFIG_ROUTINGS_BASENAME = "routings";
 const auto QV2RAY_CONFIG_PLUGINS_BASENAME = "plugins";
 const auto QV2RAY_CONFIG_PLUGIN_SETTINGS_BASENAME = "plugin_settings";
-
-class Qv2rayBase::_private::Qv2rayBasePrivateStorageProviderPrivate
-{
-  public:
-    QString ConfigFilePath;
-    QString ConfigDirPath;
-    StorageContext RuntimeContext;
-    QString ExecutableDirPath;
-};
 
 bool CheckSettingsPathAvailability(const QString &_dirPath, bool checkExistingConfig)
 {
@@ -80,7 +71,7 @@ bool CheckSettingsPathAvailability(const QString &_dirPath, bool checkExistingCo
     return true;
 }
 
-namespace Qv2rayBase::_private
+namespace Qv2rayBase::Interfaces
 {
     Qv2rayBasePrivateStorageProvider::Qv2rayBasePrivateStorageProvider(QObject *parent) : QObject(parent)
     {
@@ -170,25 +161,22 @@ namespace Qv2rayBase::_private
 
         // At this step, the "selectedConfigurationFile" is ensured to be OK for storing configuration.
         // Use the config path found by the checks above
-        Q_D(Qv2rayBasePrivateStorageProvider);
-        d->RuntimeContext = runtimeContext;
-        d->ExecutableDirPath = qApp->applicationDirPath();
-        d->ConfigFilePath = selectedConfigurationFile;
-        d->ConfigDirPath = QFileInfo(d->ConfigFilePath).filePath();
+        RuntimeContext = runtimeContext;
+        ExecutableDirPath = qApp->applicationDirPath();
+        ConfigFilePath = selectedConfigurationFile;
+        ConfigDirPath = QFileInfo(ConfigFilePath).filePath();
         QvLog() << "Using" << selectedConfigurationFile << "as the config path.";
         return true;
     }
 
     QJsonObject Qv2rayBasePrivateStorageProvider::GetBaseConfiguration()
     {
-        Q_D(Qv2rayBasePrivateStorageProvider);
-        return JsonFromString(ReadFile(d->ConfigFilePath));
+        return JsonFromString(ReadFile(ConfigFilePath));
     }
 
     bool Qv2rayBasePrivateStorageProvider::StoreBaseConfiguration(const QJsonObject &json)
     {
-        Q_D(Qv2rayBasePrivateStorageProvider);
-        return WriteFile(JsonToString(json).toUtf8(), d->ConfigFilePath);
+        return WriteFile(JsonToString(json).toUtf8(), ConfigFilePath);
     }
 
     QHash<ConnectionId, ConnectionObject> Qv2rayBasePrivateStorageProvider::Connections()

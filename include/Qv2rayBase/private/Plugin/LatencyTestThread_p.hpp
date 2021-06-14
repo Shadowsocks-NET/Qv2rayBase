@@ -3,9 +3,14 @@
 
 #include <QThread>
 
-namespace Qv2rayBase::_private
+namespace uvw
 {
-    class LatencyTestThreadPrivate;
+    class TimerHandle;
+}
+
+namespace Qv2rayBase::Plugin
+{
+    class LatencyTestHost;
     class LatencyTestThread : public QThread
     {
         Q_OBJECT
@@ -18,7 +23,13 @@ namespace Qv2rayBase::_private
         void run() override;
 
       private:
-        QScopedPointer<LatencyTestThread> d_ptr;
-        Q_DECLARE_PRIVATE(LatencyTestThread)
+        void doTest(Qv2rayBase::Plugin::LatencyTestHost *parent, uvw::TimerHandle &handle);
+
+      private:
+        std::shared_ptr<uvw::Loop> loop;
+        bool isStop = false;
+        std::shared_ptr<uvw::TimerHandle> stopTimer;
+        std::vector<Qv2rayPlugin::Latency::LatencyTestRequest> requests;
+        std::mutex m;
     };
 } // namespace Qv2rayBase::_private

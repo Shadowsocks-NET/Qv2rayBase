@@ -3,14 +3,13 @@
 #include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Plugin/PluginManagerCore.hpp"
-#include "Profile/Generator.hpp"
 #include "Profile/KernelManager.hpp"
 #include "Profile/ProfileManager.hpp"
-#include "StorageProvider.hpp"
+#include "private/Qv2rayBaseLibrary_p.hpp"
 
 // Private headers
-#include "src/private/BaseConfigurationGenerator.hpp"
-#include "src/private/BaseStorageProvider.hpp"
+#include "private/Interfaces/BaseConfigurationGenerator_p.hpp"
+#include "private/Interfaces/BaseStorageProvider_p.hpp"
 
 #include <QDir>
 #include <QStandardPaths>
@@ -23,23 +22,8 @@ namespace Qv2rayBase
     using namespace Qv2rayBase::Plugin;
     QJsonObject MigrateSettings(int fromVersion, int toVersion, const QJsonObject &original);
     Qv2rayBaseLibrary *m_instance = nullptr;
-    class Qv2rayBaseLibraryPrivate
-    {
-      public:
-        Qv2rayBase::Models::Qv2rayBaseConfigObject *configuration;
 
-        Plugin::LatencyTestHost *latencyTestHost;
-        Plugin::PluginAPIHost *pluginAPIHost;
-        Plugin::PluginManagerCore *pluginCore;
-        Profile::ProfileManager *profileManager;
-        Profile::KernelManager *kernelManager;
-        QFlags<Qv2rayStartFlags> startupFlags;
-
-        Profile::IConfigurationGenerator *configGenerator;
-        IStorageProvider *storageProvider;
-    };
-
-    QV2RAYBASE_INITIALIZATION_FAILED_REASON Qv2rayBaseLibrary::Initialize(QFlags<Qv2rayStartFlags> flags, IConfigurationGenerator *gen, IStorageProvider *stor)
+    QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(QFlags<Qv2rayStartFlags> flags, Interfaces::IConfigurationGenerator *gen, Interfaces::IStorageProvider *stor)
     {
         Q_ASSERT_X(m_instance == nullptr, "Qv2rayBaseLibrary", "m_instance is not null! Cannot construct another Qv2rayBaseLibrary when there's one existed");
         m_instance = this;
@@ -48,12 +32,12 @@ namespace Qv2rayBase
         if (stor)
             d->storageProvider = stor;
         else
-            d->storageProvider = new _private::Qv2rayBasePrivateStorageProvider;
+            d->storageProvider = new Interfaces::Qv2rayBasePrivateStorageProvider;
 
         if (gen)
             d->configGenerator = gen;
         else
-            d->configGenerator = new _private::Qv2rayBasePrivateConfigurationGenerator;
+            d->configGenerator = new Interfaces::Qv2rayBasePrivateConfigurationGenerator;
 
         // TODO load configurations
 
@@ -170,12 +154,12 @@ namespace Qv2rayBase
         return instance()->d_ptr->latencyTestHost;
     }
 
-    IConfigurationGenerator *Qv2rayBaseLibrary::ConfigurationGenerator()
+    Interfaces::IConfigurationGenerator *Qv2rayBaseLibrary::ConfigurationGenerator()
     {
         return instance()->d_ptr->configGenerator;
     }
 
-    IStorageProvider *Qv2rayBaseLibrary::StorageProvider()
+    Interfaces::IStorageProvider *Qv2rayBaseLibrary::StorageProvider()
     {
         return instance()->d_ptr->storageProvider;
     }

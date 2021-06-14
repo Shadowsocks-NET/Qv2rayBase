@@ -23,17 +23,17 @@ namespace Qv2rayBase
     Q_NAMESPACE
 
     // clang-format off
-    class IStorageProvider;
     namespace Models  { struct Qv2rayBaseConfigObject; }
     namespace Plugin  { class LatencyTestHost; }
     namespace Plugin  { class PluginManagerCore; }
     namespace Plugin  { class PluginAPIHost; }
     namespace Profile { class ProfileManager; }
     namespace Profile { class KernelManager; }
-    namespace Profile { class IConfigurationGenerator; }
+    namespace Interfaces { class IStorageProvider; };
+    namespace Interfaces { class IConfigurationGenerator; }
     // clang-format on
 
-    enum QV2RAYBASE_INITIALIZATION_FAILED_REASON
+    enum QV2RAYBASE_FAILED_REASON
     {
         NORMAL = 0,
 
@@ -42,7 +42,7 @@ namespace Qv2rayBase
         INITIALIZATION_FAILED,
         PRECONDITION_FAILED,
     };
-    Q_ENUM_NS(QV2RAYBASE_INITIALIZATION_FAILED_REASON)
+    Q_ENUM_NS(QV2RAYBASE_FAILED_REASON)
 
     enum Qv2rayStartFlags
     {
@@ -75,7 +75,7 @@ namespace Qv2rayBase
         explicit Qv2rayBaseLibrary();
         ~Qv2rayBaseLibrary();
 
-        QV2RAYBASE_INITIALIZATION_FAILED_REASON Initialize(QFlags<Qv2rayStartFlags> flags, Profile::IConfigurationGenerator *g = nullptr, IStorageProvider *s = nullptr);
+        QV2RAYBASE_FAILED_REASON Initialize(QFlags<Qv2rayStartFlags> flags, Interfaces::IConfigurationGenerator *g = nullptr, Interfaces::IStorageProvider *s = nullptr);
 
       public:
         ///
@@ -156,13 +156,13 @@ namespace Qv2rayBase
         /// \brief ConfigurationGenerator Get the configuration generator, mostly for applying custom configuration filters or chain expansions
         /// \return The pointer to the configuration generator
         ///
-        static Qv2rayBase::Profile::IConfigurationGenerator *ConfigurationGenerator();
+        static Qv2rayBase::Interfaces::IConfigurationGenerator *ConfigurationGenerator();
 
         ///
         /// \brief StorageProvider Get the storage provider, implemented by downstream to provide Qv2rayBase a stable storage to place connections.
         /// \return The pointer to the storage provider
         ///
-        static Qv2rayBase::IStorageProvider *StorageProvider();
+        static Qv2rayBase::Interfaces::IStorageProvider *StorageProvider();
 
       protected:
         virtual void p_MessageBoxWarn(const QString &title, const QString &text) = 0;

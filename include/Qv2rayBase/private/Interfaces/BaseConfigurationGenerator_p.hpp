@@ -1,8 +1,8 @@
-#include <Profile/Generator.hpp>
+#include "Interfaces/IConfigurationGenerator.hpp"
 
-namespace Qv2rayBase::_private
+namespace Qv2rayBase::Interfaces
 {
-    class Qv2rayBasePrivateConfigurationGenerator : public Profile::IConfigurationGenerator
+    class Qv2rayBasePrivateConfigurationGenerator : public IConfigurationGenerator
     {
       public:
         virtual ProfileContent ApplyRouting(const ProfileContent &profile, const RoutingObject &rid) override;

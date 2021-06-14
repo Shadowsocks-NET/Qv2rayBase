@@ -3,6 +3,8 @@
 #include "Common/Utils.hpp"
 #include "Plugin/PluginManagerCore.hpp"
 #include "Qv2rayBaseLibrary.hpp"
+#include "private/Plugin/PluginAPIHost_p.hpp"
+#include "private/Plugin/PluginManagerCore_p.hpp"
 
 #define QV_MODULE_NAME "PluginAPIHost"
 
@@ -14,13 +16,6 @@ namespace Qv2rayBase::Plugin
     using namespace Qv2rayPlugin::Kernel;
     using namespace Qv2rayPlugin::Outbound;
     using namespace Qv2rayPlugin::Subscription;
-
-    class PluginAPIHostPrivate
-    {
-      public:
-        QHash<KernelId, Qv2rayPlugin::Kernel::KernelFactory> kernels;
-        QHash<LatencyTestEngineId, Qv2rayPlugin::Latency::LatencyTestEngineInfo> latencyTesters;
-    };
 
     PluginAPIHost::PluginAPIHost()
     {
