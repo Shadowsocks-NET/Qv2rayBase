@@ -31,4 +31,4 @@ namespace Qv2rayBase::Interfaces
       public:
         virtual ProfileContent ApplyRouting(const ProfileContent &profile, const RoutingObject &rid) override;
     };
-} // namespace Qv2rayBase::_private
+} // namespace Qv2rayBase::Interfaces

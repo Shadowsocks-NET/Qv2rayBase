@@ -56,4 +56,4 @@ namespace Qv2rayBase::Plugin
         std::vector<Qv2rayPlugin::Latency::LatencyTestRequest> requests;
         std::mutex m;
     };
-} // namespace Qv2rayBase::_private
+} // namespace Qv2rayBase::Plugin

@@ -260,4 +260,4 @@ namespace Qv2rayBase::Interfaces
     {
     }
 
-} // namespace Qv2rayBase::_private
+} // namespace Qv2rayBase::Interfaces

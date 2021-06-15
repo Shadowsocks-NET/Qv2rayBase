@@ -53,4 +53,4 @@ namespace Qv2rayBase::Interfaces
         //      private:
         //        QHash<GroupRoutingId, GroupRoutingConfig> configs;
     };
-} // namespace Qv2rayBase::Profile
+} // namespace Qv2rayBase::Interfaces

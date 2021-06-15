@@ -22,4 +22,4 @@ namespace Qv2rayBase::Interfaces
     {
         return pair;
     }
-} // namespace Qv2rayBase::_private
+} // namespace Qv2rayBase::Interfaces

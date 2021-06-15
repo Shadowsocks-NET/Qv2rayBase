@@ -70,4 +70,4 @@ namespace Qv2rayBase::Interfaces
         QString ExecutableDirPath;
     };
 
-} // namespace Qv2rayBase::_private
+} // namespace Qv2rayBase::Interfaces
