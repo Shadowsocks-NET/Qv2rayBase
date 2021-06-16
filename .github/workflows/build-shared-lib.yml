@@ -87,7 +87,8 @@ jobs:
     - name: Run tests
       run: |
         cd build
-        ctest . -V
+        export PATH=$PATH:$Qt6_DIR/bin:$(pwd):$(pwd)/Release
+        ctest . -V -C Release
 
     - name: Install
       run: |
