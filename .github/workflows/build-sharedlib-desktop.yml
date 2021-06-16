@@ -1,4 +1,4 @@
-name: Build Qv2rayBase Shared Library
+name: Build for Desktop Platforms
 
 on:
   push:
