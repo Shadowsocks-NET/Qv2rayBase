@@ -52,11 +52,11 @@ class TestStaticPlugin
     void PluginErrorMessageBox(QString, QString) override;
 };
 
-class StaticPluginLoaderTest : public QObject
+class PluginLoaderTest : public QObject
 {
     Q_OBJECT
   public:
-    StaticPluginLoaderTest(QObject *parent = nullptr) : QObject(parent){};
+    PluginLoaderTest(QObject *parent = nullptr) : QObject(parent){};
 
   private slots:
     void initTestCase()
@@ -85,7 +85,7 @@ class StaticPluginLoaderTest : public QObject
     Qv2rayBase::Qv2rayBaseLibrary *baselib;
 };
 
-QTEST_MAIN(StaticPluginLoaderTest)
+QTEST_MAIN(PluginLoaderTest)
 Q_IMPORT_PLUGIN(TestStaticPlugin)
 
-#include "tst_StaticPlugin.moc"
+#include "tst_PluginLoader.moc"
