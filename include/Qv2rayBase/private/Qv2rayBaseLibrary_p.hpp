@@ -38,9 +38,10 @@ namespace Qv2rayBase
         Plugin::PluginManagerCore *pluginCore;
         Profile::ProfileManager *profileManager;
         Profile::KernelManager *kernelManager;
-        QFlags<Qv2rayStartFlags> startupFlags;
+        Qv2rayStartFlags startupFlags;
 
         Interfaces::IConfigurationGenerator *configGenerator;
         Interfaces::IStorageProvider *storageProvider;
+        Interfaces::IUserInteractionInterface *uiInterface;
     };
 } // namespace Qv2rayBase

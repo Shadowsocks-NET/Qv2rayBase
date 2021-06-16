@@ -16,23 +16,9 @@
 
 #pragma once
 
+#include "Interfaces/IUserInteractionInterface.hpp"
 #include "Qv2rayBaseFeatures.hpp"
 #include "Qv2rayBase_export.h"
-
-#include <QtCore>
-#include <QtDebug>
-
-// Base folder suffix.
-#ifdef QT_DEBUG
-#define _BOMB_ (static_cast<QObject *>(nullptr)->event(nullptr))
-#else
-#define _BOMB_
-#endif
-
-#define NEWLINE "\n"
-
-#define QvLog() qInfo() << QV_MODULE_NAME << ":"
-#define QvDebug() qDebug() << QV_MODULE_NAME << ":"
 
 namespace Qv2rayBase
 {
@@ -60,11 +46,16 @@ namespace Qv2rayBase
     };
     Q_ENUM_NS(QV2RAYBASE_FAILED_REASON)
 
-    enum Qv2rayStartFlags
+    enum Qv2rayStartFlag
     {
-        NO_PLUGINS,
+        // clang-format off
+        START_NORMAL        = 0x0000,
+        START_NO_PLUGINS    = 0x0001,
+        // clang-format on
     };
-    Q_ENUM_NS(Qv2rayStartFlags)
+
+    Q_DECLARE_FLAGS(Qv2rayStartFlags, Qv2rayStartFlag)
+    Q_FLAG_NS(Qv2rayStartFlags)
 
     class Qv2rayBaseLibraryPrivate;
     ///
@@ -74,16 +65,6 @@ namespace Qv2rayBase
     class QV2RAYBASE_EXPORT Qv2rayBaseLibrary
     {
       public:
-        enum class MessageOpt
-        {
-            // clang-format off
-            OK,     Cancel,
-            Yes,    No,
-            Ignore
-            // clang-format on
-        };
-
-      public:
         ///
         /// \brief Qv2rayBaseLibrary
         /// construct a Qv2rayBaseLibrary instance, the constructor should only be called once during the
@@ -91,7 +72,10 @@ namespace Qv2rayBase
         explicit Qv2rayBaseLibrary();
         ~Qv2rayBaseLibrary();
 
-        QV2RAYBASE_FAILED_REASON Initialize(QFlags<Qv2rayStartFlags> flags, Interfaces::IConfigurationGenerator *g = nullptr, Interfaces::IStorageProvider *s = nullptr);
+        QV2RAYBASE_FAILED_REASON Initialize(Qv2rayStartFlags flags,                          //
+                                            Interfaces::IUserInteractionInterface *,         //
+                                            Interfaces::IConfigurationGenerator * = nullptr, //
+                                            Interfaces::IStorageProvider * = nullptr);
 
       public:
         ///
@@ -179,12 +163,6 @@ namespace Qv2rayBase
         /// \return The pointer to the storage provider
         ///
         static Qv2rayBase::Interfaces::IStorageProvider *StorageProvider();
-
-      protected:
-        virtual void p_MessageBoxWarn(const QString &title, const QString &text) = 0;
-        virtual void p_MessageBoxInfo(const QString &title, const QString &text) = 0;
-        virtual MessageOpt p_MessageBoxAsk(const QString &title, const QString &text, const QList<MessageOpt> &options) = 0;
-        virtual void p_OpenURL(const QUrl &url) = 0;
 
       private:
         Q_DECLARE_PRIVATE_D(d_ptr, Qv2rayBaseLibrary)

@@ -16,22 +16,29 @@
 
 #pragma once
 
-#include <QtCore>
-#include <QtDebug>
+#include <QString>
+#include <QUrl>
 
-#define QVFEATURE_subscriptions 1
-#define QVFEATURE_statistics 1
-#define QVFEATURE_latency 1
+namespace Qv2rayBase
+{
+    enum class MessageOpt
+    {
+        // clang-format off
+            OK,     Cancel,
+            Yes,    No,
+            Ignore
+        // clang-format on
+    };
+} // namespace Qv2rayBase
 
-#define QV2RAYBASE_FEATURE(feat) ((1 / QVFEATURE_##feat) == 1)
-
-#ifdef QT_DEBUG
-#define _BOMB_ (static_cast<QObject *>(nullptr)->event(nullptr))
-#else
-#define _BOMB_
-#endif
-
-#define NEWLINE "\n"
-
-#define QvLog() qInfo() << QV_MODULE_NAME << "-"
-#define QvDebug() qDebug() << QV_MODULE_NAME << "-"
+namespace Qv2rayBase::Interfaces
+{
+    class IUserInteractionInterface
+    {
+      public:
+        virtual void p_MessageBoxWarn(const QString &title, const QString &text) = 0;
+        virtual void p_MessageBoxInfo(const QString &title, const QString &text) = 0;
+        virtual MessageOpt p_MessageBoxAsk(const QString &title, const QString &text, const QList<MessageOpt> &options) = 0;
+        virtual void p_OpenURL(const QUrl &url) = 0;
+    };
+} // namespace Qv2rayBase::Interfaces

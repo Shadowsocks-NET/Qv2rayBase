@@ -11,8 +11,9 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false "${CMAKE_CURRENT_LIST_DIR}
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     message(STATUS "Adding test: ${TEST_NAME}")
-    add_executable(${TEST_NAME} ${TEST_SOURCE})
+    add_executable(${TEST_NAME} ${TEST_SOURCE} "${CMAKE_CURRENT_LIST_DIR}/TestCommon.hpp")
     target_link_libraries(${TEST_NAME} PRIVATE Qt::Test Qv2ray::Qv2rayBase Qv2ray::QvPluginInterface)
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
 
+target_compile_definitions(tst_StaticPlugin PRIVATE -DQT_STATICPLUGIN=1)

@@ -32,6 +32,7 @@ namespace Qv2rayBase::Plugin
     using namespace Qv2rayPlugin;
     PluginManagerCore::PluginManagerCore(QObject *parent) : QObject(parent)
     {
+        d_ptr.reset(new PluginManagerCorePrivate);
     }
 
     PluginManagerCore::~PluginManagerCore()
@@ -41,8 +42,13 @@ namespace Qv2rayBase::Plugin
         for (auto &&plugin : d->plugins)
         {
             QvDebug() << "Unloading plugin:" << plugin.metadata().Name;
-            plugin.loader->unload();
-            plugin.loader->deleteLater();
+
+            // Static plugins doesn't have a loader.
+            if (plugin.loader)
+            {
+                plugin.loader->unload();
+                plugin.loader->deleteLater();
+            }
         }
         d->plugins.clear();
     }
@@ -51,7 +57,7 @@ namespace Qv2rayBase::Plugin
     {
         Q_D(PluginManagerCore);
         QvLog() << "Reloading plugin list";
-        for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths("plugins"))
+        for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths(QStringLiteral("plugins")))
         {
             const auto entries = QDir(pluginDirPath).entryList(QDir::Files);
             for (const auto &fileName : entries)
@@ -60,13 +66,18 @@ namespace Qv2rayBase::Plugin
             }
         }
 
+        for (const auto &plugin : QPluginLoader::staticInstances())
+        {
+            loadPluginImpl(QStringLiteral("[STATIC]"), plugin, nullptr);
+        }
+
         for (auto &plugin : d->plugins.keys())
         {
             auto wd = Qv2rayBaseLibrary::StorageProvider()->GetPluginWorkingDirectory(plugin);
             auto conf = Qv2rayBaseLibrary::StorageProvider()->GetPluginSettings(plugin);
 
             d->plugins[plugin].pinterface->m_Settings = conf;
-            d->plugins[plugin].pinterface->m_WorkingDirectory = wd;
+            d->plugins[plugin].pinterface->m_WorkingDirectory.setPath(wd.absolutePath());
             d->plugins[plugin].pinterface->m_ConnectionManager = Qv2rayBaseLibrary::ProfileManager();
             d->plugins[plugin].pinterface->InitializePlugin();
         }
@@ -88,6 +99,7 @@ namespace Qv2rayBase::Plugin
             list << &plugin;
         return list;
     }
+
     QList<const PluginInfo *> PluginManagerCore::GetPlugins(Qv2rayPlugin::QV2RAY_PLUGIN_COMPONENT_TYPE c) const
     {
         Q_D(const PluginManagerCore);
@@ -103,65 +115,29 @@ namespace Qv2rayBase::Plugin
     const PluginInfo *PluginManagerCore::GetPlugin(const PluginId &internalName)
     {
         Q_D(PluginManagerCore);
-        return d->plugins.contains(internalName) ? &d->plugins[internalName] : nullptr;
+        return !d->plugins.isEmpty() && d->plugins.contains(internalName) ? &d->plugins[internalName] : nullptr;
     }
 
     bool PluginManagerCore::tryLoadPlugin(const QString &pluginFullPath)
     {
-        Q_D(PluginManagerCore);
-        if (!pluginFullPath.endsWith(".dll") && !pluginFullPath.endsWith(".so") && !pluginFullPath.endsWith(".dylib"))
+        if (!pluginFullPath.endsWith(QLatin1String(".dll")) && !pluginFullPath.endsWith(QLatin1String(".so")) && !pluginFullPath.endsWith(".dylib"))
             return false;
 
         if (pluginFullPath.isEmpty())
             return false;
 
-        PluginInfo info;
-        info.libraryPath = pluginFullPath;
-        info.loader = new QPluginLoader(pluginFullPath, this);
+        auto loader = new QPluginLoader(pluginFullPath, this);
 
-        QObject *plugin = info.loader->instance();
-        if (!plugin)
+        QObject *instance = loader->instance();
+        if (!instance)
         {
-            const auto errMessage = info.loader->errorString();
+            const auto errMessage = loader->errorString();
             QvLog() << errMessage;
             Qv2rayBaseLibrary::Warn(tr("Failed to load plugin"), errMessage);
             return false;
         }
 
-        info.pinterface = qobject_cast<Qv2rayInterface *>(plugin);
-        if (!info.pinterface)
-        {
-            QvLog() << "Failed to cast from QObject to Qv2rayPluginInterface";
-            info.loader->unload();
-            return false;
-        }
-
-        if (info.pinterface->QvPluginInterfaceVersion != QV2RAY_PLUGIN_INTERFACE_VERSION)
-        {
-            // The plugin was built for a not-compactable version of Qv2ray. Don't load the plugin by default.
-            QvLog() << info.libraryPath << " is built with an older Interface, ignoring";
-            Qv2rayBaseLibrary::Warn(tr("Cannot load plugin"), tr("The plugin cannot be loaded: ") + "\n" + info.libraryPath + "\n\n" +
-                                                                  tr("This plugin was built against a different version of the Plugin Interface.") + "\n" +
-                                                                  tr("Please contact the plugin provider or report the issue to Qv2ray Workgroup."));
-            info.loader->unload();
-            return false;
-        }
-
-        if (d->plugins.contains(info.metadata().InternalID))
-        {
-            QvLog() << "Found another plugin with the same internal name:" << info.metadata().InternalID << ". Skipped";
-            return false;
-        }
-
-        // Normalized function signature should not contain a space char, which would be added by clang-format
-        // clang-format off
-        connect(plugin, SIGNAL(PluginLog(QString)), this, SLOT(QvPluginLog(QString)));
-        connect(plugin, SIGNAL(PluginErrorMessageBox(QString,QString)), this, SLOT(QvPluginMessageBox(QString,QString)));
-        // clang-format on
-
-        QvLog() << "Loaded plugin:" << info.metadata().Name << "made by:" << info.metadata().Author;
-        d->plugins.insert(info.metadata().InternalID, info);
-        return true;
+        return loadPluginImpl(pluginFullPath, instance, loader);
     }
 
     void PluginManagerCore::QvPluginLog(QString log)
@@ -202,5 +178,54 @@ namespace Qv2rayBase::Plugin
         {
             Qv2rayBaseLibrary::StorageProvider()->SetPluginSettings(name, d->plugins[name].pinterface->m_Settings);
         }
+    }
+
+    bool PluginManagerCore::loadPluginImpl(const QString &fullPath, QObject *instance, QPluginLoader *loader)
+    {
+        Q_D(PluginManagerCore);
+
+        PluginInfo info;
+        info.libraryPath = fullPath;
+        info.loader = loader;
+        info.pinterface = qobject_cast<Qv2rayInterface *>(instance);
+
+        if (!info.pinterface)
+        {
+            QvLog() << "Failed to cast from QObject to Qv2rayPluginInterface";
+            // Static plugins doesn't have a loader.
+            if (info.loader)
+            {
+                info.loader->unload();
+                info.loader->deleteLater();
+            }
+            return false;
+        }
+
+        if (info.pinterface->QvPluginInterfaceVersion != QV2RAY_PLUGIN_INTERFACE_VERSION)
+        {
+            // The plugin was built for a not-compactable version of Qv2ray. Don't load the plugin by default.
+            QvLog() << info.libraryPath << " is built with an older Interface, ignoring";
+            Qv2rayBaseLibrary::Warn(tr("Cannot load plugin"), tr("The plugin cannot be loaded: ") + "\n" + info.libraryPath + "\n\n" +
+                                                                  tr("This plugin was built against a different version of the Plugin Interface.") + "\n" +
+                                                                  tr("Please contact the plugin provider or report the issue to Qv2ray Workgroup."));
+            info.loader->unload();
+            return false;
+        }
+
+        if (d->plugins.contains(info.metadata().InternalID))
+        {
+            QvLog() << "Found another plugin with the same internal name:" << info.metadata().InternalID << ". Skipped";
+            return false;
+        }
+
+        // Normalized function signature should not contain a space char, which would be added by clang-format
+        // clang-format off
+        connect(instance, SIGNAL(PluginLog(QString)), this, SLOT(QvPluginLog(QString)));
+        connect(instance, SIGNAL(PluginErrorMessageBox(QString,QString)), this, SLOT(QvPluginMessageBox(QString,QString)));
+        // clang-format on
+
+        QvLog() << "Loaded plugin:" << info.metadata().Name << "made by:" << info.metadata().Author;
+        d->plugins.insert(info.metadata().InternalID, info);
+        return true;
     }
 } // namespace Qv2rayBase::Plugin

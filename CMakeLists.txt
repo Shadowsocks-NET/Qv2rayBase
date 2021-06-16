@@ -57,6 +57,7 @@ set(BASELIB_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Utils.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IConfigurationGenerator.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IStorageProvider.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IUserInteractionInterface.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/LatencyTestHost.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginAPIHost.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginManagerCore.hpp
@@ -97,6 +98,7 @@ add_library(Qv2rayBase SHARED ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCE
 target_include_directories(Qv2rayBase
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Qv2rayBase>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase>"
     )
 

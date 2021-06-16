@@ -30,6 +30,9 @@
 #include <QDir>
 #include <QStandardPaths>
 
+// WARN Should we use this?
+#include <QCoreApplication>
+
 #define QV_MODULE_NAME "BaseApplication"
 
 namespace Qv2rayBase
@@ -39,12 +42,18 @@ namespace Qv2rayBase
     QJsonObject MigrateSettings(int fromVersion, int toVersion, const QJsonObject &original);
     Qv2rayBaseLibrary *m_instance = nullptr;
 
-    QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(QFlags<Qv2rayStartFlags> flags, Interfaces::IConfigurationGenerator *gen, Interfaces::IStorageProvider *stor)
+    QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(Qv2rayStartFlags flags,                    //
+                                                           Interfaces::IUserInteractionInterface *ui, //
+                                                           Interfaces::IConfigurationGenerator *gen,  //
+                                                           Interfaces::IStorageProvider *stor)
     {
         Q_ASSERT_X(m_instance == nullptr, "Qv2rayBaseLibrary", "m_instance is not null! Cannot construct another Qv2rayBaseLibrary when there's one existed");
         m_instance = this;
         Q_D(Qv2rayBaseLibrary);
         d->startupFlags = flags;
+
+        d->uiInterface = ui;
+
         if (stor)
             d->storageProvider = stor;
         else
@@ -59,7 +68,7 @@ namespace Qv2rayBase
 
         d->pluginCore = new Plugin::PluginManagerCore;
 
-        if (!flags.testFlag(NO_PLUGINS))
+        if (!flags.testFlag(START_NO_PLUGINS))
             d->pluginCore->LoadPlugins();
 
         d->latencyTestHost = new Plugin::LatencyTestHost;
@@ -77,8 +86,8 @@ namespace Qv2rayBase
 
     Qv2rayBaseLibrary::Qv2rayBaseLibrary()
     {
-        qInfo() << "Qv2ray Base Library" << QV2RAY_BASELIB_VERSION << "on" << QSysInfo::prettyProductName() << QSysInfo::currentCpuArchitecture();
-        qDebug() << "Qv2ray Start Time:" << QTime::currentTime().msecsSinceStartOfDay();
+        QvLog() << "Qv2ray Base Library" << QV2RAY_BASELIB_VERSION << "on" << QSysInfo::prettyProductName() << QSysInfo::currentCpuArchitecture();
+        QvDebug() << "Qv2ray Start Time:" << QTime::currentTime().msecsSinceStartOfDay();
         d_ptr.reset(new Qv2rayBaseLibraryPrivate);
     }
 
@@ -94,60 +103,27 @@ namespace Qv2rayBase
         // Configuration Path
         QStringList list;
 
-        if (qEnvironmentVariableIsSet("QV2RAY_RESOURCES_PATH"))
-            list << makeAbs(qEnvironmentVariable("QV2RAY_RESOURCES_PATH") + "/" + dirName);
-
-        // Default behavior on Windows
-        list << makeAbs(QCoreApplication::applicationDirPath() + "/" + dirName);
-
-        // WARNING BREAKING CHANGE
-        // list << makeAbs(instance()->d_ptr->configurationPaths + dirName);
-        list << ":/" + dirName;
-
-        list << QStandardPaths::locateAll(QStandardPaths::AppDataLocation, dirName, QStandardPaths::LocateDirectory);
-        list << QStandardPaths::locateAll(QStandardPaths::AppConfigLocation, dirName, QStandardPaths::LocateDirectory);
-
-#ifdef Q_OS_UNIX
-        if (qEnvironmentVariableIsSet("APPIMAGE"))
-            list << makeAbs(QCoreApplication::applicationDirPath() + "/../share/qv2ray/" + dirName);
-
-        if (qEnvironmentVariableIsSet("SNAP"))
-            list << makeAbs(qEnvironmentVariable("SNAP") + "/usr/share/qv2ray/" + dirName);
-
-        if (qEnvironmentVariableIsSet("XDG_DATA_DIRS"))
-            list << makeAbs(qEnvironmentVariable("XDG_DATA_DIRS") + "/" + dirName);
-
-        list << makeAbs("/usr/local/share/qv2ray/" + dirName);
-        list << makeAbs("/usr/local/lib/qv2ray/" + dirName);
-        list << makeAbs("/usr/share/qv2ray/" + dirName);
-        list << makeAbs("/usr/lib/qv2ray/" + dirName);
-        list << makeAbs("/lib/qv2ray/" + dirName);
-#endif
-
-#ifdef Q_OS_MAC
-        // macOS platform directories.
-        list << QDir(QCoreApplication::applicationDirPath() + "/../Resources/" + dirName).absolutePath();
-#endif
+        if (qEnvironmentVariableIsSet("QV2RAYBASE_RESOURCES_PATH"))
+            list << makeAbs(qEnvironmentVariable("QV2RAYBASE_RESOURCES_PATH") + "/" + dirName);
 
         list << instance()->StorageProvider()->GetAssetsPath(dirName);
-
         list.removeDuplicates();
         return list;
     }
 
     void Qv2rayBaseLibrary::Warn(const QString &title, const QString &text)
     {
-        return instance()->p_MessageBoxWarn(title, text);
+        instance()->d_ptr->uiInterface->p_MessageBoxWarn(title, text);
     }
 
     void Qv2rayBaseLibrary::Info(const QString &title, const QString &text)
     {
-        return instance()->p_MessageBoxInfo(title, text);
+        instance()->d_ptr->uiInterface->p_MessageBoxInfo(title, text);
     }
 
-    Qv2rayBaseLibrary::MessageOpt Qv2rayBaseLibrary::Ask(const QString &title, const QString &text, const QList<MessageOpt> &options)
+    MessageOpt Qv2rayBaseLibrary::Ask(const QString &title, const QString &text, const QList<MessageOpt> &options)
     {
-        return instance()->p_MessageBoxAsk(title, text, options);
+        return instance()->d_ptr->uiInterface->p_MessageBoxAsk(title, text, options);
     }
 
     PluginAPIHost *Qv2rayBaseLibrary::PluginAPIHost()

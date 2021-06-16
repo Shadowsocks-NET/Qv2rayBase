@@ -29,6 +29,8 @@ const auto QV2RAY_CONFIG_ROUTINGS_BASENAME = "routings";
 const auto QV2RAY_CONFIG_PLUGINS_BASENAME = "plugins";
 const auto QV2RAY_CONFIG_PLUGIN_SETTINGS_BASENAME = "plugin_settings";
 
+#define DEBUG_SUFFIX (RuntimeContext.isDebug ? QStringLiteral("_debug/") : QStringLiteral("/"))
+
 bool CheckSettingsPathAvailability(const QString &_dirPath, bool checkExistingConfig)
 {
     auto path = _dirPath;
@@ -99,10 +101,10 @@ namespace Qv2rayBase::Interfaces
 
         {
             // Application directory
-            configDirPathsSearchList << qApp->applicationDirPath() + "/config" + (runtimeContext.isDebug ? "_debug" : "");
+            configDirPathsSearchList << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
 
             // Standard platform-independent configuration location
-            configDirPathsSearchList << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qv2ray" + (runtimeContext.isDebug ? "_debug" : "");
+            configDirPathsSearchList << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qv2ray" + DEBUG_SUFFIX;
         }
 
         // Custom configuration path
@@ -239,9 +241,43 @@ namespace Qv2rayBase::Interfaces
     {
     }
 
-    QStringList Qv2rayBasePrivateStorageProvider::GetAssetsPath(const QString &)
+    QStringList Qv2rayBasePrivateStorageProvider::GetAssetsPath(const QString &dirName)
     {
-        return {};
+        static const auto makeAbs = [](const QDir &p) { return p.absolutePath(); };
+
+        QStringList list;
+        // Default behavior on Windows
+        list << makeAbs(QCoreApplication::applicationDirPath() + "/" + dirName);
+
+        // WARNING BREAKING CHANGE
+        // list << makeAbs(instance()->d_ptr->configurationPaths + dirName);
+        list << ":/" + dirName;
+
+        list << QStandardPaths::locateAll(QStandardPaths::AppDataLocation, dirName, QStandardPaths::LocateDirectory);
+        list << QStandardPaths::locateAll(QStandardPaths::AppConfigLocation, dirName, QStandardPaths::LocateDirectory);
+
+#ifdef Q_OS_UNIX
+        if (qEnvironmentVariableIsSet("APPIMAGE"))
+            list << makeAbs(QCoreApplication::applicationDirPath() + "/../share/qv2ray" + DEBUG_SUFFIX + dirName);
+
+        if (qEnvironmentVariableIsSet("SNAP"))
+            list << makeAbs(qEnvironmentVariable("SNAP") + "/usr/share/qv2ray" + DEBUG_SUFFIX + dirName);
+
+        if (qEnvironmentVariableIsSet("XDG_DATA_DIRS"))
+            list << makeAbs(qEnvironmentVariable("XDG_DATA_DIRS") + "/" + dirName);
+
+        list << makeAbs("/usr/local/share/qv2ray" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/local/lib/qv2ray" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/share/qv2ray" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/lib/qv2ray" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/lib/qv2ray" + DEBUG_SUFFIX + dirName);
+#endif
+
+#ifdef Q_OS_MAC
+        // macOS platform directories.
+        list << QDir(QCoreApplication::applicationDirPath() + "/../Resources/" + dirName).absolutePath();
+#endif
+        return list;
     }
 
     void Qv2rayBasePrivateStorageProvider::EnsureSaved()

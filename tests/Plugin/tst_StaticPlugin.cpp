@@ -14,15 +14,78 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <QObject>
+#include "Plugin/PluginManagerCore.hpp"
+#include "Qv2rayBaseLibrary.hpp"
+#include "QvPluginInterface.hpp"
+#include "TestCommon.hpp"
+
 #include <QtTest>
+
+class TestStaticPlugin
+    : public QObject
+    , public Qv2rayPlugin::Qv2rayInterface
+
+{
+    Q_OBJECT
+    Q_INTERFACES(Qv2rayPlugin::Qv2rayInterface)
+    Q_PLUGIN_METADATA(IID Qv2rayInterface_IID)
+  public:
+    TestStaticPlugin(QObject *parent = nullptr) : QObject(parent){};
+    virtual const Qv2rayPlugin::QvPluginMetadata GetMetadata() const override
+    {
+        return Qv2rayPlugin::QvPluginMetadata{ QStringLiteral("Static Plugin Loader Test Plugin"), //
+                                               QStringLiteral("Moody"),                            //
+                                               PluginId(QStringLiteral("static_plugin_test")),
+                                               QStringLiteral(""),
+                                               QStringLiteral(""),
+                                               {} };
+    }
+    virtual bool InitializePlugin() override
+    {
+        return true;
+    }
+    virtual void SettingsUpdated() override
+    {
+    }
+  signals:
+    void PluginLog(QString) override;
+    void PluginErrorMessageBox(QString, QString) override;
+};
 
 class StaticPluginLoaderTest : public QObject
 {
     Q_OBJECT
   public:
     StaticPluginLoaderTest(QObject *parent = nullptr) : QObject(parent){};
+
+  private slots:
+    void initTestCase()
+    {
+    }
+
+    void testWithoutPlugins()
+    {
+        baselib = new Qv2rayBase::Qv2rayBaseLibrary;
+        baselib->Initialize({ Qv2rayBase::START_NO_PLUGINS }, new Qv2rayBase::Tests::UIInterface);
+        QCOMPARE(baselib->PluginManagerCore()->GetPlugin(PluginId(QStringLiteral("static_plugin_test"))), nullptr);
+        delete baselib;
+    }
+
+    void testWithPlugins()
+    {
+        baselib = new Qv2rayBase::Qv2rayBaseLibrary;
+        baselib->Initialize({}, new Qv2rayBase::Tests::UIInterface);
+        const auto pluginInfo = baselib->PluginManagerCore()->GetPlugin(PluginId(QStringLiteral("static_plugin_test")));
+        QVERIFY2(pluginInfo != nullptr, "PluginInfo should not be nullptr, that is, PluginManagerCore should find the static plugin.");
+        QCOMPARE(pluginInfo->libraryPath, "[STATIC]");
+        delete baselib;
+    }
+
+  private:
+    Qv2rayBase::Qv2rayBaseLibrary *baselib;
 };
 
 QTEST_MAIN(StaticPluginLoaderTest)
+Q_IMPORT_PLUGIN(TestStaticPlugin)
+
 #include "tst_StaticPlugin.moc"
