@@ -1,5 +1,7 @@
 # Qv2ray Base Library (libQv2rayBase)
 
+[![Build Qv2rayBase Shared Library](https://github.com/moodyhunter/Qv2rayBase/actions/workflows/build-shared-lib.yml/badge.svg?branch=master&event=push)](https://github.com/moodyhunter/Qv2rayBase/actions/workflows/build-shared-lib.yml)
+
 The baselib of Qv2ray, with minimal dependencies but maximal feature set, modified from Shadowsocks-NET/Qv2ray.
 
 GUI developers could link against this library to enjoy the functionalities of:
