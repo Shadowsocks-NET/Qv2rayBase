@@ -43,6 +43,24 @@ set(UVW_SOURCES
 add_library(uvw STATIC ${UVW_SOURCES})
 target_compile_definitions(uvw PRIVATE UVW_AS_LIB)
 target_link_libraries(uvw Qv2ray::libuv)
-target_include_directories(uvw PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src)
 set_target_properties(uvw PROPERTIES EXCLUDE_FROM_ALL TRUE)
+
+target_include_directories(uvw PUBLIC
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw/src>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDE_DIR}/uvw/>")
+
 add_library(Qv2ray::libuvw ALIAS uvw)
+
+# BEGIN - the hack to install libuv and libuvw as static libraries
+if(NOT BUILD_SHARED_LIBS)
+    install(TARGETS uv_a EXPORT libuvTargets RUNTIME DESTINATION "lib/" ARCHIVE DESTINATION "lib/")
+    install(TARGETS uvw  EXPORT uvwTargets   RUNTIME DESTINATION "lib/" ARCHIVE DESTINATION "lib/")
+
+    install(EXPORT libuvTargets FILE libuvConfig.cmake NAMESPACE LibUV:: DESTINATION "lib/cmake/LibUV")
+    install(EXPORT uvwTargets   FILE uvwConfig.cmake   NAMESPACE UVW::   DESTINATION "lib/cmake/uvw")
+
+    export(TARGETS uv_a FILE _dummy-uv-a.cmake)
+    export(TARGETS uvw  FILE _dummy-uvw.cmake)
+endif()
+# END  - the hack to install libuv and libuvw as static libraries

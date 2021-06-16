@@ -94,7 +94,9 @@ set(BASELIB_P_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Qv2rayBaseLibrary_p.hpp
     )
 
-add_library(Qv2rayBase SHARED ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCES} ${BASELIB_HEADERS} ${BASELIB_P_HEADERS})
+option(BUILD_SHARED_LIBS "Build Qv2rayBase as shared library.")
+
+add_library(Qv2rayBase ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCES} ${BASELIB_HEADERS} ${BASELIB_P_HEADERS})
 target_include_directories(Qv2rayBase
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Qv2rayBase>"
@@ -112,6 +114,7 @@ target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${PROJECT
 
 set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION 0)
 set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
+set_target_properties(Qv2rayBase PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     if(UNIX AND NOT APPLE)

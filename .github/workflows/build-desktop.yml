@@ -1,4 +1,4 @@
-name: Build for Desktop Platforms
+name: Build for Desktop
 
 on:
   push:
@@ -14,11 +14,12 @@ jobs:
     env:
       CC: ${{ matrix.config.cc }}
       CXX: ${{ matrix.config.cxx }}
-    name: '${{ matrix.config.name }}'
+    name: ${{ matrix.config.name }}, ${{ fromJSON('["Static", "Shared"]')[matrix.build_shared=='ON'] }}
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
+        build_shared: [ON, OFF]
         config:
         - {
             name: "Windows MSVC", artifact: "Windows-MSVC",
@@ -72,6 +73,7 @@ jobs:
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_INSTALL_PREFIX=installed \
+          -DBUILD_SHARED_LIBS=${{ matrix.build_shared }} \
           -DBUILD_TESTING=ON \
           -G${{ matrix.config.generator }} \
           ${{ matrix.config.extra_cmake_args }}
@@ -98,5 +100,5 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: Qv2rayBase-${{ matrix.config.artifact }}
+        name: Qv2rayBase-${{ matrix.config.artifact }}-${{ fromJSON('["Static", "Shared"]')[matrix.build_shared=='ON'] }}
         path: build/installed
