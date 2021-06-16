@@ -72,6 +72,7 @@ jobs:
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_INSTALL_PREFIX=installed \
+          -DBUILD_TESTING=ON \
           -G${{ matrix.config.generator }} \
           ${{ matrix.config.extra_cmake_args }}
         cmake --build . --config Release --parallel
@@ -82,6 +83,11 @@ jobs:
         cd build
         cmake --build . --config Debug --parallel
         cmake --install . --config Debug
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest . -V
 
     - name: Install
       run: |
