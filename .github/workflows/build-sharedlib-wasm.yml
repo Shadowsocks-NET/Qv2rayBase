@@ -1,0 +1,75 @@
+name: Build for WASM
+
+on:
+  push:
+
+env:
+  QT_PATH: '/home/runner/work/QtSnapshot/QtSnapshot/wasm-installed'
+  EMSDK_PATH: '/home/runner/work/QtSnapshot/QtSnapshot/emsdk'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          submodules: 'recursive'
+
+      - name: restore ccache
+        id: ccache
+        uses: actions/cache@v2
+        with:
+          path: ${{ runner.temp }}/ccache
+          # "github.run_id" is unique, which causes the cache to always get
+          # saved at the end of a successful run.
+          key:  ccache-qv2raybase-${{ github.ref }}-${{ github.run_id }}
+          # As the unique "key" above will never be found in the cache when the
+          # job starts, we need these broader "restore-keys" in order to match
+          # and restore the most recent cache.
+          restore-keys: |
+            ccache-qv2raybase-${{ github.ref }}-
+            ccache-qv2raybase-
+      
+      - name: configure ccache
+        run: |
+          sudo apt update
+          sudo apt install -y ccache ninja-build
+          ccache --set-config sloppiness=file_macro,time_macros
+          ccache --set-config cache_dir='${{ runner.temp }}'/ccache
+          ccache --set-config compression=true
+          ccache --set-config max_size=1G
+          ccache -s
+        
+      - name: Install Qt
+        run: |
+          sudo apt install libb2-dev libdouble-conversion-dev libdouble-conversion-dev libb2-dev libx11-dev libegl-dev \
+                           libopengl-dev libts-dev libmtdev-dev libinput-dev libxcb1-dev libx11-xcb-dev libxcb-icccm4-dev \
+                           libxcb-image0-dev libxcb-keysyms1-dev libxcb-render-util0-dev libxcb-randr0-dev libxcb-xkb-dev \
+                           libxkbcommon-dev libxkbcommon-x11-dev
+          mkdir -p /home/runner/work/QtSnapshot/QtSnapshot
+          curl -L https://github.com/moodyhunter/QtSnapshot/releases/download/qt-dev/qt-host.7z -o qt-host.7z
+          curl -L https://github.com/moodyhunter/QtSnapshot/releases/download/qt-dev/qt-wasm.7z -o qt-wasm.7z
+          7z x -o/home/runner/work/QtSnapshot/QtSnapshot ./qt-host.7z
+          7z x -o/home/runner/work/QtSnapshot/QtSnapshot ./qt-wasm.7z
+          /home/runner/work/QtSnapshot/QtSnapshot/wasm-installed/bin/qmake --version
+
+      - name: Setup emscripten
+        run: |
+          git clone https://github.com/emscripten-core/emsdk --recursive $EMSDK_PATH
+          $EMSDK_PATH/emsdk install 2.0.14
+          $EMSDK_PATH/emsdk activate 2.0.14 --permanent
+      
+      - name: Build Panel
+        run: |
+          source $EMSDK_PATH/emsdk_env.sh
+          mkdir build && cd build
+          $QT_PATH/bin/qt-cmake .. -GNinja \
+            -DCMAKE_INSTALL_PREFIX=installed \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --parallel $(nproc)
+
+      - name: ccache Statistics
+        run: ccache -s
