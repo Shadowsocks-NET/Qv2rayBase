@@ -21,7 +21,9 @@
 #include "Plugin/PluginAPIHost.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 
+#ifndef QV2RAYBASE_NO_LIBUV
 #include <uvw.hpp>
+#endif
 
 namespace Qv2rayBase::Plugin
 {
@@ -45,19 +47,32 @@ namespace Qv2rayBase::Plugin
 
     void LatencyTestThread::run()
     {
+#ifndef QV2RAYBASE_NO_LIBUV
         loop = uvw::Loop::create();
         stopTimer = loop->resource<uvw::TimerHandle>();
         stopTimer->on<uvw::TimerEvent>([this](auto &, auto &handle) { doTest(qobject_cast<Qv2rayBase::Plugin::LatencyTestHost *>(parent()), handle); });
         stopTimer->start(uvw::TimerHandle::Time{ 500 }, uvw::TimerHandle::Time{ 500 });
         loop->run();
+#else
+        while (true)
+        {
+            doTest(qobject_cast<Qv2rayBase::Plugin::LatencyTestHost *>(parent()));
+            QThread::sleep(1000);
+        }
+#endif
     }
 
+#ifndef QV2RAYBASE_NO_LIBUV
     void LatencyTestThread::doTest(Qv2rayBase::Plugin::LatencyTestHost *parent, uvw::TimerHandle &handle)
+#else
+    void LatencyTestThread::doTest(Qv2rayBase::Plugin::LatencyTestHost *parent)
+#endif
     {
         if (isStop)
         {
             if (!requests.empty())
                 requests.clear();
+#ifndef QV2RAYBASE_NO_LIBUV
             int timer_count = 0;
             uv_walk(
                 loop->raw(),
@@ -76,6 +91,9 @@ namespace Qv2rayBase::Plugin
                 loop->close();
                 loop->stop();
             }
+#else
+            return;
+#endif
         }
         else
         {
@@ -87,11 +105,13 @@ namespace Qv2rayBase::Plugin
                 const auto engineInfo = Qv2rayBaseLibrary::PluginAPIHost()->Latency_GetEngine(req.engine);
                 // This is a blocking call
                 Qv2rayPlugin::LatencyTestResponse resp;
+#ifndef QV2RAYBASE_NO_LIBUV
                 if (engineInfo.isAsync)
                     resp = engineInfo.Create()->TestLatencyAsync(loop, req);
                 else
+#endif
                     resp = engineInfo.Create()->TestLatency(req);
-                parent->OnLatencyTestCompleted(req.id, resp);
+                emit parent->OnLatencyTestCompleted(req.id, resp);
             }
             requests.clear();
         }

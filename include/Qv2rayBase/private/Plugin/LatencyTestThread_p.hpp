@@ -47,7 +47,11 @@ namespace Qv2rayBase::Plugin
         void run() override;
 
       private:
+#ifndef QV2RAYBASE_NO_LIBUV
         void doTest(Qv2rayBase::Plugin::LatencyTestHost *parent, uvw::TimerHandle &handle);
+#else
+        void doTest(Qv2rayBase::Plugin::LatencyTestHost *parent);
+#endif
 
       private:
         std::shared_ptr<uvw::Loop> loop;
