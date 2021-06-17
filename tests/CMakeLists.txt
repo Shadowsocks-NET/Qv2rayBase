@@ -2,6 +2,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+
 enable_testing(true)
 
 find_package(Qt6 COMPONENTS Test REQUIRED)
@@ -16,4 +17,8 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
 
-target_compile_definitions(tst_PluginLoader PRIVATE -DQT_STATICPLUGIN=1)
+# BEGIN special case
+target_compile_definitions(tst_PluginLoader PRIVATE "-DQT_STATICPLUGIN=1")
+
+
+# END special case
