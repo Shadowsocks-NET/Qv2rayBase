@@ -9,27 +9,35 @@ write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
   COMPATIBILITY SameMajorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBase_export.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase/)
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
 install(TARGETS Qv2rayBase
     EXPORT Qv2rayBaseTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 export(EXPORT Qv2rayBaseTargets
-       FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Qv2rayBaseTargets.cmake"
-       NAMESPACE Qv2ray::
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Qv2rayBaseTargets.cmake"
+    NAMESPACE Qv2ray::
 )
 
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBase_export.h
+    COMPONENT "development"
+    EXCLUDE_FROM_ALL
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase/)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfigVersion.cmake
+    COMPONENT "development"
+    EXCLUDE_FROM_ALL
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    COMPONENT "development"
+    EXCLUDE_FROM_ALL
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 install(EXPORT Qv2rayBaseTargets
-        FILE Qv2rayBaseTargets.cmake
-        NAMESPACE Qv2ray::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase
+    COMPONENT "development"
+    EXCLUDE_FROM_ALL
+    FILE Qv2rayBaseTargets.cmake
+    NAMESPACE Qv2ray::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Qv2rayBase
 )
