@@ -1,6 +1,6 @@
 include(${CMAKE_CURRENT_LIST_DIR}/versioninfo/generate_product_version.cmake)
 generate_product_version(
-    QV2RAY_RC
+    QV2RAYBASE_RC
     NAME               "Qv2ray Base Library"
     BUNDLE             "Qv2ray Project Family"
     ICON               "${CMAKE_CURRENT_SOURCE_DIR}/assets/qv2ray.ico"

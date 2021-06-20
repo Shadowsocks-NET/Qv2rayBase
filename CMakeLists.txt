@@ -105,7 +105,7 @@ set(BASELIB_P_HEADERS
 
 option(BUILD_SHARED_LIBS "Build Qv2rayBase as shared library.")
 
-add_library(Qv2rayBase ${QV2RAY_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCES} ${BASELIB_HEADERS} ${BASELIB_P_HEADERS})
+add_library(Qv2rayBase ${QV2RAYBASE_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCES} ${BASELIB_HEADERS} ${BASELIB_P_HEADERS})
 target_include_directories(Qv2rayBase
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Qv2rayBase>"
