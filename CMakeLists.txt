@@ -6,7 +6,6 @@ project(Qv2ray-Base
     LANGUAGES CXX
     DESCRIPTION "Base library for Qv2ray")
 
-set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_DEBUG_POSTFIX d)
@@ -113,6 +112,8 @@ target_include_directories(Qv2rayBase
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase>"
     )
+
+set_target_properties(Qv2rayBase PROPERTIES CXX_STANDARD 17)
 
 qv2ray_add_plugin_moc_sources(Qv2rayBase)
 

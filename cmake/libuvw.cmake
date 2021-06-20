@@ -41,6 +41,7 @@ set(UVW_SOURCES
     )
 
 add_library(uvw STATIC ${UVW_SOURCES})
+set_target_properties(uvw PROPERTIES CXX_STANDARD 17)
 target_compile_definitions(uvw PRIVATE UVW_AS_LIB)
 target_link_libraries(uvw Qv2ray::libuv)
 set_target_properties(uvw PROPERTIES EXCLUDE_FROM_ALL TRUE)

@@ -16,6 +16,5 @@ add_definitions(-DUNICODE -D_UNICODE -DNOMINMAX)
 
 if(NOT MINGW)
     add_compile_options("/utf-8")
-    add_compile_options("/std:c++latest")
     add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
 endif()
