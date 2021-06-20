@@ -29,7 +29,7 @@ namespace Qv2rayBase::Profile
         explicit KernelManager(QObject *parent = nullptr);
         ~KernelManager();
 
-        std::optional<QString> StartConnection(const ConnectionGroupPair &id, ProfileContent root);
+        std::optional<QString> StartConnection(const ConnectionGroupPair &id, const ProfileContent &root);
         void StopConnection();
         const ConnectionGroupPair CurrentConnection() const;
         size_t ActiveKernelCount() const;

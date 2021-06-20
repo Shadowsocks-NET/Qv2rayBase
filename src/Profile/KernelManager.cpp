@@ -57,8 +57,9 @@ namespace Qv2rayBase::Profile
         StopConnection();
     }
 
-    std::optional<QString> KernelManager::StartConnection(const ConnectionGroupPair &id, ProfileContent fullProfile)
+    std::optional<QString> KernelManager::StartConnection(const ConnectionGroupPair &id, const ProfileContent &root)
     {
+        auto fullProfile = root;
         Q_D(KernelManager);
         StopConnection();
 
@@ -119,7 +120,7 @@ namespace Qv2rayBase::Profile
             d->kernels.push_back({ outbound.protocol, std::move(pkernel) });
 
             const OutboundSettings pluginOutSettings(QJsonObject{ { "address", "127.0.0.1" }, { "port", pluginPort } });
-            outbound.protocol = "socks";
+            outbound.protocol = QStringLiteral("socks");
             outbound.settings = pluginOutSettings;
 
             // Add the integration outbound to the list.
@@ -164,9 +165,9 @@ namespace Qv2rayBase::Profile
 
         d->inboundInfo.clear();
         for (const auto &in : fullProfile.inbounds)
-            d->inboundInfo.insert(in["tag"].toString(), { { IOBOUND_DATA_TYPE::IO_PROTOCOL, in["protocol"].toString() },
-                                                          { IOBOUND_DATA_TYPE::IO_DISPLAYNAME, in["tag"].toString() },
-                                                          { IOBOUND_DATA_TYPE::IO_ADDRESS, in["listen"].toInt() } });
+            d->inboundInfo.insert(in[QStringLiteral("tag")].toString(), { { IOBOUND_DATA_TYPE::IO_PROTOCOL, in["protocol"].toString() },
+                                                                          { IOBOUND_DATA_TYPE::IO_DISPLAYNAME, in["tag"].toString() },
+                                                                          { IOBOUND_DATA_TYPE::IO_ADDRESS, in["listen"].toInt() } });
 
         d->current = id;
         emit OnConnected(id);
@@ -195,9 +196,9 @@ namespace Qv2rayBase::Profile
                 d->logPadding = std::max(d->logPadding, Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kernel->GetKernelId()).Name.length());
 
         const auto kernel = static_cast<PluginKernel *>(sender());
-        const auto name = kernel ? Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kernel->GetKernelId()).Name : "UNKNOWN";
+        const auto name = kernel ? Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kernel->GetKernelId()).Name : QStringLiteral("UNKNOWN");
         for (const auto &line : SplitLines(log))
-            emitLogMessage(QString("[%1] ").arg(name, d->logPadding) + line.trimmed());
+            emitLogMessage(QStringLiteral("[%1] ").arg(name, d->logPadding) + line.trimmed());
     }
 
     void KernelManager::OnV2RayKernelLog_p(const QString &log)
