@@ -110,18 +110,19 @@ namespace Qv2rayBase::Profile
                 QMap<KernelOptionFlags, QVariant> kernelOption;
                 kernelOption[KERNEL_SOCKS_ENABLED] = true;
                 kernelOption[KERNEL_SOCKS_PORT] = pluginPort;
-                // inboundSettings[KERNEL_SOCKS_UDP_ENABLED] = *GlobalConfig.inboundConfig->socksSettings->enableUDP;
-                // inboundSettings[KERNEL_SOCKS_LOCAL_ADDRESS] = *GlobalConfig.inboundConfig->socksSettings->localIP;
+                // inboundSettings[KERNEL_SOCKS_UDP_ENABLED] = *GlobalConfig.inboundConfig->SOCKSConfig->enableUDP;
+                // inboundSettings[KERNEL_SOCKS_LOCAL_ADDRESS] = *GlobalConfig.inboundConfig->SOCKSConfig->localIP;
                 kernelOption[KERNEL_LISTEN_ADDRESS] = "127.0.0.1";
                 QvLog() << "Sending connection settings to kernel.";
-                pkernel->SetConnectionSettings(kernelOption, outbound.settings);
+                pkernel->SetConnectionSettings(kernelOption, outbound.outboundSettings);
             }
 
             d->kernels.push_back({ outbound.protocol, std::move(pkernel) });
 
-            const OutboundSettings pluginOutSettings(QJsonObject{ { "address", "127.0.0.1" }, { "port", pluginPort } });
-            outbound.protocol = QStringLiteral("socks");
-            outbound.settings = pluginOutSettings;
+            IOProtocolStreamSettings pluginOutSettings;
+            pluginOutSettings.protocolSettings = IOProtocolSettings{ QJsonObject{ { "address", "127.0.0.1" }, { "port", pluginPort } } };
+            outbound.protocol = "socks";
+            outbound.outboundSettings = pluginOutSettings;
 
             // Add the integration outbound to the list.
             processedOutbounds.append(outbound);
@@ -165,9 +166,12 @@ namespace Qv2rayBase::Profile
 
         d->inboundInfo.clear();
         for (const auto &in : fullProfile.inbounds)
-            d->inboundInfo.insert(in[QStringLiteral("tag")].toString(), { { IOBOUND_DATA_TYPE::IO_PROTOCOL, in["protocol"].toString() },
-                                                                          { IOBOUND_DATA_TYPE::IO_DISPLAYNAME, in["tag"].toString() },
-                                                                          { IOBOUND_DATA_TYPE::IO_ADDRESS, in["listen"].toInt() } });
+            d->inboundInfo.insert(in.name, {
+                                               { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.protocol },     //
+                                               { IOBOUND_DATA_TYPE::IO_DISPLAYNAME, in.name },      //
+                                               { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress }, //
+                                               { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort }        //
+                                           });
 
         d->current = id;
         emit OnConnected(id);

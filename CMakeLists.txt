@@ -6,7 +6,7 @@ project(Qv2ray-Base
     LANGUAGES CXX
     DESCRIPTION "Base library for Qv2ray")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_DEBUG_POSTFIX d)
@@ -58,7 +58,6 @@ set(BASELIB_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Generator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/KernelManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/ProfileManager.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Serialization.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
     )
 
@@ -75,7 +74,6 @@ set(BASELIB_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/PluginManagerCore.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/KernelManager.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/ProfileManager.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Profile/Serialization.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseFeatures.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Qv2rayBaseLibrary.hpp
     )
@@ -115,6 +113,8 @@ target_include_directories(Qv2rayBase
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase>"
     )
+
+qv2ray_add_plugin_moc_sources(Qv2rayBase)
 
 target_include_directories(Qv2rayBase PRIVATE ${QVPLUGIN_INTERFACE_INCLUDE_PATH})
 

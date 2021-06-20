@@ -100,7 +100,7 @@ namespace Qv2rayBase::Plugin
         return list;
     }
 
-    QList<const PluginInfo *> PluginManagerCore::GetPlugins(Qv2rayPlugin::QV2RAY_PLUGIN_COMPONENT_TYPE c) const
+    QList<const PluginInfo *> PluginManagerCore::GetPlugins(Qv2rayPlugin::PLUGIN_COMPONENT_TYPE c) const
     {
         Q_D(const PluginManagerCore);
         QList<const PluginInfo *> list;

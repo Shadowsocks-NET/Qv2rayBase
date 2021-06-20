@@ -53,6 +53,7 @@ namespace Qv2rayBase::Interfaces
         virtual bool DeleteConnection(const ConnectionId &) = 0;
 
         virtual QDir GetPluginWorkingDirectory(const PluginId &) = 0;
+        virtual QDir GetUserPluginDirectory() = 0;
         virtual QJsonObject GetPluginSettings(const PluginId &) = 0;
         virtual void SetPluginSettings(const PluginId &, const QJsonObject &) = 0;
     };

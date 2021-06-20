@@ -38,7 +38,7 @@ namespace Qv2rayBase::Plugin
         {
             return metadata().InternalID;
         }
-        Q_ALWAYS_INLINE bool hasComponent(Qv2rayPlugin::QV2RAY_PLUGIN_COMPONENT_TYPE t) const
+        Q_ALWAYS_INLINE bool hasComponent(Qv2rayPlugin::PLUGIN_COMPONENT_TYPE t) const
         {
             return metadata().Components.contains(t);
         }
@@ -55,7 +55,7 @@ namespace Qv2rayBase::Plugin
         void LoadPlugins();
         void SetPluginSettings(const PluginId &pid, const QJsonObject &settings);
 
-        QList<const PluginInfo *> GetPlugins(Qv2rayPlugin::QV2RAY_PLUGIN_COMPONENT_TYPE c) const;
+        QList<const PluginInfo *> GetPlugins(Qv2rayPlugin::PLUGIN_COMPONENT_TYPE c) const;
         const QList<const PluginInfo *> AllPlugins() const;
         const PluginInfo *GetPlugin(const PluginId &pid);
 

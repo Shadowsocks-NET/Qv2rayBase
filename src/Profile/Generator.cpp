@@ -16,10 +16,10 @@
 
 //#include "Profile/Generator.hpp"
 
-//#include "ConfigHandler.hpp"
+//#include "Profile/ProfileManager.hpp"
 //#include "CoreUtils.hpp"
 //#include "Generation.hpp"
-//#include "QvHelpers.hpp"
+//#include "Common/Utils.hpp"
 //#include "models/QvComplexConfigModels.hpp"
 
 #define QV_MODULE_NAME "RouteHandler"
@@ -80,7 +80,7 @@ namespace Qv2rayBase::core::handler
         for (const auto &singleOutboundVal : outbounds)
         {
             const auto outbound = singleOutboundVal.toObject();
-            const auto meta = OutboundObjectMeta::loadFromOutbound(OUTBOUND(outbound));
+            const auto meta = OutboundObject::loadFromOutbound(OUTBOUND(outbound));
             if (meta.metaType != METAOUTBOUND_CHAIN)
                 outboundCache[outbound["tag"].toString()] = outbound;
         }
@@ -89,7 +89,7 @@ namespace Qv2rayBase::core::handler
         for (const auto &singleOutboundVal : outbounds)
         {
             const auto outbound = singleOutboundVal.toObject();
-            const auto meta = OutboundObjectMeta::loadFromOutbound(OUTBOUND(outbound));
+            const auto meta = OutboundObject::loadFromOutbound(OUTBOUND(outbound));
             if (meta.metaType != METAOUTBOUND_CHAIN)
             {
                 newOutbounds << outbound;
@@ -122,7 +122,7 @@ namespace Qv2rayBase::core::handler
                     else if (isLastOutbound)
                         return lastOutboundTag;
                     else
-                        return (firstOutboundTag + "_" + chainOutboundTag + "_" + QSTRN(nextInboundPort));
+                        return (firstOutboundTag + "_" + chainOutboundTag + "_" + QString::number(nextInboundPort));
                 }();
 
                 if (!outboundCache.contains(chainOutboundTag))
@@ -135,7 +135,7 @@ namespace Qv2rayBase::core::handler
                 // Create Inbound
                 if (!isFirstOutbound)
                 {
-                    const auto inboundTag = firstOutboundTag + ":" + QSTRN(nextInboundPort) + "->" + newOutboundTag;
+                    const auto inboundTag = firstOutboundTag + ":" + QString::number(nextInboundPort) + "->" + newOutboundTag;
                     const auto inboundSettings = GenerateDokodemoIN(lastOutbound[IOBOUND::ADDRESS].toString(), lastOutbound[IOBOUND::PORT].toInt(), "tcp,udp");
                     const auto newInbound = GenerateInboundEntry(inboundTag, "dokodemo-door", "127.0.0.1", nextInboundPort, inboundSettings);
                     nextInboundPort++;
@@ -202,10 +202,10 @@ namespace Qv2rayBase::core::handler
         for (const auto &out : outbounds)
         {
             auto outObject = out.toObject();
-            const auto meta = OutboundObjectMeta::loadFromOutbound(OUTBOUND(outObject));
+            const auto meta = OutboundObject::loadFromOutbound(OUTBOUND(outObject));
             if (meta.metaType == METAOUTBOUND_EXTERNAL)
             {
-                outObject = ConnectionManager->GetConnectionRoot(meta.connectionId)["outbounds"].toArray().first().toObject();
+                outObject = QvBaselib->ProfileManager()->GetConnectionRoot(meta.connectionId)["outbounds"].toArray().first().toObject();
                 outObject["tag"] = meta.getDisplayName();
             }
             result << outObject;
@@ -215,7 +215,7 @@ namespace Qv2rayBase::core::handler
 
     ProfileContent RouteHandler::GenerateFinalConfig(const ConnectionGroupPair &p, bool api) const
     {
-        return GenerateFinalConfig(ConnectionManager->GetConnectionRoot(p.connectionId), ConnectionManager->GetGroupRoutingId(p.groupId), api);
+        return GenerateFinalConfig(QvBaselib->ProfileManager()->GetConnectionRoot(p.connectionId), QvBaselib->ProfileManager()->GetGroupRoutingId(p.groupId), api);
     }
 
     //
@@ -223,13 +223,13 @@ namespace Qv2rayBase::core::handler
     // We need copy construct here
     ProfileContent RouteHandler::GenerateFinalConfig(ProfileContent root, const GroupRoutingId &routingId, bool hasAPI) const
     {
-        const auto &config = configs.contains(routingId) ? configs[routingId] : *GlobalConfig.defaultRouteConfig;
+        const auto &config = configs.contains(routingId) ? configs[routingId] : *GlobalConfig->connectionConfig;
         //
-        const auto connConf = *(config.overrideConnectionConfig ? config.connectionConfig : GlobalConfig.defaultRouteConfig->connectionConfig);
-        const auto dnsConf = *(config.overrideDNS ? config.dnsConfig : GlobalConfig.defaultRouteConfig->dnsConfig);
-        const auto fakeDNSConf = *(config.overrideDNS ? config.fakeDNSConfig : GlobalConfig.defaultRouteConfig->fakeDNSConfig);
-        const auto routeConf = *(config.overrideRoute ? config.routeConfig : GlobalConfig.defaultRouteConfig->routeConfig);
-        const auto fpConf = *(config.overrideForwardProxyConfig ? config.forwardProxyConfig : GlobalConfig.defaultRouteConfig->forwardProxyConfig);
+        const auto connConf = *(config.overrideConnectionConfig ? config.connectionConfig : GlobalConfig->connectionConfig->connectionConfig);
+        const auto dnsConf = *(config.overrideDNS ? config.dnsConfig : GlobalConfig->connectionConfig->DnsConfig);
+        const auto fakeDNSConf = *(config.overrideDNS ? config.fakeDNSConfig : GlobalConfig->connectionConfig->fakeDNSConfig);
+        const auto routeConf = *(config.overrideRoute ? config.routeConfig : GlobalConfig->connectionConfig->RouteConfig);
+        const auto fpConf = *(config.overrideForwardProxyConfig ? config.forwardProxyConfig : GlobalConfig->connectionConfig->forwardProxyConfig);
         //
         //
         // Note: The part below always makes the whole functionality in
@@ -355,11 +355,11 @@ namespace Qv2rayBase::core::handler
             //
             // Connection Filters
             {
-                if (GlobalConfig.defaultRouteConfig->connectionConfig->dnsIntercept)
+                if (GlobalConfig->connectionConfig->connectionConfig->dnsIntercept)
                 {
-                    const auto hasTProxy = GlobalConfig.inboundConfig->useTPROXY && GlobalConfig.inboundConfig->tProxySettings->hasUDP;
-                    const auto hasIPv6 = hasTProxy && (!GlobalConfig.inboundConfig->tProxySettings->tProxyV6IP->isEmpty());
-                    const auto hasSocksUDP = GlobalConfig.inboundConfig->useSocks && GlobalConfig.inboundConfig->socksSettings->enableUDP;
+                    const auto hasTProxy = GlobalConfig.inboundConfig->useTPROXY && GlobalConfig.inboundConfig->DokodemoDoorConfig->hasUDP;
+                    const auto hasIPv6 = hasTProxy && (!GlobalConfig.inboundConfig->DokodemoDoorConfig->tProxyV6IP->isEmpty());
+                    const auto hasSocksUDP = GlobalConfig.inboundConfig->useSocks && GlobalConfig.inboundConfig->SOCKSConfig->enableUDP;
                     DNSInterceptFilter(root, hasTProxy, hasIPv6, hasSocksUDP);
                 }
 

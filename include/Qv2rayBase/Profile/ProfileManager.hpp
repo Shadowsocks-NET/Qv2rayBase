@@ -50,6 +50,7 @@ namespace Qv2rayBase::Profile
         const QList<GroupId> GetGroups() const override;
         const QList<GroupId> GetGroups(const ConnectionId &connId) const override;
 
+        bool RestartConnection() override;
         bool StartConnection(const ConnectionGroupPair &identifier) override;
         void StopConnection() override;
 

@@ -227,6 +227,11 @@ namespace Qv2rayBase::Interfaces
         return {};
     }
 
+    QDir Qv2rayBasePrivateStorageProvider::GetUserPluginDirectory()
+    {
+        return {};
+    }
+
     QDir Qv2rayBasePrivateStorageProvider::GetPluginWorkingDirectory(const PluginId &pid)
     {
         return {};

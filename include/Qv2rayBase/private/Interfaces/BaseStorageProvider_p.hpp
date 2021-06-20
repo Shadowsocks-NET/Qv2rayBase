@@ -50,6 +50,7 @@ namespace Qv2rayBase::Interfaces
         virtual bool StoreConnection(const ConnectionId &, ProfileContent) override;
         virtual bool DeleteConnection(const ConnectionId &id) override;
 
+        virtual QDir GetUserPluginDirectory() override;
         virtual QDir GetPluginWorkingDirectory(const PluginId &pid) override;
 
         virtual QJsonObject GetPluginSettings(const PluginId &pid) override;

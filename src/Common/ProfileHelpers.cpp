@@ -29,9 +29,21 @@ namespace Qv2rayBase::Utils
     int64_t GetConnectionLatency(const ConnectionId &id)
     {
         const auto connection = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id);
-        //        return std::max(*connection., {});
-        return 0;
+        return std::max(connection.latency, 0L);
     }
+
+    std::pair<quint64, quint64> GetConnectionUsageAmount(const ConnectionId &id, StatisticsObject::StatisticsType type)
+    {
+        auto connection = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id);
+        return { connection.statistics[type].up, connection.statistics[type].down };
+    }
+
+    quint64 GetConnectionTotalUsage(const ConnectionId &id, StatisticsObject::StatisticsType type)
+    {
+        const auto d = GetConnectionUsageAmount(id, type);
+        return d.first + d.second;
+    }
+
 #endif
 
     InboundObject GetInbound(const ConnectionId &id, int index)
@@ -82,9 +94,9 @@ namespace Qv2rayBase::Utils
         return result;
     }
 
-    std::tuple<QString, QString, int> GetInboundInfoTuple(const InboundObject &in)
+    std::tuple<QString, QString, QString> GetInboundInfoTuple(const InboundObject &in)
     {
-        return { in["protocol"].toString(), in["listen"].toString(), in["port"].toVariant().toInt() };
+        return { in.protocol, in.listenAddress, in.listenPort };
     }
 
     QMap<QString, PluginIOBoundData> GetInboundsInfo(const ConnectionId &id)
@@ -97,22 +109,74 @@ namespace Qv2rayBase::Utils
         QMap<QString, PluginIOBoundData> infomap;
         for (const auto &in : root.inbounds)
         {
-            infomap[in["tag"].toString()] = GetInboundInfo(in);
+            infomap[in.name] = GetInboundInfo(in);
         }
         return infomap;
     }
 
     PluginIOBoundData GetInboundInfo(const InboundObject &in)
     {
-        return PluginIOBoundData{ { IOBOUND_DATA_TYPE::IO_PROTOCOL, in["protocol"].toString() },
-                                  { IOBOUND_DATA_TYPE::IO_ADDRESS, in["listen"].toString() },
-                                  { IOBOUND_DATA_TYPE::IO_PORT, in["port"].toInt() } };
+        return PluginIOBoundData{ { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.protocol },
+                                  { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress },
+                                  { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort } };
     }
 
     PluginIOBoundData GetOutboundInfo(const OutboundObject &out)
     {
         const auto data = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out);
         return data.value_or(decltype(data)::value_type());
+    }
+
+    QString GetConnectionProtocolDescription(const ConnectionId &id)
+    {
+        const auto root = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
+        const auto outbound = root.outbounds.first();
+
+        QStringList result;
+        result << outbound.protocol;
+
+        const auto streamSettings = outbound.outboundSettings.streamSettings;
+
+        if (streamSettings.contains("network"))
+            result << streamSettings["network"].toString();
+
+        const auto security = streamSettings["security"].toString();
+        if (!security.isEmpty() && security != "none")
+            result << streamSettings["security"].toString();
+
+        return result.join("+");
+    }
+
+    std::optional<std::pair<QString, ProfileContent>> ConvertConfigFromString(const QString &link)
+    {
+        const auto optConf = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Deserialize(link);
+        if (!optConf)
+            return std::nullopt;
+
+        const auto &[name, outbound] = *optConf;
+        return std::pair{ name, ProfileContent{ outbound } };
+    }
+
+    const QString ConvertConfigToString(const ConnectionId &id)
+    {
+        auto alias = GetDisplayName(id);
+        auto server = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
+        return ConvertConfigToString(alias, server);
+    }
+
+    const QString ConvertConfigToString(const QString &alias, const ProfileContent &server)
+    {
+        const auto outbound = server.outbounds.first();
+        return *Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
+    }
+
+    bool IsComplexConfig(const ConnectionId &id)
+    {
+        const auto root = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
+        bool hasRouting = !root.routing.rules.isEmpty();
+        bool hasInbound = !root.inbounds.isEmpty();
+        bool hasAtLeastOneOutbounds = root.outbounds.size() > 1;
+        return hasRouting || hasInbound || hasAtLeastOneOutbounds;
     }
 
 } // namespace Qv2rayBase::Utils

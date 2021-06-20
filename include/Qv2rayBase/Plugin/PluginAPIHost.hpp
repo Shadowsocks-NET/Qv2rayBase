@@ -73,7 +73,7 @@ namespace Qv2rayBase::Plugin
         Q_DECLARE_PRIVATE(PluginAPIHost)
     };
 
-    const inline QStringList GetPluginComponentsString(const QList<Qv2rayPlugin::QV2RAY_PLUGIN_GUI_COMPONENT_TYPE> &types)
+    const inline QStringList GetPluginComponentsString(const QList<Qv2rayPlugin::PLUGIN_GUI_COMPONENT_TYPE> &types)
     {
         QStringList typesList;
         if (types.isEmpty())
@@ -92,7 +92,7 @@ namespace Qv2rayBase::Plugin
         return typesList;
     }
 
-    const inline QStringList GetPluginComponentsString(const QList<Qv2rayPlugin::QV2RAY_PLUGIN_COMPONENT_TYPE> &types)
+    const inline QStringList GetPluginComponentsString(const QList<Qv2rayPlugin::PLUGIN_COMPONENT_TYPE> &types)
     {
         QStringList typesList;
         if (types.isEmpty())

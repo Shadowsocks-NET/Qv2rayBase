@@ -126,6 +126,11 @@ namespace Qv2rayBase
         return instance()->d_ptr->uiInterface->p_MessageBoxAsk(title, text, options);
     }
 
+    void Qv2rayBaseLibrary::OpenURL(const QUrl &url)
+    {
+        instance()->d_ptr->uiInterface->p_OpenURL(url);
+    }
+
     PluginAPIHost *Qv2rayBaseLibrary::PluginAPIHost()
     {
         return instance()->d_ptr->pluginAPIHost;

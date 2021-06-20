@@ -23,7 +23,6 @@
 #include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Profile/KernelManager.hpp"
-#include "Profile/Serialization.hpp"
 #include "private/Profile/ProfileManager_p.hpp"
 
 #include <QTimerEvent>
@@ -150,6 +149,11 @@ namespace Qv2rayBase::Profile
                 grps.push_back(it->first);
         }
         return grps;
+    }
+
+    bool ProfileManager::RestartConnection()
+    {
+        return StartConnection(Qv2rayBaseLibrary::KernelManager()->CurrentConnection());
     }
 
     void ProfileManager::RenameConnection(const ConnectionId &id, const QString &newName)
@@ -308,7 +312,7 @@ namespace Qv2rayBase::Profile
     {
         Q_D(ProfileManager);
         CheckValidId(id, nothing);
-        //        d->connections[id].latency = result.avg;
+        d->connections[id].latency = result.avg;
         emit OnLatencyTestFinished(id, result.avg);
     }
 #endif
@@ -370,7 +374,7 @@ namespace Qv2rayBase::Profile
         if (!d->groups[id].subscription_config.isSubscription)
             return;
         NetworkRequestHelper::AsyncHttpGet(d->groups[id].subscription_config.address, this,
-                                           [=](const QByteArray &d)
+                                           [this, id](const QByteArray &d)
                                            {
                                                p_CHUpdateSubscription(id, d);
                                                emit OnSubscriptionAsyncUpdateFinished(id);

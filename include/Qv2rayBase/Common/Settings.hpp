@@ -17,6 +17,7 @@
 #pragma once
 
 #include "Qv2rayBaseFeatures.hpp"
+#include "Utils/JsonConversion.hpp"
 
 #include <QJsonObject>
 #include <QMap>
@@ -54,5 +55,6 @@ namespace Qv2rayBase::Models
         NetworkProxyConfig network_config;
         PluginConfigObject plugin_config;
         QJsonObject extra_options;
+        QJS_FUNC_JSON(F(config_version, network_config, plugin_config, extra_options))
     };
 } // namespace Qv2rayBase::Models

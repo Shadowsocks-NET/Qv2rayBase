@@ -91,7 +91,7 @@ namespace Qv2rayBase::Plugin
             auto serializer = plugin->pinterface->OutboundHandler();
             if (serializer && serializer->SupportedProtocols().contains(o.protocol))
             {
-                auto info = serializer->GetOutboundInfo(o.protocol, o.settings);
+                auto info = serializer->GetOutboundInfo(o.protocol, o.outboundSettings);
                 if (info)
                     return info;
             }
@@ -106,7 +106,7 @@ namespace Qv2rayBase::Plugin
             auto serializer = plugin->pinterface->OutboundHandler();
             if (serializer && serializer->SupportedProtocols().contains(o.protocol))
             {
-                bool result = serializer->SetOutboundInfo(o.protocol, o.settings, info);
+                bool result = serializer->SetOutboundInfo(o.protocol, o.outboundSettings, info);
                 if (result)
                     return result;
             }

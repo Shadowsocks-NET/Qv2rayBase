@@ -150,6 +150,11 @@ namespace Qv2rayBase::Utils
         return QDateTime::fromSecsSinceEpoch(t).toString();
     }
 
+    inline QString TimeToString(const std::chrono::system_clock::time_point &t)
+    {
+        return QDateTime::fromMSecsSinceEpoch(std::chrono::system_clock::to_time_t(t)).toString();
+    }
+
     inline bool IsIPv4Address(const QString &addr)
     {
         return QHostAddress(addr).protocol() == QAbstractSocket::IPv4Protocol;
@@ -167,13 +172,14 @@ namespace Qv2rayBase::Utils
 
     inline bool IsValidV2RayDNSServer(const QString &addr)
     {
-        return IsIPv4Address(addr)                  //
-               || IsIPv6Address(addr)               //
-               || addr.startsWith("https://")       //
-               || addr.startsWith("https+local://") //
-               || addr.startsWith("quic+local://")  //
-               || addr == "localhost"               //
-               || addr == "fakedns";
+        return addr == "localhost" || addr == "fakedns" //
+               || IsIPv4Address(addr)                   //
+               || IsIPv6Address(addr)                   //
+               || addr.startsWith("https://")           //
+               || addr.startsWith("https+local://")     //
+               || addr.startsWith("quic+local://")      //
+               || addr.startsWith("tcp://")             //
+               || addr.startsWith("tcp+local://");
     }
 } // namespace Qv2rayBase::Utils
 
