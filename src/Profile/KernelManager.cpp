@@ -32,6 +32,7 @@ namespace Qv2rayBase::Profile
 
     KernelManager::KernelManager(QObject *parent) : QObject(parent)
     {
+        d_ptr.reset(new KernelManagerPrivate);
     }
 
     size_t KernelManager::ActiveKernelCount() const

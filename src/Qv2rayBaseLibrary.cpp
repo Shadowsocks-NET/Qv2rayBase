@@ -16,6 +16,7 @@
 
 #include "Qv2rayBaseLibrary.hpp"
 
+#include "Common/Settings.hpp"
 #include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
 #include "Plugin/PluginManagerCore.hpp"
@@ -64,7 +65,8 @@ namespace Qv2rayBase
         else
             d->configGenerator = new Interfaces::Qv2rayBasePrivateConfigurationGenerator;
 
-        // TODO load configurations
+#pragma message("TODO: load configurations")
+        d->configuration = new Models::Qv2rayBaseConfigObject;
 
         d->pluginCore = new Plugin::PluginManagerCore;
 

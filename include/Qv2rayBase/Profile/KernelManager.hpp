@@ -57,6 +57,7 @@ namespace Qv2rayBase::Profile
         void emitLogMessage(const QString &);
 
       private:
+        QScopedPointer<KernelManagerPrivate> d_ptr;
         Q_DECLARE_PRIVATE(KernelManager)
     };
 } // namespace Qv2rayBase::Profile
