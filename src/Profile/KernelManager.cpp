@@ -78,7 +78,7 @@ namespace Qv2rayBase::Profile
         for (const auto &out : fullProfile.outbounds)
         {
             // TODO log
-            protocols << out.protocol;
+            protocols << out.outboundSettings.protocol;
         }
 
         // Remove protocols which are already supported by the main kernel
@@ -89,19 +89,19 @@ namespace Qv2rayBase::Profile
         auto pluginPort = Qv2rayBaseLibrary::GetConfig()->plugin_config.plugin_port_allocation;
         for (auto outbound : fullProfile.outbounds)
         {
-            if (DefaultKernelInfo.SupportedProtocols.contains(outbound.protocol))
+            if (DefaultKernelInfo.SupportedProtocols.contains(outbound.outboundSettings.protocol))
             {
                 // Use the default kernel
                 processedOutbounds << outbound;
                 continue;
             }
 
-            const auto kid = Qv2rayBaseLibrary::PluginAPIHost()->Kernel_QueryProtocol(QSet{ outbound.protocol });
+            const auto kid = Qv2rayBaseLibrary::PluginAPIHost()->Kernel_QueryProtocol(QSet{ outbound.outboundSettings.protocol });
             if (kid.isNull())
             {
                 // Expected a plugin, but found nothing
-                QvLog() << "Outbound protocol" << outbound.protocol << "is not a registered plugin outbound.";
-                return tr("Cannot find a kernel for outbound protocol: ") + outbound.protocol;
+                QvLog() << "Outbound protocol" << outbound.outboundSettings.protocol << "is not a registered plugin outbound.";
+                return tr("Cannot find a kernel for outbound protocol: ") + outbound.outboundSettings.protocol;
             }
 
             const auto kinfo = Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kid);
@@ -118,11 +118,11 @@ namespace Qv2rayBase::Profile
                 pkernel->SetConnectionSettings(kernelOption, outbound.outboundSettings);
             }
 
-            d->kernels.push_back({ outbound.protocol, std::move(pkernel) });
+            d->kernels.push_back({ outbound.outboundSettings.protocol, std::move(pkernel) });
 
-            IOProtocolStreamSettings pluginOutSettings;
+            IOConnectionSettings pluginOutSettings;
             pluginOutSettings.protocolSettings = IOProtocolSettings{ QJsonObject{ { "address", "127.0.0.1" }, { "port", pluginPort } } };
-            outbound.protocol = "socks";
+            outbound.outboundSettings.protocol = "socks";
             outbound.outboundSettings = pluginOutSettings;
 
             // Add the integration outbound to the list.
@@ -168,10 +168,10 @@ namespace Qv2rayBase::Profile
         d->inboundInfo.clear();
         for (const auto &in : fullProfile.inbounds)
             d->inboundInfo.insert(in.name, {
-                                               { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.protocol },     //
-                                               { IOBOUND_DATA_TYPE::IO_DISPLAYNAME, in.name },      //
-                                               { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress }, //
-                                               { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort }        //
+                                               { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.inboundSettings.protocol }, //
+                                               { IOBOUND_DATA_TYPE::IO_DISPLAYNAME, in.name },                  //
+                                               { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress },             //
+                                               { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort }                    //
                                            });
 
         d->current = id;

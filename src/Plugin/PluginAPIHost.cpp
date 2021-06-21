@@ -89,9 +89,9 @@ namespace Qv2rayBase::Plugin
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(o.protocol))
+            if (serializer && serializer->SupportedProtocols().contains(o.outboundSettings.protocol))
             {
-                auto info = serializer->GetOutboundInfo(o.protocol, o.outboundSettings);
+                auto info = serializer->GetOutboundInfo(o.outboundSettings);
                 if (info)
                     return info;
             }
@@ -104,9 +104,9 @@ namespace Qv2rayBase::Plugin
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(o.protocol))
+            if (serializer && serializer->SupportedProtocols().contains(o.outboundSettings.protocol))
             {
-                bool result = serializer->SetOutboundInfo(o.protocol, o.outboundSettings, info);
+                bool result = serializer->SetOutboundInfo(o.outboundSettings, info);
                 if (result)
                     return result;
             }
@@ -147,7 +147,7 @@ namespace Qv2rayBase::Plugin
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(outbound.protocol))
+            if (serializer && serializer->SupportedProtocols().contains(outbound.outboundSettings.protocol))
             {
                 const auto result = serializer->Serialize(name, outbound);
                 if (result)

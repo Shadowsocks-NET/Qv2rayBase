@@ -68,7 +68,7 @@ namespace Qv2rayBase::Utils
 
     std::tuple<QString, QString, int> GetOutboundInfoTuple(const OutboundObject &out)
     {
-        const auto protocol = out.protocol;
+        const auto protocol = out.outboundSettings.protocol;
         const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out);
         if (info)
         {
@@ -96,7 +96,7 @@ namespace Qv2rayBase::Utils
 
     std::tuple<QString, QString, QString> GetInboundInfoTuple(const InboundObject &in)
     {
-        return { in.protocol, in.listenAddress, in.listenPort };
+        return { in.inboundSettings.protocol, in.listenAddress, in.listenPort };
     }
 
     QMap<QString, PluginIOBoundData> GetInboundsInfo(const ConnectionId &id)
@@ -116,7 +116,7 @@ namespace Qv2rayBase::Utils
 
     PluginIOBoundData GetInboundInfo(const InboundObject &in)
     {
-        return PluginIOBoundData{ { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.protocol },
+        return PluginIOBoundData{ { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.inboundSettings.protocol },
                                   { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress },
                                   { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort } };
     }
@@ -135,7 +135,7 @@ namespace Qv2rayBase::Utils
 
         const auto outbound = root.outbounds.first();
         QStringList result;
-        result << outbound.protocol;
+        result << outbound.outboundSettings.protocol;
 
         const auto streamSettings = outbound.outboundSettings.streamSettings;
 
