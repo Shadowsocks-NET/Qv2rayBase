@@ -41,8 +41,7 @@ namespace Qv2rayBase
 
         // Anything larger than this value is considered to be an error.
         ERROR = 100,
-        INITIALIZATION_FAILED,
-        PRECONDITION_FAILED,
+        ERR_LOCATE_CONFIGURATION,
     };
     Q_ENUM_NS(QV2RAYBASE_FAILED_REASON)
 
@@ -76,6 +75,13 @@ namespace Qv2rayBase
                                             Interfaces::IUserInteractionInterface *,         //
                                             Interfaces::IConfigurationGenerator * = nullptr, //
                                             Interfaces::IStorageProvider * = nullptr);
+
+        ///
+        /// \brief Clean up all resources that was allocated by Qv2rayBaseLibrary, stop the current
+        /// connection and all ongoing latency tests, save connections, groups, routing and plugin
+        /// setings, then unload all plugins.
+        ///
+        void Shutdown();
 
       public:
         ///

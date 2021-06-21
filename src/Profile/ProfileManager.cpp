@@ -45,9 +45,9 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         QvDebug() << "ProfileManager Constructor.";
 
-        const auto _connections = Qv2rayBaseLibrary::StorageProvider()->Connections();
-        const auto _groups = Qv2rayBaseLibrary::StorageProvider()->Groups();
-        const auto _routings = Qv2rayBaseLibrary::StorageProvider()->Routings();
+        const auto _connections = Qv2rayBaseLibrary::StorageProvider()->GetConnections();
+        const auto _groups = Qv2rayBaseLibrary::StorageProvider()->GetGroups();
+        const auto _routings = Qv2rayBaseLibrary::StorageProvider()->GetRoutings();
 
         for (auto it = _connections.constKeyValueBegin(); it != _connections.constKeyValueEnd(); it++)
         {
@@ -102,6 +102,11 @@ namespace Qv2rayBase::Profile
 
     void ProfileManager::SaveConnectionConfig()
     {
+        Q_D(ProfileManager);
+        Qv2rayBaseLibrary::StorageProvider()->StoreConnections(d->connections);
+        Qv2rayBaseLibrary::StorageProvider()->StoreGroups(d->groups);
+        Qv2rayBaseLibrary::StorageProvider()->StoreRoutings(d->routings);
+        Qv2rayBaseLibrary::StorageProvider()->EnsureSaved();
     }
 
 #if QV2RAYBASE_FEATURE(latency)
@@ -635,9 +640,10 @@ namespace Qv2rayBase::Profile
         d->connections[newId].created = system_clock::now();
         d->connections[newId].name = name;
         d->connections[newId]._group_ref = 1;
+        d->connectionRootCache[newId] = root;
+        Qv2rayBaseLibrary::StorageProvider()->StoreConnection(newId, root);
         emit OnConnectionCreated({ newId, groupId }, name);
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Created, groupId, newId, name });
-        UpdateConnection(newId, root);
         return { newId, groupId };
     }
 

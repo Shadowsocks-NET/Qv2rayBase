@@ -38,7 +38,6 @@ namespace Qv2rayBase::Plugin
     PluginManagerCore::~PluginManagerCore()
     {
         Q_D(PluginManagerCore);
-        SavePluginSettings();
         for (auto &&plugin : d->plugins)
         {
             QvDebug() << "Unloading plugin:" << plugin.metadata().Name;
@@ -175,9 +174,7 @@ namespace Qv2rayBase::Plugin
     {
         Q_D(const PluginManagerCore);
         for (const auto &name : d->plugins.keys())
-        {
             Qv2rayBaseLibrary::StorageProvider()->SetPluginSettings(name, d->plugins[name].pinterface->m_Settings);
-        }
     }
 
     bool PluginManagerCore::loadPluginImpl(const QString &fullPath, QObject *instance, QPluginLoader *loader)

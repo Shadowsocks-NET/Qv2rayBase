@@ -130,21 +130,23 @@ namespace Qv2rayBase::Utils
     QString GetConnectionProtocolDescription(const ConnectionId &id)
     {
         const auto root = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
-        const auto outbound = root.outbounds.first();
+        if (root.outbounds.isEmpty())
+            return QStringLiteral("");
 
+        const auto outbound = root.outbounds.first();
         QStringList result;
         result << outbound.protocol;
 
         const auto streamSettings = outbound.outboundSettings.streamSettings;
 
-        if (streamSettings.contains("network"))
-            result << streamSettings["network"].toString();
+        if (streamSettings.contains(QStringLiteral("network")))
+            result << streamSettings[QStringLiteral("network")].toString();
 
-        const auto security = streamSettings["security"].toString();
-        if (!security.isEmpty() && security != "none")
-            result << streamSettings["security"].toString();
+        const auto security = streamSettings[QStringLiteral("security")].toString();
+        if (!security.isEmpty() && security != QStringLiteral("none"))
+            result << streamSettings[QStringLiteral("security")].toString();
 
-        return result.join("+");
+        return result.join(QStringLiteral("+"));
     }
 
     std::optional<std::pair<QString, ProfileContent>> ConvertConfigFromString(const QString &link)
@@ -157,17 +159,20 @@ namespace Qv2rayBase::Utils
         return std::pair{ name, ProfileContent{ outbound } };
     }
 
-    const QString ConvertConfigToString(const ConnectionId &id)
+    QString ConvertConfigToString(const ConnectionId &id)
     {
         auto alias = GetDisplayName(id);
         auto server = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
         return ConvertConfigToString(alias, server);
     }
 
-    const QString ConvertConfigToString(const QString &alias, const ProfileContent &server)
+    QString ConvertConfigToString(const QString &alias, const ProfileContent &root)
     {
-        const auto outbound = server.outbounds.first();
-        return *Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
+        if (root.outbounds.isEmpty())
+            return QLatin1String("");
+        const auto outbound = root.outbounds.first();
+        const auto result = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
+        return result ? *result : "";
     }
 
     bool IsComplexConfig(const ConnectionId &id)

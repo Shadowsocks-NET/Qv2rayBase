@@ -37,17 +37,23 @@ namespace Qv2rayBase::Interfaces
         Qv2rayBasePrivateStorageProvider(QObject *parent = nullptr);
         virtual ~Qv2rayBasePrivateStorageProvider() = default;
 
-        virtual bool LookupConfigurations(StorageContext) override;
+        virtual bool LookupConfigurations(const StorageContext &) override;
+        virtual void EnsureSaved() override;
 
         virtual QJsonObject GetBaseConfiguration() override;
         virtual bool StoreBaseConfiguration(const QJsonObject &) override;
 
-        virtual QHash<ConnectionId, ConnectionObject> Connections() override;
-        virtual QHash<GroupId, GroupObject> Groups() override;
-        virtual QHash<RoutingId, RoutingObject> Routings() override;
+        virtual QHash<ConnectionId, ConnectionObject> GetConnections() override;
+        virtual void StoreConnections(const QHash<ConnectionId, ConnectionObject> &) override;
+
+        virtual QHash<GroupId, GroupObject> GetGroups() override;
+        virtual void StoreGroups(const QHash<GroupId, GroupObject> &) override;
+
+        virtual QHash<RoutingId, RoutingObject> GetRoutings() override;
+        virtual void StoreRoutings(const QHash<RoutingId, RoutingObject> &) override;
 
         virtual ProfileContent GetConnectionContent(const ConnectionId &) override;
-        virtual bool StoreConnection(const ConnectionId &, ProfileContent) override;
+        virtual bool StoreConnection(const ConnectionId &, const ProfileContent &) override;
         virtual bool DeleteConnection(const ConnectionId &id) override;
 
         virtual QDir GetUserPluginDirectory() override;
@@ -58,17 +64,14 @@ namespace Qv2rayBase::Interfaces
 
         virtual QStringList GetAssetsPath(const QString &) override;
 
-      public:
-        virtual void EnsureSaved() override;
-        virtual void StoreConnections(const QHash<ConnectionId, ConnectionObject> &) override;
-        virtual void StoreGroups(const QHash<GroupId, GroupObject> &) override;
-        virtual void StoreRoutings(const QHash<RoutingId, RoutingObject> &) override;
-
       private:
         QString ConfigFilePath;
+
+        ///
+        /// \brief ConfigDirPath, with trailing slash
+        ///
         QString ConfigDirPath;
         StorageContext RuntimeContext;
         QString ExecutableDirPath;
     };
-
 } // namespace Qv2rayBase::Interfaces

@@ -36,6 +36,7 @@ namespace Qv2rayBase::Interfaces
     class IUserInteractionInterface
     {
       public:
+        virtual ~IUserInteractionInterface() = default;
         virtual void p_MessageBoxWarn(const QString &title, const QString &text) = 0;
         virtual void p_MessageBoxInfo(const QString &title, const QString &text) = 0;
         virtual MessageOpt p_MessageBoxAsk(const QString &title, const QString &text, const QList<MessageOpt> &options) = 0;

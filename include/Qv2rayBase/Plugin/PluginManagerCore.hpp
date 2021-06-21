@@ -61,10 +61,10 @@ namespace Qv2rayBase::Plugin
 
         bool GetPluginEnabled(const PluginId &pid) const;
         void SetPluginEnabled(const PluginId &pid, bool isEnabled) const;
+        void SavePluginSettings() const;
 
       private:
         bool tryLoadPlugin(const QString &pluginFullPath);
-        void SavePluginSettings() const;
         bool loadPluginImpl(const QString &fullPath, QObject *instance, QPluginLoader *loader);
 
       private slots:

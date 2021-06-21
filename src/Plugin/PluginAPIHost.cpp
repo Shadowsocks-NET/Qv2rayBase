@@ -33,7 +33,7 @@ namespace Qv2rayBase::Plugin
     using namespace Qv2rayPlugin::Outbound;
     using namespace Qv2rayPlugin::Subscription;
 
-    PluginAPIHost::PluginAPIHost()
+    PluginAPIHost::PluginAPIHost() : d_ptr(new PluginAPIHostPrivate)
     {
     }
 

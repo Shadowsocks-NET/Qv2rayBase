@@ -106,6 +106,7 @@ namespace Qv2rayBase::Plugin
                 case Qv2rayPlugin::COMPONENT_SUBSCRIPTION_ADAPTER: typesList << QObject::tr("Subscription Adapter"); break;
                 case Qv2rayPlugin::COMPONENT_EVENT_HANDLER: typesList << QObject::tr("Event Handler"); break;
                 case Qv2rayPlugin::COMPONENT_GUI: typesList << QObject::tr("GUI Components"); break;
+                case Qv2rayPlugin::COMPONENT_LATENCY_TEST_ENGINE: typesList << QObject::tr("Latency Test Engine"); break;
             }
         }
         return typesList;

@@ -23,18 +23,27 @@
 
 const auto QV2RAY_CONFIG_PATH_ENV_NAME = "QV2RAY_CONFIG_PATH";
 const auto QV2RAY_CONFIG_FILE_NAME = "Qv2ray.conf";
-const auto QV2RAY_CONFIG_CONNECTIONS_BASENAME = "connections";
-const auto QV2RAY_CONFIG_GROUPS_BASENAME = "groups";
-const auto QV2RAY_CONFIG_ROUTINGS_BASENAME = "routings";
-const auto QV2RAY_CONFIG_PLUGINS_BASENAME = "plugins";
-const auto QV2RAY_CONFIG_PLUGIN_SETTINGS_BASENAME = "plugin_settings";
+const auto CONNECTIONS = "connections";
+const auto GROUPS = "groups";
+const auto ROUTINGS = "routings";
+const auto PLUGINS = "plugins";
+const auto PLUGIN_SETTINGS = "plugin_settings";
 
 #define DEBUG_SUFFIX (RuntimeContext.isDebug ? QStringLiteral("_debug/") : QStringLiteral("/"))
 
-bool CheckSettingsPathAvailability(const QString &_dirPath, bool checkExistingConfig)
+#define ConnectionsJson ConfigDirPath + CONNECTIONS + ".json"
+#define GroupsJson ConfigDirPath + GROUPS + ".json"
+#define RoutingsJson ConfigDirPath + ROUTINGS + ".json"
+
+#define ConnectionJson(id) ConfigDirPath + CONNECTIONS + "/" + id + ".json"
+#define GroupJson(id) ConfigDirPath + GROUPS + "/" + id + ".json"
+#define RoutingJson(id) ConfigDirPath + ROUTINGS + "/" + id + ".json"
+#define PluginSettingsJson(id) ConfigDirPath + PLUGIN_SETTINGS + "/" + id + ".json"
+
+bool CheckPathAvailability(const QString &_dirPath, bool checkExistingConfig)
 {
     auto path = _dirPath;
-    if (!path.endsWith("/"))
+    if (!path.endsWith(u"/"))
         path.append("/");
 
     // Does not exist.
@@ -91,11 +100,9 @@ bool CheckSettingsPathAvailability(const QString &_dirPath, bool checkExistingCo
 
 namespace Qv2rayBase::Interfaces
 {
-    Qv2rayBasePrivateStorageProvider::Qv2rayBasePrivateStorageProvider(QObject *parent) : QObject(parent)
-    {
-    }
+    Qv2rayBasePrivateStorageProvider::Qv2rayBasePrivateStorageProvider(QObject *parent) : QObject(parent){};
 
-    bool Qv2rayBasePrivateStorageProvider::LookupConfigurations(StorageContext runtimeContext)
+    bool Qv2rayBasePrivateStorageProvider::LookupConfigurations(const StorageContext &runtimeContext)
     {
         QStringList configDirPathsSearchList;
 
@@ -104,7 +111,7 @@ namespace Qv2rayBase::Interfaces
             configDirPathsSearchList << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
 
             // Standard platform-independent configuration location
-            configDirPathsSearchList << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qv2ray" + DEBUG_SUFFIX;
+            configDirPathsSearchList << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qv2raybase" + DEBUG_SUFFIX;
         }
 
         // Custom configuration path
@@ -122,7 +129,7 @@ namespace Qv2rayBase::Interfaces
         {
             // Verify the config path, check if the config file exists and in the correct JSON format.
             // True means we check for config existence as well. --------|HERE|
-            bool isValidConfigPath = CheckSettingsPathAvailability(dirPath, true);
+            bool isValidConfigPath = CheckPathAvailability(dirPath, true);
 
             if (isValidConfigPath)
             {
@@ -139,7 +146,8 @@ namespace Qv2rayBase::Interfaces
             selectedConfigurationFile = configDirPathsSearchList.first() + QV2RAY_CONFIG_FILE_NAME;
 
             // Check if the dirs are writeable
-            const auto hasPossibleNewLocation = QDir().mkpath(selectedConfigurationFile) && CheckSettingsPathAvailability(selectedConfigurationFile, false);
+            const auto dir = QFileInfo(selectedConfigurationFile).path();
+            const auto hasPossibleNewLocation = QDir(dir).mkpath(dir) && CheckPathAvailability(dir, false);
             if (!hasPossibleNewLocation)
             {
                 // None of the path above can be used as a dir for storing config.
@@ -174,7 +182,7 @@ namespace Qv2rayBase::Interfaces
             }
 
             // Now make the file exist.
-            WriteFile(R"({ "dummy": "Hello, Qv2ray!" })", selectedConfigurationFile);
+            WriteFile("{}", selectedConfigurationFile);
         }
 
         // At this step, the "selectedConfigurationFile" is ensured to be OK for storing configuration.
@@ -182,9 +190,13 @@ namespace Qv2rayBase::Interfaces
         RuntimeContext = runtimeContext;
         ExecutableDirPath = qApp->applicationDirPath();
         ConfigFilePath = selectedConfigurationFile;
-        ConfigDirPath = QFileInfo(ConfigFilePath).filePath();
+        ConfigDirPath = QFileInfo(ConfigFilePath).path() + "/";
         QvLog() << "Using" << selectedConfigurationFile << "as the config path.";
         return true;
+    }
+
+    void Qv2rayBasePrivateStorageProvider::EnsureSaved()
+    {
     }
 
     QJsonObject Qv2rayBasePrivateStorageProvider::GetBaseConfiguration()
@@ -197,53 +209,111 @@ namespace Qv2rayBase::Interfaces
         return WriteFile(JsonToString(json).toUtf8(), ConfigFilePath);
     }
 
-    QHash<ConnectionId, ConnectionObject> Qv2rayBasePrivateStorageProvider::Connections()
+    QHash<ConnectionId, ConnectionObject> Qv2rayBasePrivateStorageProvider::GetConnections()
     {
-        return {};
+        const auto connectionJson = JsonFromString(ReadFile(ConnectionsJson));
+
+        QHash<ConnectionId, ConnectionObject> result;
+        for (auto it = connectionJson.constBegin(); it != connectionJson.constEnd(); it++)
+        {
+            ConnectionObject o;
+            o.loadJson(it.value());
+            result.insert(ConnectionId{ it.key() }, o);
+        }
+        return result;
     }
 
-    QHash<GroupId, GroupObject> Qv2rayBasePrivateStorageProvider::Groups()
+    QHash<GroupId, GroupObject> Qv2rayBasePrivateStorageProvider::GetGroups()
     {
-        return {};
+        const auto groupsJson = JsonFromString(ReadFile(GroupsJson));
+
+        QHash<GroupId, GroupObject> result;
+        for (auto it = groupsJson.constBegin(); it != groupsJson.constEnd(); it++)
+        {
+            GroupObject o;
+            o.loadJson(it.value());
+            result.insert(GroupId{ it.key() }, o);
+        }
+        return result;
     }
 
-    QHash<RoutingId, RoutingObject> Qv2rayBasePrivateStorageProvider::Routings()
+    QHash<RoutingId, RoutingObject> Qv2rayBasePrivateStorageProvider::GetRoutings()
     {
-        return {};
+        const auto routingsJson = JsonFromString(ReadFile(RoutingsJson));
+
+        QHash<RoutingId, RoutingObject> result;
+        for (auto it = routingsJson.constBegin(); it != routingsJson.constEnd(); it++)
+        {
+            RoutingObject o;
+            o.loadJson(it.value());
+            result.insert(RoutingId{ it.key() }, o);
+        }
+        return result;
     }
 
-    ProfileContent Qv2rayBasePrivateStorageProvider::GetConnectionContent(const ConnectionId &)
+    void Qv2rayBasePrivateStorageProvider::StoreConnections(const QHash<ConnectionId, ConnectionObject> &conns)
     {
-        return {};
+        QJsonObject obj;
+        for (auto it = conns.constKeyValueBegin(); it != conns.constKeyValueEnd(); it++)
+            obj[it->first.toString()] = it->second.toJson();
+        WriteFile(JsonToString(obj).toUtf8(), ConnectionsJson);
     }
 
-    bool Qv2rayBasePrivateStorageProvider::StoreConnection(const ConnectionId &, ProfileContent)
+    void Qv2rayBasePrivateStorageProvider::StoreGroups(const QHash<GroupId, GroupObject> &groups)
     {
-        return {};
+        QJsonObject obj;
+        for (auto it = groups.constKeyValueBegin(); it != groups.constKeyValueEnd(); it++)
+            obj[it->first.toString()] = it->second.toJson();
+        WriteFile(JsonToString(obj).toUtf8(), GroupsJson);
+    }
+
+    void Qv2rayBasePrivateStorageProvider::StoreRoutings(const QHash<RoutingId, RoutingObject> &routings)
+    {
+        QJsonObject obj;
+        for (auto it = routings.constKeyValueBegin(); it != routings.constKeyValueEnd(); it++)
+            obj[it->first.toString()] = it->second.toJson();
+        WriteFile(JsonToString(obj).toUtf8(), RoutingsJson);
+    }
+
+    ProfileContent Qv2rayBasePrivateStorageProvider::GetConnectionContent(const ConnectionId &id)
+    {
+        return ProfileContent::fromJson(JsonFromString(ReadFile(ConnectionJson(id.toString()))));
+    }
+
+    bool Qv2rayBasePrivateStorageProvider::StoreConnection(const ConnectionId &id, const ProfileContent &profile)
+    {
+        return WriteFile(JsonToString(profile.toJson()).toUtf8(), ConnectionJson(id.toString()));
     }
 
     bool Qv2rayBasePrivateStorageProvider::DeleteConnection(const ConnectionId &id)
     {
-        return {};
+        return QFile::remove(ConnectionJson(id.toString()));
     }
 
     QDir Qv2rayBasePrivateStorageProvider::GetUserPluginDirectory()
     {
-        return {};
+        QDir d(ConfigDirPath + PLUGINS + "/");
+        if (!d.exists())
+            d.mkdir(d.absolutePath());
+        return d;
     }
 
     QDir Qv2rayBasePrivateStorageProvider::GetPluginWorkingDirectory(const PluginId &pid)
     {
-        return {};
+        QDir d(ConfigDirPath + PLUGINS + "/" + pid.toString() + "/");
+        if (!d.exists())
+            d.mkdir(d.absolutePath());
+        return d;
     }
 
     QJsonObject Qv2rayBasePrivateStorageProvider::GetPluginSettings(const PluginId &pid)
     {
-        return {};
+        return JsonFromString(ReadFile(PluginSettingsJson(pid.toString())));
     }
 
     void Qv2rayBasePrivateStorageProvider::SetPluginSettings(const PluginId &pid, const QJsonObject &obj)
     {
+        WriteFile(JsonToString(obj).toUtf8(), PluginSettingsJson(pid.toString()));
     }
 
     QStringList Qv2rayBasePrivateStorageProvider::GetAssetsPath(const QString &dirName)
@@ -284,21 +354,4 @@ namespace Qv2rayBase::Interfaces
 #endif
         return list;
     }
-
-    void Qv2rayBasePrivateStorageProvider::EnsureSaved()
-    {
-    }
-
-    void Qv2rayBasePrivateStorageProvider::StoreConnections(const QHash<ConnectionId, ConnectionObject> &)
-    {
-    }
-
-    void Qv2rayBasePrivateStorageProvider::StoreGroups(const QHash<GroupId, GroupObject> &)
-    {
-    }
-
-    void Qv2rayBasePrivateStorageProvider::StoreRoutings(const QHash<RoutingId, RoutingObject> &)
-    {
-    }
-
 } // namespace Qv2rayBase::Interfaces

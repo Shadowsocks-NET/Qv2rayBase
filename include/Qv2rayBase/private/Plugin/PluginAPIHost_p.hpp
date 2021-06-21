@@ -30,7 +30,8 @@ namespace Qv2rayBase::Plugin
     class PluginAPIHostPrivate
     {
       public:
-        QHash<KernelId, Qv2rayPlugin::KernelFactory> kernels;
-        QHash<LatencyTestEngineId, Qv2rayPlugin::LatencyTestEngineInfo> latencyTesters;
+        ~PluginAPIHostPrivate() = default;
+        QHash<LatencyTestEngineId, Qv2rayPlugin::LatencyTestEngineInfo> latencyTesters = {};
+        QHash<KernelId, Qv2rayPlugin::KernelFactory> kernels = {};
     };
 } // namespace Qv2rayBase::Plugin

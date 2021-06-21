@@ -22,6 +22,7 @@
 #include "Plugin/PluginManagerCore.hpp"
 #include "Profile/KernelManager.hpp"
 #include "Profile/ProfileManager.hpp"
+#include "private/Common/SettingsUpgrade_p.hpp"
 #include "private/Qv2rayBaseLibrary_p.hpp"
 
 // Private headers
@@ -40,7 +41,6 @@ namespace Qv2rayBase
 {
     using namespace Qv2rayBase::Profile;
     using namespace Qv2rayBase::Plugin;
-    QJsonObject MigrateSettings(int fromVersion, int toVersion, const QJsonObject &original);
     Qv2rayBaseLibrary *m_instance = nullptr;
 
     QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(Qv2rayStartFlags flags,                    //
@@ -65,10 +65,20 @@ namespace Qv2rayBase
         else
             d->configGenerator = new Interfaces::Qv2rayBasePrivateConfigurationGenerator;
 
-#pragma message("TODO: load configurations")
         d->configuration = new Models::Qv2rayBaseConfigObject;
 
+#pragma message("TODO: Storage Context")
+        if (!d->storageProvider->LookupConfigurations({}))
+        {
+            m_instance = nullptr;
+            return ERR_LOCATE_CONFIGURATION;
+        }
+
+        QJsonObject configuration = _private::MigrateSettings(d->storageProvider->GetBaseConfiguration());
+        d->configuration->loadJson(configuration);
+
         d->pluginCore = new Plugin::PluginManagerCore;
+        d->pluginAPIHost = new Plugin::PluginAPIHost;
 
         if (!flags.testFlag(START_NO_PLUGINS))
             d->pluginCore->LoadPlugins();
@@ -80,22 +90,44 @@ namespace Qv2rayBase
         return NORMAL;
     }
 
+    void Qv2rayBaseLibrary::Shutdown()
+    {
+        Q_D(Qv2rayBaseLibrary);
+        d->kernelManager->StopConnection();
+        d->profileManager->SaveConnectionConfig();
+        d->latencyTestHost->StopAllLatencyTest();
+        d->pluginCore->SavePluginSettings();
+
+        delete d->kernelManager;
+        delete d->latencyTestHost;
+        delete d->pluginAPIHost;
+        delete d->pluginCore;
+        delete d->profileManager;
+
+        d->storageProvider->StoreBaseConfiguration(d->configuration->toJson());
+        delete d->configuration;
+
+        delete d->storageProvider;
+        delete d->configGenerator;
+
+        // delete d->uiInterface;
+        m_instance = nullptr;
+    }
+
     Qv2rayBaseLibrary *Qv2rayBaseLibrary::instance()
     {
-        Q_ASSERT_X(m_instance, "Qv2rayBaseLibrary", "m_instance is null! Did you forget to construct Qv2rayBaseLibrary?");
+        Q_ASSERT_X(m_instance, "Qv2rayBaseLibrary", "m_instance is null! Did you forget to initialize Qv2rayBase?");
         return m_instance;
     }
 
-    Qv2rayBaseLibrary::Qv2rayBaseLibrary()
+    Qv2rayBaseLibrary::Qv2rayBaseLibrary() : d_ptr(new Qv2rayBaseLibraryPrivate)
     {
         QvLog() << "Qv2ray Base Library" << QV2RAY_BASELIB_VERSION << "on" << QSysInfo::prettyProductName() << QSysInfo::currentCpuArchitecture();
         QvDebug() << "Qv2ray Start Time:" << QTime::currentTime().msecsSinceStartOfDay();
-        d_ptr.reset(new Qv2rayBaseLibraryPrivate);
     }
 
     Qv2rayBaseLibrary::~Qv2rayBaseLibrary()
     {
-        m_instance = nullptr;
     }
 
     QStringList Qv2rayBaseLibrary::GetAssetsPaths(const QString &dirName)
