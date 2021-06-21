@@ -33,6 +33,7 @@ namespace Qv2rayBase
     namespace Profile { class KernelManager; }
     namespace Interfaces { class IStorageProvider; };
     namespace Interfaces { class IConfigurationGenerator; }
+    namespace Interfaces { struct StorageContext; }
     // clang-format on
 
     enum QV2RAYBASE_FAILED_REASON
@@ -72,9 +73,12 @@ namespace Qv2rayBase
         ~Qv2rayBaseLibrary();
 
         QV2RAYBASE_FAILED_REASON Initialize(Qv2rayStartFlags flags,                          //
+                                            Interfaces::StorageContext ctx,                  //
                                             Interfaces::IUserInteractionInterface *,         //
                                             Interfaces::IConfigurationGenerator * = nullptr, //
                                             Interfaces::IStorageProvider * = nullptr);
+
+        void SaveConfigurations() const;
 
         ///
         /// \brief Clean up all resources that was allocated by Qv2rayBaseLibrary, stop the current

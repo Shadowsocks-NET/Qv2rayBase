@@ -100,18 +100,18 @@ bool CheckPathAvailability(const QString &_dirPath, bool checkExistingConfig)
 
 namespace Qv2rayBase::Interfaces
 {
-    Qv2rayBasePrivateStorageProvider::Qv2rayBasePrivateStorageProvider(QObject *parent) : QObject(parent){};
+    Qv2rayBasePrivateStorageProvider::Qv2rayBasePrivateStorageProvider(){};
 
     bool Qv2rayBasePrivateStorageProvider::LookupConfigurations(const StorageContext &runtimeContext)
     {
         QStringList configDirPathsSearchList;
 
         {
-            // Application directory
-            configDirPathsSearchList << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
-
             // Standard platform-independent configuration location
             configDirPathsSearchList << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qv2raybase" + DEBUG_SUFFIX;
+
+            // Application directory
+            configDirPathsSearchList << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
         }
 
         // Custom configuration path
@@ -128,7 +128,7 @@ namespace Qv2rayBase::Interfaces
         for (const auto &dirPath : configDirPathsSearchList)
         {
             // Verify the config path, check if the config file exists and in the correct JSON format.
-            // True means we check for config existence as well. --------|HERE|
+            // True means we check for config existence as well. --|HERE|
             bool isValidConfigPath = CheckPathAvailability(dirPath, true);
 
             if (isValidConfigPath)

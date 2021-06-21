@@ -14,6 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "Interfaces/IStorageProvider.hpp"
 #include "Plugin/PluginManagerCore.hpp"
 #include "Qv2rayBaseLibrary.hpp"
 #include "QvPluginInterface.hpp"
@@ -66,7 +67,7 @@ class PluginLoaderTest : public QObject
     void testWithoutPlugins()
     {
         baselib = new Qv2rayBase::Qv2rayBaseLibrary;
-        baselib->Initialize({ Qv2rayBase::START_NO_PLUGINS }, new Qv2rayBase::Tests::UIInterface);
+        baselib->Initialize({ Qv2rayBase::START_NO_PLUGINS }, {}, new Qv2rayBase::Tests::UIInterface);
         QCOMPARE(baselib->PluginManagerCore()->GetPlugin(PluginId(QStringLiteral("static_plugin_test"))), nullptr);
         delete baselib;
     }
@@ -74,7 +75,7 @@ class PluginLoaderTest : public QObject
     void testWithPlugins()
     {
         baselib = new Qv2rayBase::Qv2rayBaseLibrary;
-        baselib->Initialize({}, new Qv2rayBase::Tests::UIInterface);
+        baselib->Initialize({}, {}, new Qv2rayBase::Tests::UIInterface);
         const auto pluginInfo = baselib->PluginManagerCore()->GetPlugin(PluginId(QStringLiteral("static_plugin_test")));
         QVERIFY2(pluginInfo != nullptr, "PluginInfo should not be nullptr, that is, PluginManagerCore should find the static plugin.");
         QCOMPARE(pluginInfo->libraryPath, "[STATIC]");

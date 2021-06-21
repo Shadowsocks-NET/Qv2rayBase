@@ -32,9 +32,6 @@
 #include <QDir>
 #include <QStandardPaths>
 
-// WARN Should we use this?
-#include <QCoreApplication>
-
 #define QV_MODULE_NAME "BaseApplication"
 
 namespace Qv2rayBase
@@ -44,6 +41,7 @@ namespace Qv2rayBase
     Qv2rayBaseLibrary *m_instance = nullptr;
 
     QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(Qv2rayStartFlags flags,                    //
+                                                           Interfaces::StorageContext ctx,            //
                                                            Interfaces::IUserInteractionInterface *ui, //
                                                            Interfaces::IConfigurationGenerator *gen,  //
                                                            Interfaces::IStorageProvider *stor)
@@ -67,8 +65,7 @@ namespace Qv2rayBase
 
         d->configuration = new Models::Qv2rayBaseConfigObject;
 
-#pragma message("TODO: Storage Context")
-        if (!d->storageProvider->LookupConfigurations({}))
+        if (!d->storageProvider->LookupConfigurations(ctx))
         {
             m_instance = nullptr;
             return ERR_LOCATE_CONFIGURATION;
@@ -90,6 +87,15 @@ namespace Qv2rayBase
         return NORMAL;
     }
 
+    void Qv2rayBaseLibrary::SaveConfigurations() const
+    {
+        Q_D(const Qv2rayBaseLibrary);
+        d->profileManager->SaveConnectionConfig();
+        d->latencyTestHost->StopAllLatencyTest();
+        d->pluginCore->SavePluginSettings();
+        d->storageProvider->EnsureSaved();
+    }
+
     void Qv2rayBaseLibrary::Shutdown()
     {
         Q_D(Qv2rayBaseLibrary);
@@ -97,6 +103,7 @@ namespace Qv2rayBase
         d->profileManager->SaveConnectionConfig();
         d->latencyTestHost->StopAllLatencyTest();
         d->pluginCore->SavePluginSettings();
+        d->storageProvider->EnsureSaved();
 
         delete d->kernelManager;
         delete d->latencyTestHost;

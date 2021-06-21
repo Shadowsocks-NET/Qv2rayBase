@@ -24,17 +24,12 @@
 
 #include "Interfaces/IStorageProvider.hpp"
 
-#include <QObject>
-
 namespace Qv2rayBase::Interfaces
 {
-    class Qv2rayBasePrivateStorageProvider
-        : public QObject
-        , public IStorageProvider
+    class Qv2rayBasePrivateStorageProvider : public IStorageProvider
     {
-        Q_OBJECT
       public:
-        Qv2rayBasePrivateStorageProvider(QObject *parent = nullptr);
+        Qv2rayBasePrivateStorageProvider();
         virtual ~Qv2rayBasePrivateStorageProvider() = default;
 
         virtual bool LookupConfigurations(const StorageContext &) override;
