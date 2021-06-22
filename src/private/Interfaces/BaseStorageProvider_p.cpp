@@ -102,6 +102,11 @@ namespace Qv2rayBase::Interfaces
 {
     Qv2rayBasePrivateStorageProvider::Qv2rayBasePrivateStorageProvider(){};
 
+    QString Qv2rayBasePrivateStorageProvider::StorageLocation() const
+    {
+        return ConfigDirPath;
+    }
+
     bool Qv2rayBasePrivateStorageProvider::LookupConfigurations(const StorageContext &runtimeContext)
     {
         QStringList configSearchPaths;

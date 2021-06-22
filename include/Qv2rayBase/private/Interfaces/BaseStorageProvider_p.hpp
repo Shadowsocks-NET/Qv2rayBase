@@ -32,6 +32,7 @@ namespace Qv2rayBase::Interfaces
         Qv2rayBasePrivateStorageProvider();
         virtual ~Qv2rayBasePrivateStorageProvider() = default;
 
+        virtual QString StorageLocation() const override;
         virtual bool LookupConfigurations(const StorageContext &) override;
         virtual void EnsureSaved() override;
 

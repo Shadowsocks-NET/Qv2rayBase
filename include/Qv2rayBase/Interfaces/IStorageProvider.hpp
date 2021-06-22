@@ -32,6 +32,7 @@ namespace Qv2rayBase::Interfaces
         explicit IStorageProvider() = default;
         virtual ~IStorageProvider() = default;
 
+        virtual QString StorageLocation() const = 0;
         virtual bool LookupConfigurations(const StorageContext &) = 0;
         virtual void EnsureSaved() = 0;
 
