@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "Common/Utils.hpp"
-#include "Connections/ConnectionsBase.hpp"
 #include "Qv2rayBaseFeatures.hpp"
 #include "QvPluginInterface.hpp"
 

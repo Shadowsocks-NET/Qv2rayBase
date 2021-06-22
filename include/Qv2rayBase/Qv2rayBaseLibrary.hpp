@@ -32,7 +32,6 @@ namespace Qv2rayBase
     namespace Profile { class ProfileManager; }
     namespace Profile { class KernelManager; }
     namespace Interfaces { class IStorageProvider; };
-    namespace Interfaces { class IConfigurationGenerator; }
     namespace Interfaces { struct StorageContext; }
     // clang-format on
 
@@ -72,10 +71,9 @@ namespace Qv2rayBase
         explicit Qv2rayBaseLibrary();
         ~Qv2rayBaseLibrary();
 
-        QV2RAYBASE_FAILED_REASON Initialize(Qv2rayStartFlags flags,                          //
-                                            Interfaces::StorageContext ctx,                  //
-                                            Interfaces::IUserInteractionInterface *,         //
-                                            Interfaces::IConfigurationGenerator * = nullptr, //
+        QV2RAYBASE_FAILED_REASON Initialize(Qv2rayStartFlags flags,                  //
+                                            Interfaces::StorageContext ctx,          //
+                                            Interfaces::IUserInteractionInterface *, //
                                             Interfaces::IStorageProvider * = nullptr);
 
         void SaveConfigurations() const;
@@ -163,12 +161,6 @@ namespace Qv2rayBase
         static Qv2rayBase::Profile::KernelManager *KernelManager();
 
         ///
-        /// \brief ConfigurationGenerator Get the configuration generator, mostly for applying custom configuration filters or chain expansions
-        /// \return The pointer to the configuration generator
-        ///
-        static Qv2rayBase::Interfaces::IConfigurationGenerator *ConfigurationGenerator();
-
-        ///
         /// \brief StorageProvider Get the storage provider, implemented by downstream to provide Qv2rayBase a stable storage to place connections.
         /// \return The pointer to the storage provider
         ///
@@ -182,13 +174,15 @@ namespace Qv2rayBase
 } // namespace Qv2rayBase
 
 // clang-format off
+#ifndef Qv2rayBase_EXPORTS
+// Do not use QvBaselib with Qv2rayBase library itself.
 #define QvBaselib                           Qv2rayBase::Qv2rayBaseLibrary::instance()
 #if 0
     #define QvKernelManager                 Qv2rayBase::Qv2rayBaseLibrary::KernelManager()
     #define QvProfileManager                Qv2rayBase::Qv2rayBaseLibrary::ProfileManager()
     #define QvPluginManagerCore             Qv2rayBase::Qv2rayBaseLibrary::PluginManagerCore()
     #define QvPluginHost                    Qv2rayBase::Qv2rayBaseLibrary::PluginAPIHost()
-    #define QvConfigurationGenerator        Qv2rayBase::Qv2rayBaseLibrary::ConfigurationGenerator()
     #define QvStorageProvider               Qv2rayBase::Qv2rayBaseLibrary::StorageProvider()
+#endif
 #endif
 // clang-format on

@@ -47,6 +47,9 @@ namespace Qv2rayBase::Utils
     QV2RAYBASE_EXPORT std::tuple<QString, QString, int> GetOutboundInfoTuple(const OutboundObject &out);
     QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetOutboundsInfo(const ProfileContent &out);
     QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetOutboundsInfo(const ConnectionId &id);
+
+    QV2RAYBASE_EXPORT bool ExpandProfileChains(ProfileContent &root);
+    QV2RAYBASE_EXPORT QList<OutboundObject> ExpandProfileExternalOutbounds(const QList<OutboundObject> &outbounds);
 } // namespace Qv2rayBase::Utils
 
 using namespace Qv2rayBase::Utils;

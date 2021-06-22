@@ -54,7 +54,6 @@ set(BASELIB_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/LatencyTestHost.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginAPIHost.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Plugin/PluginManagerCore.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/Profile/Generator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/KernelManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Profile/ProfileManager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/Qv2rayBaseLibrary.cpp
@@ -65,7 +64,6 @@ set(BASELIB_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/ProfileHelpers.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Settings.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Common/Utils.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IConfigurationGenerator.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IStorageProvider.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Interfaces/IUserInteractionInterface.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/Plugin/LatencyTestHost.hpp
@@ -79,7 +77,6 @@ set(BASELIB_HEADERS
 
 set(BASELIB_P_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/private/Common/SettingsUpgrade_p.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/private/Interfaces/BaseConfigurationGenerator_p.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/Interfaces/BaseStorageProvider_p.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/Plugin/LatencyTestHost_p.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/private/Plugin/LatencyTestThread_p.cpp
@@ -92,7 +89,6 @@ set(BASELIB_P_SOURCES
 
 set(BASELIB_P_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Common/SettingsUpgrade_p.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Interfaces/BaseConfigurationGenerator_p.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Interfaces/BaseStorageProvider_p.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Plugin/LatencyTestHost_p.hpp
     ${CMAKE_CURRENT_LIST_DIR}/include/Qv2rayBase/private/Plugin/LatencyTestThread_p.hpp

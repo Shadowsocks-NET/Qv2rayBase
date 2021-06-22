@@ -29,7 +29,7 @@ namespace Qv2rayBase::Profile
         explicit KernelManager(QObject *parent = nullptr);
         ~KernelManager();
 
-        std::optional<QString> StartConnection(const ProfileId &id, const ProfileContent &root);
+        std::optional<QString> StartConnection(const ProfileId &id, const ProfileContent &root, const RoutingObject &routing);
         void StopConnection();
         const ProfileId CurrentConnection() const;
         size_t ActiveKernelCount() const;
@@ -50,11 +50,7 @@ namespace Qv2rayBase::Profile
 
       private slots:
         void OnKernelCrashed_p(const QString &msg);
-        void OnPluginKernelLog_p(const QString &log);
-        void OnV2RayKernelLog_p(const QString &log);
-
-      private:
-        void emitLogMessage(const QString &);
+        void OnKernelLog_p(const QString &log);
 
       private:
         QScopedPointer<KernelManagerPrivate> d_ptr;

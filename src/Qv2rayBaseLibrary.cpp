@@ -26,7 +26,6 @@
 #include "private/Qv2rayBaseLibrary_p.hpp"
 
 // Private headers
-#include "private/Interfaces/BaseConfigurationGenerator_p.hpp"
 #include "private/Interfaces/BaseStorageProvider_p.hpp"
 
 #include <QDir>
@@ -43,7 +42,6 @@ namespace Qv2rayBase
     QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(Qv2rayStartFlags flags,                    //
                                                            Interfaces::StorageContext ctx,            //
                                                            Interfaces::IUserInteractionInterface *ui, //
-                                                           Interfaces::IConfigurationGenerator *gen,  //
                                                            Interfaces::IStorageProvider *stor)
     {
         Q_ASSERT_X(m_instance == nullptr, "Qv2rayBaseLibrary", "m_instance is not null! Cannot construct another Qv2rayBaseLibrary when there's one existed");
@@ -57,11 +55,6 @@ namespace Qv2rayBase
             d->storageProvider = stor;
         else
             d->storageProvider = new Interfaces::Qv2rayBasePrivateStorageProvider;
-
-        if (gen)
-            d->configGenerator = gen;
-        else
-            d->configGenerator = new Interfaces::Qv2rayBasePrivateConfigurationGenerator;
 
         d->configuration = new Models::Qv2rayBaseConfigObject;
 
@@ -115,7 +108,6 @@ namespace Qv2rayBase
         delete d->configuration;
 
         delete d->storageProvider;
-        delete d->configGenerator;
 
         // delete d->uiInterface;
         m_instance = nullptr;
@@ -190,11 +182,6 @@ namespace Qv2rayBase
     LatencyTestHost *Qv2rayBaseLibrary::LatencyTestHost()
     {
         return instance()->d_ptr->latencyTestHost;
-    }
-
-    Interfaces::IConfigurationGenerator *Qv2rayBaseLibrary::ConfigurationGenerator()
-    {
-        return instance()->d_ptr->configGenerator;
     }
 
     Interfaces::IStorageProvider *Qv2rayBaseLibrary::StorageProvider()

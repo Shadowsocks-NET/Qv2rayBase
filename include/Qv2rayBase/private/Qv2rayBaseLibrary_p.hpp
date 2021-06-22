@@ -40,7 +40,6 @@ namespace Qv2rayBase
         Profile::KernelManager *kernelManager;
         Qv2rayStartFlags startupFlags;
 
-        Interfaces::IConfigurationGenerator *configGenerator;
         Interfaces::IStorageProvider *storageProvider;
         Interfaces::IUserInteractionInterface *uiInterface;
     };

@@ -104,14 +104,14 @@ namespace Qv2rayBase::Interfaces
 
     bool Qv2rayBasePrivateStorageProvider::LookupConfigurations(const StorageContext &runtimeContext)
     {
-        QStringList configDirPathsSearchList;
+        QStringList configSearchPaths;
 
         {
             // Standard platform-independent configuration location
-            configDirPathsSearchList << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/qv2raybase" + DEBUG_SUFFIX;
+            configSearchPaths << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/" + QCoreApplication::applicationName().toLower() + "/";
 
             // Application directory
-            configDirPathsSearchList << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
+            configSearchPaths << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
         }
 
         // Custom configuration path
@@ -119,13 +119,13 @@ namespace Qv2rayBase::Interfaces
         {
             const auto manualConfigPath = qEnvironmentVariable(QV2RAY_CONFIG_PATH_ENV_NAME);
             QvLog() << "Using config path from env:" << manualConfigPath;
-            configDirPathsSearchList.clear();
-            configDirPathsSearchList << manualConfigPath;
+            configSearchPaths.clear();
+            configSearchPaths << manualConfigPath;
         }
 
         QString selectedConfigurationFile;
 
-        for (const auto &dirPath : configDirPathsSearchList)
+        for (const auto &dirPath : configSearchPaths)
         {
             // Verify the config path, check if the config file exists and in the correct JSON format.
             // True means we check for config existence as well. --|HERE|
@@ -143,7 +143,7 @@ namespace Qv2rayBase::Interfaces
         if (selectedConfigurationFile.isEmpty())
         {
             // If there's no existing config, use the first one in the search list.
-            selectedConfigurationFile = configDirPathsSearchList.first() + QV2RAY_CONFIG_FILE_NAME;
+            selectedConfigurationFile = configSearchPaths.first() + QV2RAY_CONFIG_FILE_NAME;
 
             // Check if the dirs are writeable
             const auto dir = QFileInfo(selectedConfigurationFile).path();
@@ -156,7 +156,7 @@ namespace Qv2rayBase::Interfaces
                 QvLog() << "Cannot load configuration file Qv2ray";
                 QvLog() << "Cannot find a place to store config files." << NEWLINE << "Qv2ray has searched these paths below:";
                 QvLog() << "";
-                QvLog() << configDirPathsSearchList;
+                QvLog() << configSearchPaths;
                 QvLog() << "It usually means you don't have the write permission to all of those locations.";
                 return false;
             }
@@ -347,6 +347,8 @@ namespace Qv2rayBase::Interfaces
         list << makeAbs("/usr/lib/qv2ray" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/lib/qv2ray" + DEBUG_SUFFIX + dirName);
 #endif
+
+        list << ConfigDirPath + dirName;
 
 #ifdef Q_OS_MAC
         // macOS platform directories.

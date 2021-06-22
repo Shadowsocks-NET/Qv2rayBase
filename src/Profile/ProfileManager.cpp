@@ -18,7 +18,6 @@
 
 #include "Common/HTTPRequestHelper.hpp"
 #include "Common/Utils.hpp"
-#include "Interfaces/IConfigurationGenerator.hpp"
 #include "Interfaces/IStorageProvider.hpp"
 #include "Plugin/LatencyTestHost.hpp"
 #include "Plugin/PluginAPIHost.hpp"
@@ -45,14 +44,9 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         QvDebug() << "ProfileManager Constructor.";
 
-        const auto _connections = Qv2rayBaseLibrary::StorageProvider()->GetConnections();
+        d->connections = Qv2rayBaseLibrary::StorageProvider()->GetConnections();
         const auto _groups = Qv2rayBaseLibrary::StorageProvider()->GetGroups();
         const auto _routings = Qv2rayBaseLibrary::StorageProvider()->GetRoutings();
-
-        for (auto it = _connections.constKeyValueBegin(); it != _connections.constKeyValueEnd(); it++)
-        {
-            d->connections.insert(it->first, it->second);
-        }
 
         for (auto it = _groups.constKeyValueBegin(); it != _groups.constKeyValueEnd(); it++)
         {
@@ -74,7 +68,7 @@ namespace Qv2rayBase::Profile
             d->routings.insert(it->first, it->second);
         }
 
-        for (auto it = _connections.constKeyValueBegin(); it != _connections.constKeyValueEnd(); it++)
+        for (auto it = d->connections.constKeyValueBegin(); it != d->connections.constKeyValueEnd(); it++)
         {
             auto id = it->first;
             auto conn = it->second;
@@ -286,15 +280,14 @@ namespace Qv2rayBase::Profile
     {
         Q_D(ProfileManager);
         CheckValidId(identifier, false);
-        d->connections[identifier.connectionId].last_connected = system_clock::now();
         ProfileContent root = GetConnection(identifier.connectionId);
-        const auto fullConfig = Qv2rayBaseLibrary::ConfigurationGenerator()->ApplyRouting(root, d->routings.value(d->groups[identifier.groupId].route_id));
-        auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, fullConfig);
+        auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, root, d->routings.value(d->groups[identifier.groupId].route_id));
         if (errMsg)
         {
             Qv2rayBaseLibrary::Warn(tr("Failed to start connection"), *errMsg);
             return false;
         }
+        d->connections[identifier.connectionId].last_connected = system_clock::now();
         return true;
     }
 
