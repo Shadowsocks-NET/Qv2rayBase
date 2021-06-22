@@ -49,8 +49,8 @@ namespace Qv2rayBase::Plugin
         }
 
         // Outbound Get/Set Data
-        std::optional<PluginIOBoundData> Outbound_GetData(const OutboundObject &o) const;
-        bool Outbound_SetData(OutboundObject &o, const PluginIOBoundData &info) const;
+        std::optional<PluginIOBoundData> Outbound_GetData(const IOConnectionSettings &o) const;
+        bool Outbound_SetData(IOConnectionSettings &o, const PluginIOBoundData &info) const;
 
         // Outbound De/serialize
         std::optional<QString> Outbound_Serialize(const QString &name, const OutboundObject &outbound) const;

@@ -34,7 +34,7 @@ namespace Qv2rayBase::Profile
         QMap<QString, PluginIOBoundData> inboundInfo;
         QMap<QString, PluginIOBoundData> outboundInfo;
         qsizetype logPadding = 0;
-        ConnectionGroupPair current;
+        ProfileId current;
         std::list<std::pair<QString, std::unique_ptr<Qv2rayPlugin::PluginKernel>>> kernels;
     };
 } // namespace Qv2rayBase::Profile

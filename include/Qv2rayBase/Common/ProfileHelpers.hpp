@@ -28,8 +28,8 @@ namespace Qv2rayBase::Utils
 
     QV2RAYBASE_EXPORT QString GetConnectionProtocolDescription(const ConnectionId &id);
     QV2RAYBASE_EXPORT std::optional<std::pair<QString, ProfileContent>> ConvertConfigFromString(const QString &link);
-    QV2RAYBASE_EXPORT QString ConvertConfigToString(const ConnectionId &id);
-    QV2RAYBASE_EXPORT QString ConvertConfigToString(const QString &alias, const ProfileContent &root);
+    QV2RAYBASE_EXPORT std::optional<QString> ConvertConfigToString(const ConnectionId &id);
+    QV2RAYBASE_EXPORT std::optional<QString> ConvertConfigToString(const QString &alias, const ProfileContent &root);
     QV2RAYBASE_EXPORT bool IsComplexConfig(const ConnectionId &id);
 
 #if QV2RAYBASE_FEATURE(latency)

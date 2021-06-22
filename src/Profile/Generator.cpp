@@ -14,105 +14,59 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-//#include "Profile/Generator.hpp"
-
-//#include "Profile/ProfileManager.hpp"
-//#include "CoreUtils.hpp"
-//#include "Generation.hpp"
-//#include "Common/Utils.hpp"
-//#include "models/QvComplexConfigModels.hpp"
+#include "Interfaces/IConfigurationGenerator.hpp"
+#include "Plugin/PluginAPIHost.hpp"
+#include "Profile/ProfileManager.hpp"
 
 #define QV_MODULE_NAME "RouteHandler"
 
-namespace Qv2rayBase::core::handler
+namespace Qv2rayBase::Interfaces
 {
-    /*
-    RouteHandler::RouteHandler(QObject *parent) : QObject(parent)
-    {
-        const auto routesJson = JsonFromString(StringFromFile(QV2RAY_CONFIG_DIR + "routes.json"));
-        for (const auto &routeId : routesJson.keys())
-        {
-            configs.insert(GroupRoutingId{ routeId }, GroupRoutingConfig(routesJson.value(routeId).toObject()));
-        }
-    }
-
-    RouteHandler::~RouteHandler()
-    {
-        SaveRoutes();
-    }
-
-    void RouteHandler::SaveRoutes() const
-    {
-        QJsonObject routingObject;
-        for (const auto &key : configs.keys())
-        {
-            routingObject[key.toString()] = configs[key].toJson();
-        }
-        StringToFile(JsonToString(routingObject), QV2RAY_CONFIG_DIR + "routes.json");
-    }
-
-    bool RouteHandler::SetDNSSettings(const GroupRoutingId &id, bool overrideGlobal, const DNSConfig &dns, const FakeDNSConfig &fakeDNS)
-    {
-        configs[id].overrideDNS = overrideGlobal;
-        configs[id].dnsConfig = dns;
-        configs[id].fakeDNSConfig = fakeDNS;
-        return true;
-    }
-
-    bool RouteHandler::SetAdvancedRouteSettings(const GroupRoutingId &id, bool overrideGlobal, const RouteConfig &route)
-    {
-        configs[id].overrideRoute = overrideGlobal;
-        configs[id].routeConfig = route;
-        return true;
-    }
-
-    bool RouteHandler::ExpandChainedOutbounds(ProfileContent &root) const
+    bool IConfigurationGenerator::ExpandChains(ProfileContent &root)
     {
         // Proxy Chain Expansion
-        const auto outbounds = root["outbounds"].toArray();
-        const auto inbounds = root["inbounds"].toArray();
-        const auto rules = root["routing"].toObject()["rules"].toArray();
+        const auto outbounds = root.outbounds;
+        const auto inbounds = root.inbounds;
+        const auto rules = root.routing.rules;
 
-        QJsonArray newOutbounds, newInbounds, newRules;
+        QList<OutboundObject> finalOutbounds;
+        QList<InboundObject> chainingInbounds;
+        QList<RuleObject> chainingRules;
 
-        QMap<QString, QJsonObject> outboundCache;
         // First pass - Resolve Indexes (tags), build cache
-        for (const auto &singleOutboundVal : outbounds)
+        QMap<QString, OutboundObject> outboundCache;
+        for (const auto &outbound : outbounds)
         {
-            const auto outbound = singleOutboundVal.toObject();
-            const auto meta = OutboundObject::loadFromOutbound(OUTBOUND(outbound));
-            if (meta.metaType != METAOUTBOUND_CHAIN)
-                outboundCache[outbound["tag"].toString()] = outbound;
+            if (outbound.objectType != OutboundObject::CHAIN)
+                outboundCache[outbound.name] = outbound;
         }
 
         // Second pass - Build Chains
-        for (const auto &singleOutboundVal : outbounds)
+        for (const auto &outbound : outbounds)
         {
-            const auto outbound = singleOutboundVal.toObject();
-            const auto meta = OutboundObject::loadFromOutbound(OUTBOUND(outbound));
-            if (meta.metaType != METAOUTBOUND_CHAIN)
+            if (outbound.objectType != OutboundObject::CHAIN)
             {
-                newOutbounds << outbound;
+                finalOutbounds << outbound;
                 continue;
             }
 
-            if (meta.outboundTags.isEmpty())
+            if (outbound.chainSettings.chains.isEmpty())
             {
-                LOG("Trying to expand an empty chain.");
+                QvLog() << "Trying to expand an empty chain.";
                 continue;
             }
 
-            int nextInboundPort = meta.chainPortAllocation;
-            const auto firstOutboundTag = meta.getDisplayName();
-            const auto lastOutboundTag = meta.outboundTags.first();
+            int nextInboundPort = outbound.chainSettings.chaining_port;
+            const auto firstOutboundTag = outbound.name;
+            const auto lastOutboundTag = outbound.chainSettings.chains.first();
 
             PluginIOBoundData lastOutbound;
 
-            const auto outbountTagCount = meta.outboundTags.count();
+            const auto outbountTagCount = outbound.chainSettings.chains.count();
 
             for (auto i = outbountTagCount - 1; i >= 0; i--)
             {
-                const auto chainOutboundTag = meta.outboundTags[i];
+                const auto chainOutboundTag = outbound.chainSettings.chains[i];
 
                 const auto isFirstOutbound = i == outbountTagCount - 1;
                 const auto isLastOutbound = i == 0;
@@ -127,324 +81,101 @@ namespace Qv2rayBase::core::handler
 
                 if (!outboundCache.contains(chainOutboundTag))
                 {
-                    LOG("Cannot build outbound chain: Missing tag: " + firstOutboundTag);
+                    QvLog() << "Cannot build outbound chain: Missing tag:" << firstOutboundTag;
                     return false;
                 }
+
                 auto newOutbound = outboundCache[chainOutboundTag];
 
                 // Create Inbound
                 if (!isFirstOutbound)
                 {
                     const auto inboundTag = firstOutboundTag + ":" + QString::number(nextInboundPort) + "->" + newOutboundTag;
-                    const auto inboundSettings = GenerateDokodemoIN(lastOutbound[IOBOUND::ADDRESS].toString(), lastOutbound[IOBOUND::PORT].toInt(), "tcp,udp");
-                    const auto newInbound = GenerateInboundEntry(inboundTag, "dokodemo-door", "127.0.0.1", nextInboundPort, inboundSettings);
+
+                    IOProtocolSettings inboundSettings;
+                    inboundSettings[QStringLiteral("address")] = lastOutbound[IOBOUND_DATA_TYPE::IO_ADDRESS].toString();
+                    inboundSettings[QStringLiteral("port")] = lastOutbound[IOBOUND_DATA_TYPE::IO_PORT].toInt();
+                    inboundSettings[QStringLiteral("network")] = "tcp,udp";
+
+                    InboundObject newInbound;
+                    newInbound.name = inboundTag;
+                    newInbound.inboundSettings.protocol = QStringLiteral("dokodemo-door");
+                    newInbound.listenAddress = QStringLiteral("127.0.0.1");
+                    newInbound.listenPort = QString::number(nextInboundPort);
+                    newInbound.inboundSettings.protocolSettings = inboundSettings;
+
                     nextInboundPort++;
-                    newInbounds << newInbound;
+                    chainingInbounds << newInbound;
                     //
-                    QJsonObject ruleObject;
-                    ruleObject["type"] = "field";
-                    ruleObject["inboundTag"] = QJsonArray{ inboundTag };
-                    ruleObject["outboundTag"] = newOutboundTag;
-                    newRules.prepend(ruleObject);
+                    RuleObject ruleObject;
+                    ruleObject.inboundTags.append(inboundTag);
+                    ruleObject.outboundTag = newOutboundTag;
+                    chainingRules.prepend(ruleObject);
                 }
 
                 if (!isLastOutbound)
                 {
-                    // Begin process outbound.
-                    const auto outboundProtocol = newOutbound["protocol"].toString();
-                    auto outboundSettings = newOutbound["settings"].toObject();
                     // Get Outbound Info for next Inbound
-                    const auto info = PluginHost->Outbound_GetData(outboundProtocol, outboundSettings);
+                    auto outboundSettings = newOutbound.outboundSettings;
+                    const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(outboundSettings);
                     if (!info)
                     {
-                        LOG("Cannot get outbound info for: " + chainOutboundTag);
+                        QvLog() << "Cannot get outbound info for:" << chainOutboundTag;
                         return false;
                     }
                     lastOutbound = *info;
 
                     // Update allocated port as outbound server/port
                     PluginIOBoundData newOutboundInfo;
-                    newOutboundInfo[IOBOUND::ADDRESS] = "127.0.0.1";
-                    newOutboundInfo[IOBOUND::PORT] = nextInboundPort;
+                    newOutboundInfo.insert(IOBOUND_DATA_TYPE::IO_ADDRESS, "127.0.0.1");
+                    newOutboundInfo.insert(IOBOUND_DATA_TYPE::IO_PORT, nextInboundPort);
+
                     // For those kernels deducing SNI from the server name.
-                    if (!lastOutbound.contains(IOBOUND::SNI) || lastOutbound[IOBOUND::SNI].toString().trimmed().isEmpty())
-                        newOutboundInfo[IOBOUND::SNI] = lastOutbound[IOBOUND::ADDRESS];
-                    //
-                    PluginHost->Outbound_SetData(outboundProtocol, outboundSettings, newOutboundInfo);
-                    newOutbound.insert("settings", outboundSettings);
+                    if (!lastOutbound.contains(IOBOUND_DATA_TYPE::IO_SNI) || lastOutbound[IOBOUND_DATA_TYPE::IO_SNI].toString().trimmed().isEmpty())
+                        newOutboundInfo.insert(IOBOUND_DATA_TYPE::IO_SNI, lastOutbound.value(IOBOUND_DATA_TYPE::IO_ADDRESS));
+
+                    Qv2rayBaseLibrary::PluginAPIHost()->Outbound_SetData(outboundSettings, newOutboundInfo);
+                    newOutbound.outboundSettings = outboundSettings;
 
                     // Create new outbound
-                    newOutbound.insert("tag", newOutboundTag);
+                    newOutbound.name = newOutboundTag;
                 }
-                newOutbounds << newOutbound;
+                finalOutbounds << newOutbound;
             }
         }
 
         //
         // Finalize
         {
-            QJsonArray _newInbounds = inbounds, _newRules = rules;
-            for (const auto &in : newInbounds)
-                _newInbounds << in;
-            for (const auto &rule : newRules)
-                _newRules.prepend(rule);
+            root.inbounds.clear();
+            root.inbounds << inbounds << chainingInbounds;
 
-            root["outbounds"] = newOutbounds;
-            root["inbounds"] = _newInbounds;
-            QJsonIO::SetValue(root, _newRules, "routing", "rules");
+            root.routing.rules.clear();
+            root.routing.rules << chainingRules << rules;
+
+            root.outbounds = finalOutbounds;
         }
         return true;
     }
 
-    OUTBOUNDS RouteHandler::ExpandExternalConnection(const OUTBOUNDS &outbounds) const
+    QList<OutboundObject> IConfigurationGenerator::ExpandExternals(const QList<OutboundObject> &outbounds)
     {
-        OUTBOUNDS result;
-        for (const auto &out : outbounds)
+        QList<OutboundObject> result;
+        result.reserve(outbounds.size());
+        for (auto out : outbounds)
         {
-            auto outObject = out.toObject();
-            const auto meta = OutboundObject::loadFromOutbound(OUTBOUND(outObject));
-            if (meta.metaType == METAOUTBOUND_EXTERNAL)
+            if (out.objectType == OutboundObject::EXTERNAL)
             {
-                outObject = QvBaselib->ProfileManager()->GetConnectionRoot(meta.connectionId)["outbounds"].toArray().first().toObject();
-                outObject["tag"] = meta.getDisplayName();
+                const auto _outs = QvBaselib->ProfileManager()->GetConnection(out.externalId).outbounds;
+                if (!_outs.isEmpty())
+                {
+                    auto newOut = _outs.first();
+                    newOut.name = out.name;
+                    out = newOut;
+                }
             }
-            result << outObject;
+            result << out;
         }
         return result;
     }
-
-    ProfileContent RouteHandler::GenerateFinalConfig(const ConnectionGroupPair &p, bool api) const
-    {
-        return GenerateFinalConfig(QvBaselib->ProfileManager()->GetConnectionRoot(p.connectionId), QvBaselib->ProfileManager()->GetGroupRoutingId(p.groupId), api);
-    }
-
-    //
-    // BEGIN RUNTIME CONFIG GENERATION
-    // We need copy construct here
-    ProfileContent RouteHandler::GenerateFinalConfig(ProfileContent root, const GroupRoutingId &routingId, bool hasAPI) const
-    {
-        const auto &config = configs.contains(routingId) ? configs[routingId] : *GlobalConfig->connectionConfig;
-        //
-        const auto connConf = *(config.overrideConnectionConfig ? config.connectionConfig : GlobalConfig->connectionConfig->connectionConfig);
-        const auto dnsConf = *(config.overrideDNS ? config.dnsConfig : GlobalConfig->connectionConfig->DnsConfig);
-        const auto fakeDNSConf = *(config.overrideDNS ? config.fakeDNSConfig : GlobalConfig->connectionConfig->fakeDNSConfig);
-        const auto routeConf = *(config.overrideRoute ? config.routeConfig : GlobalConfig->connectionConfig->RouteConfig);
-        const auto fpConf = *(config.overrideForwardProxyConfig ? config.forwardProxyConfig : GlobalConfig->connectionConfig->forwardProxyConfig);
-        //
-        //
-        // Note: The part below always makes the whole functionality in
-        // trouble...... BE EXTREME CAREFUL when changing these code
-        // below...
-        //
-        // Check if is complex BEFORE adding anything.
-        bool isComplex = IsComplexConfig(root);
-
-        if (isComplex)
-        {
-            // For some config files that has routing entries already.
-            // We DO NOT add extra routings.
-            //
-            // HOWEVER, we need to verify the QV2RAY_RULE_ENABLED entry.
-            // And what's more, process (by removing unused items) from a
-            // rule object.
-            ROUTING routing(root["routing"].toObject());
-            QJsonArray newRules;
-            LOG("Processing an existing routing table.");
-
-            for (const auto &_rule : routing["rules"].toArray())
-            {
-                auto rule = _rule.toObject();
-
-                // For backward compatibility
-                if (rule.contains("QV2RAY_RULE_USE_BALANCER"))
-                {
-                    // We use balancer, or the normal outbound
-                    rule.remove(rule["QV2RAY_RULE_USE_BALANCER"].toBool(false) ? "outboundTag" : "balancerTag");
-                }
-                else
-                {
-                    LOG("We found a rule without QV2RAY_RULE_USE_BALANCER, so didn't process it.");
-                }
-
-                // If this entry has been disabled.
-                if (rule.contains("QV2RAY_RULE_ENABLED") && rule["QV2RAY_RULE_ENABLED"].toBool() == false)
-                {
-                    LOG("Discarded a rule as it's been set DISABLED");
-                }
-                else
-                {
-                    newRules.append(rule);
-                }
-            }
-
-            routing["rules"] = newRules;
-            root["routing"] = routing;
-            root["outbounds"] = ExpandExternalConnection(OUTBOUNDS(root["outbounds"].toArray()));
-            const auto result = ExpandChainedOutbounds(root);
-            if (!result)
-                LOG("Cannot expand chained outbounds!");
-        }
-        else
-        {
-            LOG("Processing a simple connection config");
-            if (root["outbounds"].toArray().count() != 1)
-            {
-                // There are no ROUTING but 2 or more outbounds.... This is rare, but possible.
-                LOG("WARN: This message usually indicates the config file has logic errors:");
-                LOG("WARN: --> The config file has NO routing section, however more than 1 outbounds are detected.");
-            }
-            //
-            auto tag = QJsonIO::GetValue(root, "outbounds", 0, "tag").toString();
-            if (tag.isEmpty())
-            {
-                LOG("Applying workaround when an outbound tag is empty");
-                tag = GenerateRandomString(15);
-                QJsonIO::SetValue(root, tag, "outbounds", 0, "tag");
-            }
-            root["routing"] = GenerateRoutes(connConf.enableProxy, connConf.bypassCN, connConf.bypassLAN, tag, routeConf);
-
-            //
-            // Forward proxy
-            if (fpConf.enableForwardProxy)
-            {
-                if (QJsonIO::GetValue(root, "outbounds", 0, QV2RAY_USE_FPROXY_KEY).toBool(false))
-                {
-                    if (fpConf.type->isEmpty())
-                    {
-                        DEBUG("WARNING: Empty forward proxy type.");
-                    }
-                    else if (fpConf.type->toLower() != "http" && fpConf.type->toLower() != "socks")
-                    {
-                        DEBUG("WARNING: Unsupported forward proxy type: " + fpConf.type);
-                    }
-                    else
-                    {
-                        const static QJsonObject proxySettings{ { "tag", OUTBOUND_TAG_FORWARD_PROXY } };
-                        LOG("Applying forward proxy to current connection.");
-                        QJsonIO::SetValue(root, proxySettings, "outbounds", 0, "proxySettings");
-                        const auto forwardProxySettings = GenerateHTTPSOCKSOut(fpConf.serverAddress, //
-                                                                               fpConf.port,          //
-                                                                               fpConf.useAuth,       //
-                                                                               fpConf.username,      //
-                                                                               fpConf.password);
-                        const auto forwardProxyOutbound = GenerateOutboundEntry(OUTBOUND_TAG_FORWARD_PROXY, //
-                                                                                fpConf.type->toLower(),     //
-                                                                                forwardProxySettings, {});
-                        auto outboundArray = root["outbounds"].toArray();
-                        outboundArray.push_back(forwardProxyOutbound);
-                        root["outbounds"] = outboundArray;
-                    }
-                }
-                else
-                {
-                    // Remove proxySettings from first outbound
-                    QJsonIO::SetValue(root, QJsonIO::Undefined, "outbounds", 0, "proxySettings");
-                }
-            }
-
-            //
-            // Process FREEDOM and BLACKHOLE outbound
-            {
-                OUTBOUNDS outbounds(root["outbounds"].toArray());
-                const auto freeDS = (connConf.v2rayFreedomDNS) ? "UseIP" : "AsIs";
-                outbounds.append(GenerateOutboundEntry(OUTBOUND_TAG_DIRECT, "freedom", GenerateFreedomOUT(freeDS, ":0"), {}));
-                outbounds.append(GenerateOutboundEntry(OUTBOUND_TAG_BLACKHOLE, "blackhole", GenerateBlackHoleOUT(false), {}));
-                root["outbounds"] = outbounds;
-            }
-
-            //
-            // Connection Filters
-            {
-                if (GlobalConfig->connectionConfig->connectionConfig->dnsIntercept)
-                {
-                    const auto hasTProxy = GlobalConfig.inboundConfig->useTPROXY && GlobalConfig.inboundConfig->DokodemoDoorConfig->hasUDP;
-                    const auto hasIPv6 = hasTProxy && (!GlobalConfig.inboundConfig->DokodemoDoorConfig->tProxyV6IP->isEmpty());
-                    const auto hasSocksUDP = GlobalConfig.inboundConfig->useSocks && GlobalConfig.inboundConfig->SOCKSConfig->enableUDP;
-                    DNSInterceptFilter(root, hasTProxy, hasIPv6, hasSocksUDP);
-                }
-
-                if (GlobalConfig.inboundConfig->useTPROXY && GlobalConfig.outboundConfig->mark > 0)
-                    OutboundMarkSettingFilter(root, GlobalConfig.outboundConfig->mark);
-
-                // Process bypass bitTorrent
-                if (connConf.bypassBT)
-                    BypassBTFilter(root);
-
-                // Process mKCP seed
-                mKCPSeedFilter(root);
-
-                // Remove empty Mux object from settings
-                RemoveEmptyMuxFilter(root);
-            }
-        }
-
-        //
-        // Process Log
-        QJsonIO::SetValue(root, V2RayLogLevel[GlobalConfig.logLevel], "log", "loglevel");
-
-        //
-        // Process DNS
-        const auto hasDNS = root.contains("dns") && !root.value("dns").toObject().isEmpty();
-        if (!hasDNS)
-        {
-            root.insert("dns", GenerateDNS(dnsConf));
-            root.insert("fakedns", fakeDNSConf.toJson());
-            LOG("Added global DNS config");
-        }
-
-        //
-        // If inbounds list is empty, we append our global configured inbounds to the config.
-        // The setting applies to BOTH complex config AND simple config.
-        // Just to ensure there's AT LEAST 1 possible inbound is being configured.
-        if (!root.contains("inbounds") || root.value("inbounds").toArray().empty())
-        {
-            root["inbounds"] = GenerateDefaultInbounds();
-            DEBUG("Added global inbound config");
-        }
-
-        //
-        // API 0 speed issue occured when no tag is configured.
-        FillupTagsFilter(root, "inbounds");
-        FillupTagsFilter(root, "outbounds");
-
-        //
-        // Let's process some api features.
-        if (hasAPI && GlobalConfig.kernelConfig->enableAPI)
-        {
-            //
-            // Stats
-            root.insert("stats", QJsonObject());
-            //
-            // Routes
-            QJsonObject routing = root["routing"].toObject();
-            QJsonArray routingRules = routing["rules"].toArray();
-            const static QJsonObject APIRouteRoot{ { "type", "field" },                //
-                                                   { "outboundTag", API_TAG_DEFAULT }, //
-                                                   { "inboundTag", QJsonArray{ API_TAG_INBOUND } } };
-            routingRules.push_front(APIRouteRoot);
-            routing["rules"] = routingRules;
-            root["routing"] = routing;
-            //
-            // Policy
-            QJsonIO::SetValue(root, true, "policy", "system", "statsInboundUplink");
-            QJsonIO::SetValue(root, true, "policy", "system", "statsInboundDownlink");
-            QJsonIO::SetValue(root, true, "policy", "system", "statsOutboundUplink");
-            QJsonIO::SetValue(root, true, "policy", "system", "statsOutboundDownlink");
-            //
-            // Inbounds
-            INBOUNDS inbounds(root["inbounds"].toArray());
-            static const QJsonObject fakeDocodemoDoor{ { "address", "127.0.0.1" } };
-            const auto apiInboundsRoot = GenerateInboundEntry(API_TAG_INBOUND, "dokodemo-door",     //
-                                                              "127.0.0.1",                          //
-                                                              GlobalConfig.kernelConfig->statsPort, //
-                                                              INBOUNDSETTING(fakeDocodemoDoor));
-            inbounds.push_front(apiInboundsRoot);
-            root["inbounds"] = inbounds;
-            //
-            // API
-            root["api"] = GenerateAPIEntry(API_TAG_DEFAULT);
-        }
-
-        return root;
-    }*/
-} // namespace Qv2rayBase::core::handler
+} // namespace Qv2rayBase::Interfaces

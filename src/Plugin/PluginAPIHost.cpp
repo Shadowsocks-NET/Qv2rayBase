@@ -84,14 +84,14 @@ namespace Qv2rayBase::Plugin
         return bestMatch ? bestMatch->Id : NullKernelId;
     }
 
-    std::optional<PluginIOBoundData> PluginAPIHost::Outbound_GetData(const OutboundObject &o) const
+    std::optional<PluginIOBoundData> PluginAPIHost::Outbound_GetData(const IOConnectionSettings &o) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(o.outboundSettings.protocol))
+            if (serializer && serializer->SupportedProtocols().contains(o.protocol))
             {
-                auto info = serializer->GetOutboundInfo(o.outboundSettings);
+                auto info = serializer->GetOutboundInfo(o);
                 if (info)
                     return info;
             }
@@ -99,14 +99,14 @@ namespace Qv2rayBase::Plugin
         return std::nullopt;
     }
 
-    bool PluginAPIHost::Outbound_SetData(OutboundObject &o, const PluginIOBoundData &info) const
+    bool PluginAPIHost::Outbound_SetData(IOConnectionSettings &o, const PluginIOBoundData &info) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(o.outboundSettings.protocol))
+            if (serializer && serializer->SupportedProtocols().contains(o.protocol))
             {
-                bool result = serializer->SetOutboundInfo(o.outboundSettings, info);
+                bool result = serializer->SetOutboundInfo(o, info);
                 if (result)
                     return result;
             }

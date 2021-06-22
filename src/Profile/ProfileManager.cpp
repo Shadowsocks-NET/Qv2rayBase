@@ -78,8 +78,7 @@ namespace Qv2rayBase::Profile
         {
             auto id = it->first;
             auto conn = it->second;
-            const auto &connectionObject = d->connections[id];
-            if (connectionObject._group_ref == 0)
+            if (d->connections[id]._group_ref == 0)
             {
                 d->connections.remove(id);
                 Qv2rayBaseLibrary::StorageProvider()->DeleteConnection(id);
@@ -113,7 +112,7 @@ namespace Qv2rayBase::Profile
     void ProfileManager::StartLatencyTest(const GroupId &id, const LatencyTestEngineId &engine)
     {
         Q_D(ProfileManager);
-        for (const auto &connection : d->groups[id].connections)
+        for (const auto &connection : d->groups.value(id).connections)
             StartLatencyTest(connection, engine);
     }
 
@@ -128,12 +127,12 @@ namespace Qv2rayBase::Profile
     void ProfileManager::ClearGroupUsage(const GroupId &id)
     {
         Q_D(ProfileManager);
-        for (const auto &conn : d->groups[id].connections)
+        for (const auto &conn : d->groups.value(id).connections)
         {
             ClearConnectionUsage({ conn, id });
         }
     }
-    void ProfileManager::ClearConnectionUsage(const ConnectionGroupPair &id)
+    void ProfileManager::ClearConnectionUsage(const ProfileId &id)
     {
         Q_D(ProfileManager);
         CheckValidId(id.connectionId, nothing);
@@ -251,16 +250,26 @@ namespace Qv2rayBase::Profile
         return true;
     }
 
-    const std::optional<QString> ProfileManager::DeleteGroup(const GroupId &id)
+    bool ProfileManager::DeleteGroup(const GroupId &id, bool removeConnections)
     {
         Q_D(ProfileManager);
-        CheckValidId(id, tr("Group does not exist"));
-        // Copy construct
-        auto list = d->groups[id].connections;
-        for (const auto &conn : list)
+        CheckValidId(id, false);
+
+        if (id == DefaultGroupId)
         {
-            MoveToGroup(conn, id, DefaultGroupId);
+            if (removeConnections)
+                for (const auto &conn : d->groups[id].connections)
+                    RemoveFromGroup(conn, id);
+            return false;
         }
+
+        for (const auto &conn : d->groups[id].connections)
+            if (removeConnections)
+                RemoveFromGroup(conn, id);
+            else
+                MoveToGroup(conn, id, DefaultGroupId);
+
+        const auto list = d->groups[id].connections;
 
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::FullyRemoved, id, NullConnectionId, d->groups[id].name });
         d->groups.remove(id);
@@ -273,7 +282,7 @@ namespace Qv2rayBase::Profile
         return {};
     }
 
-    bool ProfileManager::StartConnection(const ConnectionGroupPair &identifier)
+    bool ProfileManager::StartConnection(const ProfileId &identifier)
     {
         Q_D(ProfileManager);
         CheckValidId(identifier, false);
@@ -294,7 +303,7 @@ namespace Qv2rayBase::Profile
         Qv2rayBaseLibrary::KernelManager()->StopConnection();
     }
 
-    void ProfileManager::p_OnKernelCrashed(const ConnectionGroupPair &id, const QString &errMessage)
+    void ProfileManager::p_OnKernelCrashed(const ProfileId &id, const QString &errMessage)
     {
         QvLog() << "Kernel crashed:" << errMessage;
         emit OnKernelCrashed(id, errMessage);
@@ -354,14 +363,14 @@ namespace Qv2rayBase::Profile
         return d->groups[id].route_id;
     }
 
-    const std::optional<QString> ProfileManager::RenameGroup(const GroupId &id, const QString &newName)
+    bool ProfileManager::RenameGroup(const GroupId &id, const QString &newName)
     {
         Q_D(ProfileManager);
-        CheckValidId(id, tr("Group does not exist"));
+        CheckValidId(id, false);
         emit OnGroupRenamed(id, d->groups[id].name, newName);
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Renamed, id, NullConnectionId, d->groups[id].name });
         d->groups[id].name = newName;
-        return {};
+        return true;
     }
 
 #if QV2RAYBASE_FEATURE(subscriptions)
@@ -378,12 +387,10 @@ namespace Qv2rayBase::Profile
         CheckValidId(id, nothing);
         if (!d->groups[id].subscription_config.isSubscription)
             return;
-        NetworkRequestHelper::AsyncHttpGet(d->groups[id].subscription_config.address, this,
-                                           [this, id](const QByteArray &d)
-                                           {
-                                               p_CHUpdateSubscription(id, d);
-                                               emit OnSubscriptionAsyncUpdateFinished(id);
-                                           });
+        NetworkRequestHelper::AsyncHttpGet(d->groups[id].subscription_config.address, this, [this, id](const QByteArray &d) {
+            p_CHUpdateSubscription(id, d);
+            emit OnSubscriptionAsyncUpdateFinished(id);
+        });
     }
 
     bool ProfileManager::UpdateSubscription(const GroupId &id)
@@ -402,7 +409,6 @@ namespace Qv2rayBase::Profile
         //
         // ====================================================================================== Begin reading subscription
         std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionDecoder> decoder;
-
         {
             const auto type = d->groups[id].subscription_config.type;
             const auto sDecoder = Qv2rayBaseLibrary::PluginAPIHost()->Subscription_QueryType(type);
@@ -416,10 +422,12 @@ namespace Qv2rayBase::Profile
             decoder = *sDecoder;
         }
 
-        const auto groupName = d->groups[id].name;
         const auto result = decoder->DecodeData(data);
 
-        QList<std::pair<QString, ProfileContent>> fetchedConnections = result.connections;
+        QList<std::pair<QString, ProfileContent>> fetchedConnections;
+        fetchedConnections.reserve(result.connections.size() + result.links.size());
+
+        fetchedConnections << result.connections;
 
         for (const auto &link : result.links)
         {
@@ -545,7 +553,7 @@ namespace Qv2rayBase::Profile
                 filteredConnections << config;
         }
 
-        for (const auto &[name, config] : filteredConnections)
+        for (auto &[name, config] : filteredConnections)
         {
             // Should not have complex connection as we assume.
             const auto &&[protocol, host, port] = GetOutboundInfoTuple(config.outbounds.first());
@@ -610,20 +618,17 @@ namespace Qv2rayBase::Profile
 #endif
 
 #if QV2RAYBASE_FEATURE(statistics)
-    void ProfileManager::p_OnStatsDataArrived(const ConnectionGroupPair &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speedData)
+    void ProfileManager::p_OnStatsDataArrived(const ProfileId &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speedData)
     {
         Q_D(ProfileManager);
         if (id.isNull())
             return;
 
         const auto &cid = id.connectionId;
-        QMap<StatisticsObject::StatisticsType, quint64> result;
-        for (const auto t : speedData.keys())
+        for (auto it = speedData.constKeyValueBegin(); it != speedData.constKeyValueEnd(); it++)
         {
-            const auto &stat = speedData[t];
-            d->connections[cid].statistics[t].up += stat.up;
-            d->connections[cid].statistics[t].down += stat.down;
-            result[t] = {};
+            d->connections[cid].statistics[it->first].up += it->second.up;
+            d->connections[cid].statistics[it->first].down += it->second.down;
         }
 
         emit OnStatsAvailable(id, speedData);
@@ -631,7 +636,7 @@ namespace Qv2rayBase::Profile
     }
 #endif
 
-    const ConnectionGroupPair ProfileManager::CreateConnection(const ProfileContent &root, const QString &name, const GroupId &groupId)
+    const ProfileId ProfileManager::CreateConnection(const ProfileContent &root, const QString &name, const GroupId &groupId)
     {
         Q_D(ProfileManager);
         QvLog() << "Creating new connection:" << name;
@@ -680,7 +685,7 @@ namespace Qv2rayBase::Profile
         return d->groups.contains(id);
     }
 
-    bool ProfileManager::IsValidId(const ConnectionGroupPair &id) const
+    bool ProfileManager::IsValidId(const ProfileId &id) const
     {
         return IsValidId(id.connectionId) && IsValidId(id.groupId);
     }
@@ -699,7 +704,7 @@ namespace Qv2rayBase::Profile
         return d->groups[id];
     }
 
-    bool ProfileManager::IsConnected(const ConnectionGroupPair &id) const
+    bool ProfileManager::IsConnected(const ProfileId &id) const
     {
         return Qv2rayBaseLibrary::KernelManager()->CurrentConnection() == id;
     }

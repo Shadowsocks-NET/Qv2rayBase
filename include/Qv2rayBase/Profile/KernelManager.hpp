@@ -29,21 +29,21 @@ namespace Qv2rayBase::Profile
         explicit KernelManager(QObject *parent = nullptr);
         ~KernelManager();
 
-        std::optional<QString> StartConnection(const ConnectionGroupPair &id, const ProfileContent &root);
+        std::optional<QString> StartConnection(const ProfileId &id, const ProfileContent &root);
         void StopConnection();
-        const ConnectionGroupPair CurrentConnection() const;
+        const ProfileId CurrentConnection() const;
         size_t ActiveKernelCount() const;
         const QMap<QString, PluginIOBoundData> GetCurrentConnectionInboundInfo() const;
 
       signals:
-        void OnConnected(const ConnectionGroupPair &id);
-        void OnDisconnected(const ConnectionGroupPair &id);
-        void OnCrashed(const ConnectionGroupPair &id, const QString &errMessage);
-        void OnKernelLogAvailable(const ConnectionGroupPair &id, const QString &log);
+        void OnConnected(const ProfileId &id);
+        void OnDisconnected(const ProfileId &id);
+        void OnCrashed(const ProfileId &id, const QString &errMessage);
+        void OnKernelLogAvailable(const ProfileId &id, const QString &log);
 
 #if QV2RAYBASE_FEATURE(statistics)
       signals:
-        void OnStatsDataAvailable(const ConnectionGroupPair &id, StatisticsObject::StatisticsType type, quint64 upspeed, quint64 downspeed);
+        void OnStatsDataAvailable(const ProfileId &id, StatisticsObject::StatisticsType type, quint64 upspeed, quint64 downspeed);
       private slots:
         void OnPluginStatsDataRcvd_p(const quint64 uploadSpeed, const quint64 downloadSpeed);
 #endif

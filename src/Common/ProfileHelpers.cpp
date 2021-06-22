@@ -69,7 +69,7 @@ namespace Qv2rayBase::Utils
     std::tuple<QString, QString, int> GetOutboundInfoTuple(const OutboundObject &out)
     {
         const auto protocol = out.outboundSettings.protocol;
-        const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out);
+        const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out.outboundSettings);
         if (info)
         {
             const auto val = *info;
@@ -123,7 +123,7 @@ namespace Qv2rayBase::Utils
 
     PluginIOBoundData GetOutboundInfo(const OutboundObject &out)
     {
-        const auto data = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out);
+        const auto data = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out.outboundSettings);
         return data.value_or(decltype(data)::value_type());
     }
 
@@ -159,20 +159,19 @@ namespace Qv2rayBase::Utils
         return std::pair{ name, ProfileContent{ outbound } };
     }
 
-    QString ConvertConfigToString(const ConnectionId &id)
+    std::optional<QString> ConvertConfigToString(const ConnectionId &id)
     {
         auto alias = GetDisplayName(id);
         auto server = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
         return ConvertConfigToString(alias, server);
     }
 
-    QString ConvertConfigToString(const QString &alias, const ProfileContent &root)
+    std::optional<QString> ConvertConfigToString(const QString &alias, const ProfileContent &root)
     {
         if (root.outbounds.isEmpty())
-            return QLatin1String("");
+            return QStringLiteral("");
         const auto outbound = root.outbounds.first();
-        const auto result = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
-        return result ? *result : "";
+        return Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
     }
 
     bool IsComplexConfig(const ConnectionId &id)
@@ -183,5 +182,4 @@ namespace Qv2rayBase::Utils
         bool hasAtLeastOneOutbounds = root.outbounds.size() > 1;
         return hasRouting || hasInbound || hasAtLeastOneOutbounds;
     }
-
 } // namespace Qv2rayBase::Utils

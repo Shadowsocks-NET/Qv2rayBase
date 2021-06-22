@@ -47,7 +47,7 @@ namespace Qv2rayBase::Profile
         return d->inboundInfo;
     }
 
-    const ConnectionGroupPair KernelManager::CurrentConnection() const
+    const ProfileId KernelManager::CurrentConnection() const
     {
         Q_D(const KernelManager);
         return d->current;
@@ -58,7 +58,7 @@ namespace Qv2rayBase::Profile
         StopConnection();
     }
 
-    std::optional<QString> KernelManager::StartConnection(const ConnectionGroupPair &id, const ProfileContent &root)
+    std::optional<QString> KernelManager::StartConnection(const ProfileId &id, const ProfileContent &root)
     {
         auto fullProfile = root;
         Q_D(KernelManager);
