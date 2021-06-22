@@ -66,6 +66,7 @@ jobs:
       with:
         version: 6.1.0
         arch: ${{ matrix.config.arch }}
+        aqtversion: ==1.2.0 # optional, default is ==1.1.3
 
     - name: Build
       run: |
