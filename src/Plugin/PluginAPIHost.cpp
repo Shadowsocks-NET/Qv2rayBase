@@ -41,6 +41,18 @@ namespace Qv2rayBase::Plugin
     {
     }
 
+    void PluginAPIHost::InitializePlugins()
+    {
+        Q_D(PluginAPIHost);
+        for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_KERNEL))
+            for (const auto &kinterface : plugin->pinterface->KernelInterface()->PluginKernels())
+                d->kernels.insert(kinterface.Id, kinterface);
+
+        for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_LATENCY_TEST_ENGINE))
+            for (const auto &linterface : plugin->pinterface->LatencyTestHandler()->PluginLatencyTestEngines())
+                d->latencyTesters.insert(linterface.Id, linterface);
+    }
+
     LatencyTestEngineInfo PluginAPIHost::Latency_GetEngine(const LatencyTestEngineId &id) const
     {
         Q_D(const PluginAPIHost);

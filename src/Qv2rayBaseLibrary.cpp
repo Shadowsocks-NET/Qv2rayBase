@@ -71,7 +71,10 @@ namespace Qv2rayBase
         d->pluginAPIHost = new Plugin::PluginAPIHost;
 
         if (!flags.testFlag(START_NO_PLUGINS))
+        {
             d->pluginCore->LoadPlugins();
+            d->pluginAPIHost->InitializePlugins();
+        }
 
         d->latencyTestHost = new Plugin::LatencyTestHost;
         d->profileManager = new Profile::ProfileManager;

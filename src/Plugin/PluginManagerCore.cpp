@@ -94,6 +94,7 @@ namespace Qv2rayBase::Plugin
     {
         Q_D(const PluginManagerCore);
         QList<const PluginInfo *> list;
+        list.reserve(d->plugins.size());
         for (const auto &plugin : d->plugins)
             list << &plugin;
         return list;
@@ -119,7 +120,7 @@ namespace Qv2rayBase::Plugin
 
     bool PluginManagerCore::tryLoadPlugin(const QString &pluginFullPath)
     {
-        if (!pluginFullPath.endsWith(QLatin1String(".dll")) && !pluginFullPath.endsWith(QLatin1String(".so")) && !pluginFullPath.endsWith(".dylib"))
+        if (!pluginFullPath.endsWith(QStringLiteral(".dll")) && !pluginFullPath.endsWith(QStringLiteral(".so")) && !pluginFullPath.endsWith(QStringLiteral(".dylib")))
             return false;
 
         if (pluginFullPath.isEmpty())
@@ -139,7 +140,7 @@ namespace Qv2rayBase::Plugin
         return loadPluginImpl(pluginFullPath, instance, loader);
     }
 
-    void PluginManagerCore::QvPluginLog(QString log)
+    void PluginManagerCore::PluginLog(QString log)
     {
         if (auto _interface = qobject_cast<Qv2rayInterface *>(sender()); _interface)
         {
@@ -151,7 +152,7 @@ namespace Qv2rayBase::Plugin
         }
     }
 
-    void PluginManagerCore::QvPluginMessageBox(QString title, QString message)
+    void PluginManagerCore::PluginMessageBox(QString title, QString message)
     {
         const auto pInterface = qobject_cast<Qv2rayInterface *>(sender());
         if (pInterface)

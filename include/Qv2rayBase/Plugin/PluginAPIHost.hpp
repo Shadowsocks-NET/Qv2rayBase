@@ -31,6 +31,7 @@ namespace Qv2rayBase::Plugin
       public:
         explicit PluginAPIHost();
         ~PluginAPIHost();
+        void InitializePlugins();
 
       public:
         // Latency tester API

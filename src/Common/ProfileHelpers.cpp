@@ -118,7 +118,7 @@ namespace Qv2rayBase::Utils
     {
         return PluginIOBoundData{ { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.inboundSettings.protocol },
                                   { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress },
-                                  { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort } };
+                                  { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort.from } };
     }
 
     PluginIOBoundData GetOutboundInfo(const OutboundObject &out)
@@ -262,7 +262,7 @@ namespace Qv2rayBase::Utils
                     newInbound.name = inboundTag;
                     newInbound.inboundSettings.protocol = QStringLiteral("dokodemo-door");
                     newInbound.listenAddress = QStringLiteral("127.0.0.1");
-                    newInbound.listenPort = QString::number(nextInboundPort);
+                    newInbound.listenPort.from = newInbound.listenPort.to = nextInboundPort;
                     newInbound.inboundSettings.protocolSettings = inboundSettings;
 
                     nextInboundPort++;

@@ -68,8 +68,8 @@ namespace Qv2rayBase::Plugin
         bool loadPluginImpl(const QString &fullPath, QObject *instance, QPluginLoader *loader);
 
       private slots:
-        void QvPluginLog(QString log);
-        void QvPluginMessageBox(QString title, QString message);
+        void PluginLog(QString log);
+        void PluginMessageBox(QString title, QString message);
 
       private:
         QScopedPointer<PluginManagerCorePrivate> d_ptr;
