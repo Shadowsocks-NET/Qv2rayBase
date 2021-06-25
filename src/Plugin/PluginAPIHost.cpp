@@ -72,7 +72,7 @@ namespace Qv2rayBase::Plugin
         KernelId result;
         for (auto it = d->kernels.constKeyValueBegin(); it != d->kernels.constKeyValueEnd(); it++)
         {
-            if (it->second.Capabilities & KERNELCAP_ROUTER)
+            if (it->second.Capabilities.testFlag(KERNELCAP_ROUTER))
                 if (it->second.SupportedProtocols.size() > supportedProtocolsCount)
                     result = it->first, supportedProtocolsCount = it->second.SupportedProtocols.size();
         }

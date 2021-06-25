@@ -69,7 +69,7 @@ namespace Qv2rayBase::Profile
         auto defaultKid = fullProfile.defaultKernel.isNull() ? Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetDefaultKernel() : fullProfile.defaultKernel;
         const auto defaultKernelInfo = Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(defaultKid);
 
-        // Leave, nothing cound be found.
+        // Leave, nothing can be found.
         if (defaultKernelInfo.Name.isEmpty())
             return QObject::tr("Cannot find the specified kernel");
 
