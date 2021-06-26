@@ -41,8 +41,8 @@ namespace Qv2rayBase::Plugin
         if (isStop)
             return;
         std::unique_lock<std::mutex> lockGuard{ m };
-        const auto &[protocol, host, port] = GetOutboundInfoTuple(GetOutbound(id, 0));
-        requests.emplace_back(Qv2rayPlugin::Latency::LatencyTestRequest{ engine, id, host, port });
+        const auto &[protocol, host, port] = GetOutboundInfo(GetOutbound(id, 0));
+        requests.emplace_back(Qv2rayPlugin::Latency::LatencyTestRequest{ engine, id, host, port.from });
     }
 
     void LatencyTestThread::run()

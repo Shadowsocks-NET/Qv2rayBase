@@ -435,13 +435,13 @@ namespace Qv2rayBase::Profile
         // ====================================================================================== Begin Connection Data Storage
         // Anyway, we try our best to preserve the connection id.
         QMultiMap<QString, ConnectionId> nameMap;
-        QMultiMap<std::tuple<QString, QString, int>, ConnectionId> typeMap;
+        QMultiHash<IOBoundData, ConnectionId> typeMap;
         {
             // Store connection type metadata into map.
             for (const auto &conn : d->groups[id].connections)
             {
                 nameMap.insert(GetDisplayName(conn), conn);
-                const auto info = GetOutboundInfoTuple(GetConnection(conn).outbounds.first());
+                const auto info = GetOutboundInfo(GetConnection(conn).outbounds.first());
                 typeMap.insert(info, conn);
             }
         }
@@ -549,8 +549,7 @@ namespace Qv2rayBase::Profile
         for (auto &[name, config] : filteredConnections)
         {
             // Should not have complex connection as we assume.
-            const auto &&[protocol, host, port] = GetOutboundInfoTuple(config.outbounds.first());
-            const auto outboundData = std::make_tuple(protocol, host, port);
+            const auto outboundData = GetOutboundInfo(config.outbounds.first());
 
             // Firstly we try to preserve connection ids by comparing with names.
             if (nameMap.contains(name))

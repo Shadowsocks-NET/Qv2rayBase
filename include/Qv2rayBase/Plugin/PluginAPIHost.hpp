@@ -54,8 +54,8 @@ namespace Qv2rayBase::Plugin
         bool Outbound_SetData(IOConnectionSettings &o, const PluginIOBoundData &info) const;
 
         // Outbound De/serialize
-        std::optional<QString> Outbound_Serialize(const QString &name, const OutboundObject &outbound) const;
-        std::optional<std::pair<QString, OutboundObject>> Outbound_Deserialize(const QString &link) const;
+        std::optional<QString> Outbound_Serialize(const QString &name, const IOConnectionSettings &outbound) const;
+        std::optional<std::pair<QString, IOConnectionSettings>> Outbound_Deserialize(const QString &link) const;
 
 #if QV2RAYBASE_FEATURE(subscriptions)
         // Subscription Adapter API

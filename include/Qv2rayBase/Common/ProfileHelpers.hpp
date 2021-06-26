@@ -38,15 +38,20 @@ namespace Qv2rayBase::Utils
     QV2RAYBASE_EXPORT quint64 GetConnectionTotalUsage(const ConnectionId &id, StatisticsObject::StatisticsType type);
 #endif
 
-    QV2RAYBASE_EXPORT PluginIOBoundData GetInboundInfo(const InboundObject &in);
-    QV2RAYBASE_EXPORT std::tuple<QString, QString, QString> GetInboundInfoTuple(const InboundObject &in);
-    QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetInboundsInfo(const ProfileContent &root);
-    QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetInboundsInfo(const ConnectionId &id);
+    inline IOBoundData GetInboundInfo(const InboundObject &in)
+    {
+        return { in.inboundSettings.protocol, in.inboundSettings.address, in.inboundSettings.port };
+    }
+    inline IOBoundData GetOutboundInfo(const OutboundObject &out)
+    {
+        return { out.outboundSettings.protocol, out.outboundSettings.protocol, out.outboundSettings.port };
+    }
 
-    QV2RAYBASE_EXPORT PluginIOBoundData GetOutboundInfo(const OutboundObject &out);
-    QV2RAYBASE_EXPORT std::tuple<QString, QString, int> GetOutboundInfoTuple(const OutboundObject &out);
-    QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetOutboundsInfo(const ProfileContent &out);
-    QV2RAYBASE_EXPORT QMap<QString, PluginIOBoundData> GetOutboundsInfo(const ConnectionId &id);
+    QV2RAYBASE_EXPORT QMap<QString, IOBoundData> GetInboundInfo(const ProfileContent &root);
+    QV2RAYBASE_EXPORT QMap<QString, IOBoundData> GetInboundInfo(const ConnectionId &id);
+
+    QV2RAYBASE_EXPORT QMap<QString, IOBoundData> GetOutboundInfo(const ProfileContent &out);
+    QV2RAYBASE_EXPORT QMap<QString, IOBoundData> GetOutboundInfo(const ConnectionId &id);
 
     QV2RAYBASE_EXPORT bool ExpandProfileChains(ProfileContent &root);
     QV2RAYBASE_EXPORT QList<OutboundObject> ExpandProfileExternalOutbounds(const QList<OutboundObject> &outbounds);

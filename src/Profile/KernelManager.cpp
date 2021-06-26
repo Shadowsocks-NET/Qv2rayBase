@@ -40,7 +40,7 @@ namespace Qv2rayBase::Profile
         return d->kernels.size();
     }
 
-    const QMap<QString, PluginIOBoundData> KernelManager::GetCurrentConnectionInboundInfo() const
+    const QMap<QString, IOBoundData> KernelManager::GetCurrentConnectionInboundInfo() const
     {
         Q_D(const KernelManager);
         return d->inboundInfo;
@@ -170,8 +170,8 @@ namespace Qv2rayBase::Profile
             k.second->Start();
         }
 
-        d->inboundInfo = GetInboundsInfo(fullProfile);
-        d->outboundInfo = GetOutboundsInfo(fullProfile);
+        d->inboundInfo = GetInboundInfo(fullProfile);
+        d->outboundInfo = GetOutboundInfo(fullProfile);
 
         emit OnConnected(id);
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<Connectivity>({ Connectivity::Connected, id, d->inboundInfo, d->outboundInfo });

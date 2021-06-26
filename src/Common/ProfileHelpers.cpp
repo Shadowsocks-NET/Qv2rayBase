@@ -66,65 +66,31 @@ namespace Qv2rayBase::Utils
         return Qv2rayBaseLibrary::ProfileManager()->GetGroupObject(id).name;
     }
 
-    std::tuple<QString, QString, int> GetOutboundInfoTuple(const OutboundObject &out)
+    QMap<QString, IOBoundData> GetInboundInfo(const ConnectionId &id)
     {
-        const auto protocol = out.outboundSettings.protocol;
-        const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out.outboundSettings);
-        if (info)
-        {
-            const auto val = *info;
-            return { val[IOBOUND_DATA_TYPE::IO_PROTOCOL].toString(), val[IOBOUND_DATA_TYPE::IO_ADDRESS].toString(), val[IOBOUND_DATA_TYPE::IO_PORT].toInt() };
-        }
-        return { protocol, QObject::tr("N/A"), 0 };
+        return GetInboundInfo(Qv2rayBaseLibrary::ProfileManager()->GetConnection(id));
     }
 
-    QMap<QString, PluginIOBoundData> GetOutboundsInfo(const ConnectionId &id)
+    QMap<QString, IOBoundData> GetInboundInfo(const ProfileContent &root)
     {
-        const auto root = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
-        return GetOutboundsInfo(root);
-    }
-
-    QMap<QString, PluginIOBoundData> GetOutboundsInfo(const ProfileContent &out)
-    {
-        QMap<QString, PluginIOBoundData> result;
-        for (const auto &item : out.outbounds)
-        {
-            result[item.name] = GetOutboundInfo(item);
-        }
-        return result;
-    }
-
-    std::tuple<QString, QString, QString> GetInboundInfoTuple(const InboundObject &in)
-    {
-        return { in.inboundSettings.protocol, in.listenAddress, in.listenPort };
-    }
-
-    QMap<QString, PluginIOBoundData> GetInboundsInfo(const ConnectionId &id)
-    {
-        return GetInboundsInfo(Qv2rayBaseLibrary::ProfileManager()->GetConnection(id));
-    }
-
-    QMap<QString, PluginIOBoundData> GetInboundsInfo(const ProfileContent &root)
-    {
-        QMap<QString, PluginIOBoundData> infomap;
+        QMap<QString, IOBoundData> infomap;
         for (const auto &in : root.inbounds)
-        {
             infomap[in.name] = GetInboundInfo(in);
-        }
         return infomap;
     }
 
-    PluginIOBoundData GetInboundInfo(const InboundObject &in)
+    QMap<QString, IOBoundData> GetOutboundInfo(const ConnectionId &id)
     {
-        return PluginIOBoundData{ { IOBOUND_DATA_TYPE::IO_PROTOCOL, in.inboundSettings.protocol },
-                                  { IOBOUND_DATA_TYPE::IO_ADDRESS, in.listenAddress },
-                                  { IOBOUND_DATA_TYPE::IO_PORT, in.listenPort.from } };
+        const auto root = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
+        return GetOutboundInfo(root);
     }
 
-    PluginIOBoundData GetOutboundInfo(const OutboundObject &out)
+    QMap<QString, IOBoundData> GetOutboundInfo(const ProfileContent &out)
     {
-        const auto data = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(out.outboundSettings);
-        return data.value_or(decltype(data)::value_type());
+        QMap<QString, IOBoundData> result;
+        for (const auto &item : out.outbounds)
+            result[item.name] = GetOutboundInfo(item);
+        return result;
     }
 
     QString GetConnectionProtocolDescription(const ConnectionId &id)
@@ -171,7 +137,7 @@ namespace Qv2rayBase::Utils
         if (root.outbounds.isEmpty())
             return QStringLiteral("");
         const auto outbound = root.outbounds.first();
-        return Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound);
+        return Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound.outboundSettings);
     }
 
     bool IsComplexConfig(const ConnectionId &id)
@@ -221,7 +187,8 @@ namespace Qv2rayBase::Utils
             const auto firstOutboundTag = outbound.name;
             const auto lastOutboundTag = outbound.chainSettings.chains.first();
 
-            PluginIOBoundData lastOutbound;
+            IOBoundData lastOutbound;
+            QString lastOutboundSNI;
 
             const auto outbountTagCount = outbound.chainSettings.chains.count();
 
@@ -254,15 +221,15 @@ namespace Qv2rayBase::Utils
                     const auto inboundTag = firstOutboundTag + ":" + QString::number(nextInboundPort) + "->" + newOutboundTag;
 
                     IOProtocolSettings inboundSettings;
-                    inboundSettings[QStringLiteral("address")] = lastOutbound[IOBOUND_DATA_TYPE::IO_ADDRESS].toString();
-                    inboundSettings[QStringLiteral("port")] = lastOutbound[IOBOUND_DATA_TYPE::IO_PORT].toInt();
+                    inboundSettings[QStringLiteral("address")] = std::get<1>(lastOutbound);
+                    inboundSettings[QStringLiteral("port")] = std::get<2>(lastOutbound).from;
                     inboundSettings[QStringLiteral("network")] = "tcp,udp";
 
                     InboundObject newInbound;
                     newInbound.name = inboundTag;
                     newInbound.inboundSettings.protocol = QStringLiteral("dokodemo-door");
-                    newInbound.listenAddress = QStringLiteral("127.0.0.1");
-                    newInbound.listenPort.from = newInbound.listenPort.to = nextInboundPort;
+                    newInbound.inboundSettings.address = QStringLiteral("127.0.0.1");
+                    newInbound.inboundSettings.port = nextInboundPort;
                     newInbound.inboundSettings.protocolSettings = inboundSettings;
 
                     nextInboundPort++;
@@ -281,21 +248,21 @@ namespace Qv2rayBase::Utils
                     const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(outboundSettings);
                     if (!info)
                     {
-                        QvLog() << "Cannot get outbound info for:" << chainOutboundTag;
+                        QvLog() << "Cannot find SNI";
                         return false;
                     }
-                    lastOutbound = *info;
+
+                    lastOutboundSNI = (*info).value(IOBOUND_DATA_TYPE::IO_SNI).toString();
+                    lastOutbound = GetOutboundInfo(outboundSettings);
 
                     // Update allocated port as outbound server/port
-                    PluginIOBoundData newOutboundInfo;
-                    newOutboundInfo.insert(IOBOUND_DATA_TYPE::IO_ADDRESS, "127.0.0.1");
-                    newOutboundInfo.insert(IOBOUND_DATA_TYPE::IO_PORT, nextInboundPort);
+                    outboundSettings.address = "127.0.0.1";
+                    outboundSettings.port = nextInboundPort;
 
                     // For those kernels deducing SNI from the server name.
-                    if (!lastOutbound.contains(IOBOUND_DATA_TYPE::IO_SNI) || lastOutbound[IOBOUND_DATA_TYPE::IO_SNI].toString().trimmed().isEmpty())
-                        newOutboundInfo.insert(IOBOUND_DATA_TYPE::IO_SNI, lastOutbound.value(IOBOUND_DATA_TYPE::IO_ADDRESS));
+                    if (!lastOutboundSNI.isEmpty())
+                        Qv2rayBaseLibrary::PluginAPIHost()->Outbound_SetData(outboundSettings, { { IOBOUND_DATA_TYPE::IO_SNI, std::get<1>(lastOutbound) } });
 
-                    Qv2rayBaseLibrary::PluginAPIHost()->Outbound_SetData(outboundSettings, newOutboundInfo);
                     newOutbound.outboundSettings = outboundSettings;
 
                     // Create new outbound

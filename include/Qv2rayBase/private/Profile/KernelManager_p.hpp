@@ -31,8 +31,8 @@ namespace Qv2rayBase::Profile
     {
       public:
         const static inline QString QV2RAYBASE_DEFAULT_KERNEL_PLACEHOLDER = "__default__";
-        QMap<QString, PluginIOBoundData> inboundInfo;
-        QMap<QString, PluginIOBoundData> outboundInfo;
+        QMap<QString, IOBoundData> inboundInfo;
+        QMap<QString, IOBoundData> outboundInfo;
         qsizetype logPadding = 0;
         ProfileId current;
         std::list<std::pair<QString, std::unique_ptr<Qv2rayPlugin::PluginKernel>>> kernels;

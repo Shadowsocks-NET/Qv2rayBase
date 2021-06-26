@@ -154,12 +154,12 @@ namespace Qv2rayBase::Plugin
     }
 #endif
 
-    std::optional<QString> PluginAPIHost::Outbound_Serialize(const QString &name, const OutboundObject &outbound) const
+    std::optional<QString> PluginAPIHost::Outbound_Serialize(const QString &name, const IOConnectionSettings &outbound) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {
             auto serializer = plugin->pinterface->OutboundHandler();
-            if (serializer && serializer->SupportedProtocols().contains(outbound.outboundSettings.protocol))
+            if (serializer && serializer->SupportedProtocols().contains(outbound.protocol))
             {
                 const auto result = serializer->Serialize(name, outbound);
                 if (result)
@@ -169,7 +169,7 @@ namespace Qv2rayBase::Plugin
         return std::nullopt;
     }
 
-    std::optional<std::pair<QString, OutboundObject>> PluginAPIHost::Outbound_Deserialize(const QString &link) const
+    std::optional<std::pair<QString, IOConnectionSettings>> PluginAPIHost::Outbound_Deserialize(const QString &link) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_OUTBOUND_HANDLER))
         {

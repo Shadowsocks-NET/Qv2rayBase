@@ -33,7 +33,7 @@ namespace Qv2rayBase::Profile
         void StopConnection();
         const ProfileId CurrentConnection() const;
         size_t ActiveKernelCount() const;
-        const QMap<QString, PluginIOBoundData> GetCurrentConnectionInboundInfo() const;
+        const QMap<QString, IOBoundData> GetCurrentConnectionInboundInfo() const;
 
       signals:
         void OnConnected(const ProfileId &id);
