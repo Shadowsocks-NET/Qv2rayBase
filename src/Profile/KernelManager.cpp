@@ -161,7 +161,7 @@ namespace Qv2rayBase::Profile
         if (!hasAllKernelPrepared)
         {
             StopConnection();
-            return tr("A plugin kernel failed to prepare. Please check the outbound settings.");
+            return tr("Cannot start at least one kernel. Please check the profile and the error log.");
         }
 
         for (auto &k : d->kernels)

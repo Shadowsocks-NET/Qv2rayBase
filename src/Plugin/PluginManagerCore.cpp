@@ -77,8 +77,9 @@ namespace Qv2rayBase::Plugin
 
             d->plugins[plugin].pinterface->m_Settings = conf;
             d->plugins[plugin].pinterface->m_WorkingDirectory.setPath(wd.absolutePath());
-            d->plugins[plugin].pinterface->m_ConnectionManager = Qv2rayBaseLibrary::ProfileManager();
+            d->plugins[plugin].pinterface->m_ProfileManager = Qv2rayBaseLibrary::ProfileManager();
             d->plugins[plugin].pinterface->InitializePlugin();
+            d->plugins[plugin].pinterface->SettingsUpdated();
         }
     }
 
@@ -218,8 +219,8 @@ namespace Qv2rayBase::Plugin
 
         // Normalized function signature should not contain a space char, which would be added by clang-format
         // clang-format off
-        connect(instance, SIGNAL(PluginLog(QString)), this, SLOT(QvPluginLog(QString)));
-        connect(instance, SIGNAL(PluginErrorMessageBox(QString,QString)), this, SLOT(QvPluginMessageBox(QString,QString)));
+        connect(instance, SIGNAL(PluginLog(QString)), this, SLOT(PluginLog(QString)));
+        connect(instance, SIGNAL(PluginErrorMessageBox(QString,QString)), this, SLOT(PluginMessageBox(QString,QString)));
         // clang-format on
 
         QvLog() << "Loaded plugin:" << info.metadata().Name << "made by:" << info.metadata().Author;

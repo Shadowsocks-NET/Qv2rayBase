@@ -27,6 +27,7 @@ const auto CONNECTIONS = "connections";
 const auto GROUPS = "groups";
 const auto ROUTINGS = "routings";
 const auto PLUGINS = "plugins";
+const auto PLUGIN_FILES = "plugin_files";
 const auto PLUGIN_SETTINGS = "plugin_settings";
 
 #define DEBUG_SUFFIX (RuntimeContext.isDebug ? QStringLiteral("_debug/") : QStringLiteral("/"))
@@ -299,15 +300,15 @@ namespace Qv2rayBase::Interfaces
     {
         QDir d(ConfigDirPath + PLUGINS + "/");
         if (!d.exists())
-            d.mkdir(d.absolutePath());
+            d.mkpath(d.absolutePath());
         return d;
     }
 
     QDir Qv2rayBasePrivateStorageProvider::GetPluginWorkingDirectory(const PluginId &pid)
     {
-        QDir d(ConfigDirPath + PLUGINS + "/" + pid.toString() + "/");
+        QDir d(ConfigDirPath + PLUGIN_FILES + "/" + pid.toString() + "/");
         if (!d.exists())
-            d.mkdir(d.absolutePath());
+            d.mkpath(d.absolutePath());
         return d;
     }
 

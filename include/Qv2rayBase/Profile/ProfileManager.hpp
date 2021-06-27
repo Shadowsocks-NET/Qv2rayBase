@@ -114,9 +114,6 @@ namespace Qv2rayBase::Profile
         void OnDisconnected(const ProfileId &id);
         void OnKernelCrashed(const ProfileId &id, const QString &errMessage);
 
-      private slots:
-        void p_OnKernelCrashed(const ProfileId &id, const QString &errMessage);
-
       private:
         QScopedPointer<ProfileManagerPrivate> d_ptr;
         Q_DECLARE_PRIVATE(ProfileManager)

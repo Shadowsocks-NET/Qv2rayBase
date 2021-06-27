@@ -50,12 +50,15 @@ namespace Qv2rayBase::Plugin
         }
 
         // Outbound Get/Set Data
-        std::optional<PluginIOBoundData> Outbound_GetData(const IOConnectionSettings &o) const;
-        bool Outbound_SetData(IOConnectionSettings &o, const PluginIOBoundData &info) const;
+        std::optional<PluginIOBoundData> Outbound_GetData(const IOConnectionSettings &) const;
+        bool Outbound_SetData(IOConnectionSettings &, const PluginIOBoundData &) const;
 
         // Outbound De/serialize
         std::optional<QString> Outbound_Serialize(const QString &name, const IOConnectionSettings &outbound) const;
         std::optional<std::pair<QString, IOConnectionSettings>> Outbound_Deserialize(const QString &link) const;
+
+        // Profile Generation
+        ProfileContent PreprocessProfile(const ProfileContent &) const;
 
 #if QV2RAYBASE_FEATURE(subscriptions)
         // Subscription Adapter API
@@ -108,6 +111,7 @@ namespace Qv2rayBase::Plugin
                 case Qv2rayPlugin::COMPONENT_EVENT_HANDLER: typesList << QObject::tr("Event Handler"); break;
                 case Qv2rayPlugin::COMPONENT_GUI: typesList << QObject::tr("GUI Components"); break;
                 case Qv2rayPlugin::COMPONENT_LATENCY_TEST_ENGINE: typesList << QObject::tr("Latency Test Engine"); break;
+                case Qv2rayPlugin::COMPONENT_PROFILE_PREPROCESSOR: typesList << QObject::tr("Profile Preprocessor"); break;
             }
         }
         return typesList;

@@ -176,15 +176,22 @@ namespace Qv2rayBase::Plugin
             auto serializer = plugin->pinterface->OutboundHandler();
             for (const auto &prefix : serializer->SupportedLinkPrefixes())
             {
-                if (link.startsWith(prefix))
-                {
-                    const auto outboundObject = serializer->Deserialize(link);
-                    if (outboundObject)
-                        return outboundObject;
-                }
+                if (!link.startsWith(prefix))
+                    continue;
+                const auto outboundObject = serializer->Deserialize(link);
+                if (outboundObject)
+                    return outboundObject;
             }
         }
         return std::nullopt;
+    }
+
+    ProfileContent PluginAPIHost::PreprocessProfile(const ProfileContent &c) const
+    {
+        auto profile = c;
+        for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(Qv2rayPlugin::COMPONENT_PROFILE_PREPROCESSOR))
+            profile = plugin->pinterface->ProfilePreprocessor()->PreprocessProfile(profile);
+        return profile;
     }
 
     void PluginAPIHost::SendEventInternal(const ConnectionStats::EventObject &object) const

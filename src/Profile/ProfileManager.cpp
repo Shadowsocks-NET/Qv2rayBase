@@ -93,6 +93,11 @@ namespace Qv2rayBase::Profile
         }
     }
 
+    ProfileManager::~ProfileManager()
+    {
+        SaveConnectionConfig();
+    }
+
     void ProfileManager::SaveConnectionConfig()
     {
         Q_D(ProfileManager);
@@ -281,7 +286,8 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(identifier, false);
         ProfileContent root = GetConnection(identifier.connectionId);
-        auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, root, d->routings.value(d->groups[identifier.groupId].route_id));
+        const auto newProfile = Qv2rayBaseLibrary::PluginAPIHost()->PreprocessProfile(root);
+        auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, newProfile, d->routings.value(d->groups[identifier.groupId].route_id));
         if (errMsg)
         {
             Qv2rayBaseLibrary::Warn(tr("Failed to start connection"), *errMsg);
@@ -294,17 +300,6 @@ namespace Qv2rayBase::Profile
     void ProfileManager::StopConnection()
     {
         Qv2rayBaseLibrary::KernelManager()->StopConnection();
-    }
-
-    void ProfileManager::p_OnKernelCrashed(const ProfileId &id, const QString &errMessage)
-    {
-        QvLog() << "Kernel crashed:" << errMessage;
-        emit OnKernelCrashed(id, errMessage);
-    }
-
-    ProfileManager::~ProfileManager()
-    {
-        SaveConnectionConfig();
     }
 
     const ProfileContent ProfileManager::GetConnection(const ConnectionId &id) const
