@@ -110,10 +110,6 @@ namespace Qv2rayBase::Profile
         void OnGroupRenamed(const GroupId &id, const QString &oldName, const QString &newName);
         void OnGroupDeleted(const GroupId &id, const QList<ConnectionId> &connections);
 
-        void OnConnected(const ProfileId &id);
-        void OnDisconnected(const ProfileId &id);
-        void OnKernelCrashed(const ProfileId &id, const QString &errMessage);
-
       private:
         QScopedPointer<ProfileManagerPrivate> d_ptr;
         Q_DECLARE_PRIVATE(ProfileManager)

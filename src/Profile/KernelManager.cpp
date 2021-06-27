@@ -142,10 +142,6 @@ namespace Qv2rayBase::Profile
                 QvLog() << "Plugin Kernel:" << protocol << "failed to initialize.";
                 break;
             }
-
-            // We need to use old style runtime connection.
-            connect(kernel.get(), SIGNAL(OnCrashed(QString)), this, SLOT(OnKernelCrashed_p(QString)), Qt::QueuedConnection);
-            connect(kernel.get(), SIGNAL(OnLog(QString)), this, SLOT(OnKernelLog_p(QString)), Qt::QueuedConnection);
         }
 
         // Start the default kernel
@@ -167,6 +163,11 @@ namespace Qv2rayBase::Profile
         for (auto &k : d->kernels)
         {
             QvLog() << "Starting kernel:" << k.first;
+
+            // We need to use old style runtime connection.
+            connect(k.second.get(), SIGNAL(OnCrashed(QString)), this, SLOT(OnKernelCrashed_p(QString)), Qt::QueuedConnection);
+            connect(k.second.get(), SIGNAL(OnLog(QString)), this, SLOT(OnKernelLog_p(QString)), Qt::QueuedConnection);
+
             k.second->Start();
         }
 

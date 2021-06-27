@@ -35,5 +35,5 @@
 
 #define NEWLINE "\n"
 
-#define QvLog() qInfo() << QV_MODULE_NAME << "-"
-#define QvDebug() qDebug() << QV_MODULE_NAME << "-"
+#define QvLog() qInfo() << QV_MODULE_NAME << "::"
+#define QvDebug() qDebug() << QV_MODULE_NAME << "::"
