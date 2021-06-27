@@ -43,9 +43,9 @@ namespace Qv2rayBase::Profile
 
 #if QV2RAYBASE_FEATURE(statistics)
       signals:
-        void OnStatsDataAvailable(const ProfileId &id, StatisticsObject::StatisticsType type, quint64 upspeed, quint64 downspeed);
+        void OnStatsDataAvailable(const ProfileId &id, StatisticsObject);
       private slots:
-        void OnPluginStatsDataRcvd_p(const quint64 uploadSpeed, const quint64 downloadSpeed);
+        void OnPluginStatsDataRcvd_p(StatisticsObject);
 #endif
 
       private slots:

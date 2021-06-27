@@ -136,7 +136,6 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(id.connectionId, nothing);
         d->connections[id.connectionId].statistics.clear();
-        emit OnStatsAvailable(id, {});
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ id.connectionId, {} });
         return;
     }
@@ -605,20 +604,18 @@ namespace Qv2rayBase::Profile
 #endif
 
 #if QV2RAYBASE_FEATURE(statistics)
-    void ProfileManager::p_OnStatsDataArrived(const ProfileId &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speedData)
+    void ProfileManager::p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speedData)
     {
         Q_D(ProfileManager);
         if (id.isNull())
             return;
 
         const auto &cid = id.connectionId;
-        for (auto it = speedData.constKeyValueBegin(); it != speedData.constKeyValueEnd(); it++)
-        {
-            d->connections[cid].statistics[it->first].up += it->second.up;
-            d->connections[cid].statistics[it->first].down += it->second.down;
-        }
+        d->connections[cid].statistics.directUp += speedData.directUp;
+        d->connections[cid].statistics.directDown += speedData.directDown;
+        d->connections[cid].statistics.proxyUp += speedData.proxyUp;
+        d->connections[cid].statistics.proxyDown += speedData.proxyDown;
 
-        emit OnStatsAvailable(id, speedData);
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ cid, d->connections[cid].statistics });
     }
 #endif

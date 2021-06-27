@@ -76,6 +76,8 @@ namespace Qv2rayBase
             d->pluginAPIHost->InitializePlugins();
         }
 
+        qRegisterMetaType<StatisticsObject>();
+
         d->latencyTestHost = new Plugin::LatencyTestHost;
         d->profileManager = new Profile::ProfileManager;
         d->kernelManager = new Profile::KernelManager;

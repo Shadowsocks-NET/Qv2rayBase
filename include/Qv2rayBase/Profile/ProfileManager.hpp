@@ -82,9 +82,7 @@ namespace Qv2rayBase::Profile
         void ClearGroupUsage(const GroupId &id);
         void ClearConnectionUsage(const ProfileId &id);
       private slots:
-        void p_OnStatsDataArrived(const ProfileId &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speed);
-      signals:
-        void OnStatsAvailable(const ProfileId &id, const QMap<StatisticsObject::StatisticsType, StatisticsObject::StatsEntry> &speed);
+        void p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speed);
 #endif
 
 #if QV2RAYBASE_FEATURE(latency)
