@@ -57,5 +57,8 @@ namespace Qv2rayBase::Interfaces
         virtual QDir GetUserPluginDirectory() = 0;
         virtual QJsonObject GetPluginSettings(const PluginId &) = 0;
         virtual void SetPluginSettings(const PluginId &, const QJsonObject &) = 0;
+
+        virtual QJsonObject GetExtraSettings(const QString &) = 0;
+        virtual bool StoreExtraSettings(const QString &, const QJsonObject &) = 0;
     };
 } // namespace Qv2rayBase::Interfaces

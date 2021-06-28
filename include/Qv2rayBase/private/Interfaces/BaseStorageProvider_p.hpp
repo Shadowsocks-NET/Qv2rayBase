@@ -60,6 +60,9 @@ namespace Qv2rayBase::Interfaces
 
         virtual QStringList GetAssetsPath(const QString &) override;
 
+        virtual QJsonObject GetExtraSettings(const QString &) override;
+        virtual bool StoreExtraSettings(const QString &, const QJsonObject &) override;
+
       private:
         QString ConfigFilePath;
 

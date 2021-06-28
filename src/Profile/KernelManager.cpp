@@ -57,12 +57,24 @@ namespace Qv2rayBase::Profile
         StopConnection();
     }
 
-    std::optional<QString> KernelManager::StartConnection(const ProfileId &id, const ProfileContent &root, const RoutingObject &routing)
+    std::optional<QString> KernelManager::StartConnection(const ProfileId &id, const ProfileContent &_root, const RoutingObject &routing)
     {
-        auto fullProfile = root;
+        auto fullProfile = _root;
         Q_D(KernelManager);
         StopConnection();
         Q_ASSERT_X(d->kernels.empty(), Q_FUNC_INFO, "Kernel list isn't empty.");
+
+        //
+        // Ensure every inbound, rule and outbound has a name.
+        for (auto &in : fullProfile.inbounds)
+            if (in.name.isEmpty())
+                in.name = GenerateRandomString();
+        for (auto &out : fullProfile.outbounds)
+            if (out.name.isEmpty())
+                out.name = GenerateRandomString();
+        for (auto &rule : fullProfile.routing.rules)
+            if (rule.name.isEmpty())
+                rule.name = GenerateRandomString();
 
         // In case of the configuration did not specify a kernel explicitly
         // find a kernel with router, and with as many protocols supported as possible.

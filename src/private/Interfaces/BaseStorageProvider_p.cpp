@@ -29,6 +29,7 @@ const auto ROUTINGS = "routings";
 const auto PLUGINS = "plugins";
 const auto PLUGIN_FILES = "plugin_files";
 const auto PLUGIN_SETTINGS = "plugin_settings";
+const auto EXTRA_SETTINGS = "extra_settings";
 
 #define DEBUG_SUFFIX (RuntimeContext.isDebug ? QStringLiteral("_debug/") : QStringLiteral("/"))
 
@@ -352,6 +353,12 @@ namespace Qv2rayBase::Interfaces
         list << makeAbs("/usr/share/qv2ray" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/usr/lib/qv2ray" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/lib/qv2ray" + DEBUG_SUFFIX + dirName);
+
+        list << makeAbs("/usr/local/share/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/local/lib/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/share/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/lib/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/lib/Qv2rayBase" + DEBUG_SUFFIX + dirName);
 #endif
 
         list << ConfigDirPath + dirName;
@@ -363,3 +370,13 @@ namespace Qv2rayBase::Interfaces
         return list;
     }
 } // namespace Qv2rayBase::Interfaces
+
+QJsonObject Qv2rayBase::Interfaces::Qv2rayBasePrivateStorageProvider::GetExtraSettings(const QString &key)
+{
+    return JsonFromString(ReadFile(ConfigDirPath + EXTRA_SETTINGS + "/" + key + ".json"));
+}
+
+bool Qv2rayBase::Interfaces::Qv2rayBasePrivateStorageProvider::StoreExtraSettings(const QString &key, const QJsonObject &j)
+{
+    return WriteFile(JsonToString(j).toUtf8(), ConfigDirPath + EXTRA_SETTINGS + "/" + key + ".json");
+}
