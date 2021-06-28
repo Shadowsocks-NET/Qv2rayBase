@@ -24,7 +24,7 @@ include(GNUInstallDirs)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-set(USE_SYSTEM_PLUGIN_INTERFACE OFF)
+option(USE_SYSTEM_PLUGIN_INTERFACE "Use system provided plugin interface headers." OFF)
 
 if(USE_SYSTEM_PLUGIN_INTERFACE)
     find_package(QvPluginInterface 4.0 REQUIRED)
@@ -110,8 +110,6 @@ target_include_directories(Qv2rayBase
     )
 
 set_target_properties(Qv2rayBase PROPERTIES CXX_STANDARD 17)
-
-qv2ray_add_plugin_moc_sources(Qv2rayBase)
 
 target_include_directories(Qv2rayBase PRIVATE ${QVPLUGIN_INTERFACE_INCLUDE_PATH})
 
