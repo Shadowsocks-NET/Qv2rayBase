@@ -43,6 +43,7 @@ jobs:
         mkdir build; cd build
         $Qt6_DIR/bin/qt-cmake .. -GNinja \
           -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTING=OFF \
           -DBUILD_SHARED_LIBS=${{ matrix.build_shared }} \
           -DCMAKE_INSTALL_PREFIX=installed \
           -DANDROID_SDK_ROOT=$ANDROID_SDK_ROOT \
