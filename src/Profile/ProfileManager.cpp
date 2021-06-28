@@ -620,17 +620,28 @@ namespace Qv2rayBase::Profile
     }
 #endif
 
-    const ProfileId ProfileManager::CreateConnection(const ProfileContent &root, const QString &name, const GroupId &groupId)
+    const ProfileId ProfileManager::CreateConnection(const ProfileContent &_root, const QString &name, const GroupId &groupId)
     {
+        ProfileContent newroot = _root;
+
         Q_D(ProfileManager);
         QvLog() << "Creating new connection:" << name;
+
+        for (auto i = 0; i < newroot.inbounds.size(); i++)
+            if (newroot.inbounds.at(i).name.isEmpty())
+                newroot.inbounds[i].name = name + QStringLiteral("-inbound-") + QString::number(i + 1);
+
+        for (auto i = 0; i < newroot.outbounds.size(); i++)
+            if (newroot.outbounds.at(i).name.isEmpty())
+                newroot.outbounds[i].name = name + QStringLiteral("-outbound-") + QString::number(i + 1);
+
         ConnectionId newId(GenerateRandomString());
         d->groups[groupId].connections << newId;
         d->connections[newId].created = system_clock::now();
         d->connections[newId].name = name;
         d->connections[newId]._group_ref = 1;
-        d->connectionRootCache[newId] = root;
-        Qv2rayBaseLibrary::StorageProvider()->StoreConnection(newId, root);
+        d->connectionRootCache[newId] = newroot;
+        Qv2rayBaseLibrary::StorageProvider()->StoreConnection(newId, newroot);
         emit OnConnectionCreated({ newId, groupId }, name);
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionEntry>({ ConnectionEntry::Created, groupId, newId, name });
         return { newId, groupId };

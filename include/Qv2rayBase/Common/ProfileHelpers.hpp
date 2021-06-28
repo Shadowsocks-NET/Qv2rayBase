@@ -44,7 +44,7 @@ namespace Qv2rayBase::Utils
     }
     inline IOBoundData GetOutboundInfo(const OutboundObject &out)
     {
-        return { out.outboundSettings.protocol, out.outboundSettings.protocol, out.outboundSettings.port };
+        return { out.outboundSettings.protocol, out.outboundSettings.address, out.outboundSettings.port };
     }
 
     QV2RAYBASE_EXPORT QMap<QString, IOBoundData> GetInboundInfo(const ProfileContent &root);

@@ -41,14 +41,14 @@ namespace Qv2rayBase::Models
         QString address = "127.0.0.1";
         int port = 8000;
         QString ua = "Qv2rayBase/$VERSION WebRequestHelper";
-        QJS_FUNC_JSON(F(type, address, port, ua))
+        QJS_JSON(F(type, address, port, ua))
     };
 
     struct PluginConfigObject
     {
         int plugin_port_allocation = 15490;
         QMap<QString, bool> plugin_states;
-        QJS_FUNC_JSON(F(plugin_port_allocation, plugin_states))
+        QJS_JSON(F(plugin_port_allocation, plugin_states))
     };
 
     struct Qv2rayBaseConfigObject
@@ -57,6 +57,6 @@ namespace Qv2rayBase::Models
         NetworkProxyConfig network_config;
         PluginConfigObject plugin_config;
         QJsonObject extra_options;
-        QJS_FUNC_JSON(F(config_version, network_config, plugin_config, extra_options))
+        QJS_JSON(F(config_version, network_config, plugin_config, extra_options))
     };
 } // namespace Qv2rayBase::Models
