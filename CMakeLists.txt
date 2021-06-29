@@ -41,7 +41,6 @@ else()
     set(WASM OFF)
 endif()
 
-
 if(WASM)
     # Dummy
 else()

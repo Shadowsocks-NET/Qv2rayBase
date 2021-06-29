@@ -17,6 +17,4 @@ endforeach()
 
 # BEGIN special case
 target_compile_definitions(tst_PluginLoader PRIVATE "-DQT_STATICPLUGIN=1")
-
-
 # END special case
