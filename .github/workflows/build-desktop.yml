@@ -85,7 +85,7 @@ jobs:
       run: |
         cd build
         cmake --build . --config Debug --parallel
-        cmake --install . --config Debug
+        cmake --install . --config Debug --component development
 
     - name: Run tests
       run: |
@@ -96,7 +96,7 @@ jobs:
     - name: Install
       run: |
         cd build
-        cmake --install . --config Release
+        cmake --install . --config Release --component development
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
