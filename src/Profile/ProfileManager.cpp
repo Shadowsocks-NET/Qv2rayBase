@@ -107,7 +107,6 @@ namespace Qv2rayBase::Profile
         Qv2rayBaseLibrary::StorageProvider()->EnsureSaved();
     }
 
-#if QV2RAYBASE_FEATURE(latency)
     void ProfileManager::StartLatencyTest(const GroupId &id, const LatencyTestEngineId &engine)
     {
         Q_D(ProfileManager);
@@ -120,9 +119,7 @@ namespace Qv2rayBase::Profile
         emit OnLatencyTestStarted(id);
         Qv2rayBaseLibrary::LatencyTestHost()->TestLatency(id, engine);
     }
-#endif
 
-#if QV2RAYBASE_FEATURE(statistics)
     void ProfileManager::ClearGroupUsage(const GroupId &id)
     {
         Q_D(ProfileManager);
@@ -139,7 +136,6 @@ namespace Qv2rayBase::Profile
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ id.connectionId, {} });
         return;
     }
-#endif
     const QList<GroupId> ProfileManager::GetGroups(const ConnectionId &connId) const
     {
         Q_D(const ProfileManager);
@@ -308,7 +304,6 @@ namespace Qv2rayBase::Profile
         return d->connectionRootCache.value(id);
     }
 
-#if QV2RAYBASE_FEATURE(latency)
     void ProfileManager::p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &result)
     {
         Q_D(ProfileManager);
@@ -316,7 +311,6 @@ namespace Qv2rayBase::Profile
         d->connections[id].latency = result.avg;
         emit OnLatencyTestFinished(id, result.avg);
     }
-#endif
 
     void ProfileManager::UpdateConnection(const ConnectionId &id, const ProfileContent &root)
     {
@@ -360,7 +354,6 @@ namespace Qv2rayBase::Profile
         return true;
     }
 
-#if QV2RAYBASE_FEATURE(subscriptions)
     void ProfileManager::SetSubscriptionData(const GroupId &id, const SubscriptionConfigObject &config)
     {
         Q_D(ProfileManager);
@@ -601,9 +594,7 @@ namespace Qv2rayBase::Profile
         if (d->groups[group].subscription_config.isSubscription)
             d->groups[group].updated = system_clock::now();
     }
-#endif
 
-#if QV2RAYBASE_FEATURE(statistics)
     void ProfileManager::p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speedData)
     {
         Q_D(ProfileManager);
@@ -618,7 +609,6 @@ namespace Qv2rayBase::Profile
 
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ cid, d->connections[cid].statistics });
     }
-#endif
 
     const ProfileId ProfileManager::CreateConnection(const ProfileContent &_root, const QString &name, const GroupId &groupId)
     {

@@ -41,12 +41,10 @@ namespace Qv2rayBase::Profile
         void OnCrashed(const ProfileId &id, const QString &errMessage);
         void OnKernelLogAvailable(const ProfileId &id, const QString &log);
 
-#if QV2RAYBASE_FEATURE(statistics)
       signals:
         void OnStatsDataAvailable(const ProfileId &id, StatisticsObject);
       private slots:
         void OnPluginStatsDataRcvd_p(StatisticsObject);
-#endif
 
       private slots:
         void OnKernelCrashed_p(const QString &msg);

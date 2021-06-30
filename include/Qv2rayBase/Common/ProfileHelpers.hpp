@@ -32,11 +32,9 @@ namespace Qv2rayBase::Utils
     QV2RAYBASE_EXPORT std::optional<QString> ConvertConfigToString(const QString &alias, const ProfileContent &root);
     QV2RAYBASE_EXPORT bool IsComplexConfig(const ConnectionId &id);
 
-#if QV2RAYBASE_FEATURE(latency)
     QV2RAYBASE_EXPORT int64_t GetConnectionLatency(const ConnectionId &id);
     QV2RAYBASE_EXPORT std::pair<quint64, quint64> GetConnectionUsageAmount(const ConnectionId &id, StatisticsObject::StatisticsType type);
     QV2RAYBASE_EXPORT quint64 GetConnectionTotalUsage(const ConnectionId &id, StatisticsObject::StatisticsType type);
-#endif
 
     inline IOBoundData GetInboundInfo(const InboundObject &in)
     {

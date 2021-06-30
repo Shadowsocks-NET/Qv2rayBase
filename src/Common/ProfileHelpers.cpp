@@ -25,7 +25,6 @@
 
 namespace Qv2rayBase::Utils
 {
-#if QV2RAYBASE_FEATURE(latency)
     int64_t GetConnectionLatency(const ConnectionId &id)
     {
         const auto connection = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id);
@@ -49,8 +48,6 @@ namespace Qv2rayBase::Utils
         const auto d = GetConnectionUsageAmount(id, type);
         return d.first + d.second;
     }
-
-#endif
 
     InboundObject GetInbound(const ConnectionId &id, int index)
     {

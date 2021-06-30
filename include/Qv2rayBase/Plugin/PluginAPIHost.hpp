@@ -60,11 +60,9 @@ namespace Qv2rayBase::Plugin
         // Profile Generation
         ProfileContent PreprocessProfile(const ProfileContent &) const;
 
-#if QV2RAYBASE_FEATURE(subscriptions)
         // Subscription Adapter API
         std::optional<std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionDecoder>> Subscription_QueryType(const QString &type) const;
         QList<std::pair<const PluginInfo *, Qv2rayPlugin::Subscription::SubscriptionInfoObject>> Subscription_GetAllAdapters() const;
-#endif
 
       private:
         void SendEventInternal(const Qv2rayPlugin::Event::ConnectionStats::EventObject &) const;

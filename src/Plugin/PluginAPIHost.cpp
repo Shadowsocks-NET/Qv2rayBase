@@ -126,7 +126,6 @@ namespace Qv2rayBase::Plugin
         return false;
     }
 
-#if QV2RAYBASE_FEATURE(subscriptions)
     std::optional<std::shared_ptr<SubscriptionDecoder>> PluginAPIHost::Subscription_QueryType(const QString &type) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_SUBSCRIPTION_ADAPTER))
@@ -152,7 +151,6 @@ namespace Qv2rayBase::Plugin
         }
         return list;
     }
-#endif
 
     std::optional<QString> PluginAPIHost::Outbound_Serialize(const QString &name, const IOConnectionSettings &outbound) const
     {

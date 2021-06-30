@@ -240,11 +240,9 @@ namespace Qv2rayBase::Profile
         d->kernels.clear();
     }
 
-#if QV2RAYBASE_FEATURE(statistics)
     void KernelManager::OnPluginStatsDataRcvd_p(StatisticsObject s)
     {
         Q_D(KernelManager);
         emit OnStatsDataAvailable(d->current, s);
     }
-#endif
 } // namespace Qv2rayBase::Profile

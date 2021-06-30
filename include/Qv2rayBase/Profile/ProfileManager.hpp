@@ -65,7 +65,6 @@ namespace Qv2rayBase::Profile
         bool RenameGroup(const GroupId &id, const QString &newName) override;
         const RoutingId GetGroupRoutingId(const GroupId &id) override;
 
-#if QV2RAYBASE_FEATURE(subscriptions)
       public:
         void IgnoreSubscriptionUpdate(const GroupId &group);
         void UpdateSubscriptionAsync(const GroupId &id);
@@ -75,17 +74,13 @@ namespace Qv2rayBase::Profile
         void OnSubscriptionAsyncUpdateFinished(const GroupId &id);
       private slots:
         bool p_CHUpdateSubscription(const GroupId &id, const QByteArray &data);
-#endif
 
-#if QV2RAYBASE_FEATURE(statistics)
       public:
         void ClearGroupUsage(const GroupId &id);
         void ClearConnectionUsage(const ProfileId &id);
       private slots:
         void p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speed);
-#endif
 
-#if QV2RAYBASE_FEATURE(latency)
       public:
         void StartLatencyTest(const ConnectionId &id, const LatencyTestEngineId &engine);
         void StartLatencyTest(const GroupId &id, const LatencyTestEngineId &engine);
@@ -94,7 +89,6 @@ namespace Qv2rayBase::Profile
         void OnLatencyTestFinished(const ConnectionId &id, const int average);
       private slots:
         void p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &data);
-#endif
 
       signals:
         void OnConnectionCreated(const ProfileId &Id, const QString &displayName);
