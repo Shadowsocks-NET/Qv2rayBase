@@ -1,14 +1,13 @@
 cmake_policy(SET CMP0048 NEW)
 cmake_minimum_required(VERSION 3.14)
 
-project(Qv2ray-Base
+project(Qv2rayBase
     VERSION 3.0.0.0
     LANGUAGES CXX
     DESCRIPTION "Base library for Qv2ray")
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_DEBUG_POSTFIX d)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -120,7 +119,6 @@ target_compile_definitions(Qv2rayBase PUBLIC -DQV2RAY_BASELIB_VERSION="${PROJECT
 
 set_target_properties(Qv2rayBase PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION 0)
 set_target_properties(Qv2rayBase PROPERTIES CXX_VISIBILITY_PRESET hidden)
-set_target_properties(Qv2rayBase PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 if(CMAKE_CXX_COMPILER_ID EQUAL Clang OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     if(UNIX AND NOT APPLE)
