@@ -82,3 +82,15 @@ jobs:
 
       - name: ccache Statistics
         run: ccache -s
+
+      - name: Install
+        run: |
+          cd build
+          cmake --install . --config Release --component development
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: Qv2rayBase-WASM
+          path: build/installed
+
