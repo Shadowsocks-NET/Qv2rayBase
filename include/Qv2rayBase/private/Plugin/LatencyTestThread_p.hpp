@@ -23,7 +23,7 @@
 // ************************ WARNING ************************
 
 #pragma once
-#include "Handlers/LatencyTestHandler.hpp"
+#include "QvPlugin/Handlers/LatencyTestHandler.hpp"
 
 #include <QThread>
 

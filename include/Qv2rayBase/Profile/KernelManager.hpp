@@ -15,9 +15,9 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include "Common/ProfileHelpers.hpp"
-#include "Plugin/PluginAPIHost.hpp"
-#include "Qv2rayBaseLibrary.hpp"
+#include "Qv2rayBase/Common/ProfileHelpers.hpp"
+#include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
 namespace Qv2rayBase::Profile
 {

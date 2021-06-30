@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "Qv2rayBaseFeatures.hpp"
-#include "Utils/JsonConversion.hpp"
+#include "Qv2rayBase/Qv2rayBaseFeatures.hpp"
+#include "QvPlugin/Utils/JsonConversion.hpp"
 
 #include <QJsonObject>
 #include <QMap>

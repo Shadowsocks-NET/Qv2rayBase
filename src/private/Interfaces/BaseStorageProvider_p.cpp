@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "private/Interfaces/BaseStorageProvider_p.hpp"
+#include "Qv2rayBase/private/Interfaces/BaseStorageProvider_p.hpp"
 
-#include <Common/Utils.hpp>
-#include <Qv2rayBaseLibrary.hpp>
+#include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
 #define QV_MODULE_NAME "BuiltinStorageProvider"
 

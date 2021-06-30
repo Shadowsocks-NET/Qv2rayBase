@@ -102,9 +102,9 @@ option(BUILD_SHARED_LIBS "Build Qv2rayBase as shared library.")
 add_library(Qv2rayBase ${QV2RAYBASE_RC} ${BASELIB_SOURCES} ${BASELIB_P_SOURCES} ${BASELIB_HEADERS} ${BASELIB_P_HEADERS})
 target_include_directories(Qv2rayBase
     PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/Qv2rayBase>"
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/>"
-        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Qv2rayBase>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     )
 
 set_target_properties(Qv2rayBase PROPERTIES CXX_STANDARD 17)

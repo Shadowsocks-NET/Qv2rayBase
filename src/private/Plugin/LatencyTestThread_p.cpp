@@ -14,12 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "private/Plugin/LatencyTestThread_p.hpp"
+#include "Qv2rayBase/private/Plugin/LatencyTestThread_p.hpp"
 
-#include "Common/ProfileHelpers.hpp"
-#include "Plugin/LatencyTestHost.hpp"
-#include "Plugin/PluginAPIHost.hpp"
-#include "Qv2rayBaseLibrary.hpp"
+#include "Qv2rayBase/Common/ProfileHelpers.hpp"
+#include "Qv2rayBase/Plugin/LatencyTestHost.hpp"
+#include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
 #ifndef QV2RAYBASE_NO_LIBUV
 #include <uvw.hpp>

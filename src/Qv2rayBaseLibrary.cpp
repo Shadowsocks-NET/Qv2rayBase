@@ -14,19 +14,19 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Qv2rayBaseLibrary.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
-#include "Common/Settings.hpp"
-#include "Plugin/LatencyTestHost.hpp"
-#include "Plugin/PluginAPIHost.hpp"
-#include "Plugin/PluginManagerCore.hpp"
-#include "Profile/KernelManager.hpp"
-#include "Profile/ProfileManager.hpp"
-#include "private/Common/SettingsUpgrade_p.hpp"
-#include "private/Qv2rayBaseLibrary_p.hpp"
+#include "Qv2rayBase/Common/Settings.hpp"
+#include "Qv2rayBase/Plugin/LatencyTestHost.hpp"
+#include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
+#include "Qv2rayBase/Plugin/PluginManagerCore.hpp"
+#include "Qv2rayBase/Profile/KernelManager.hpp"
+#include "Qv2rayBase/Profile/ProfileManager.hpp"
+#include "Qv2rayBase/private/Common/SettingsUpgrade_p.hpp"
+#include "Qv2rayBase/private/Qv2rayBaseLibrary_p.hpp"
 
 // Private headers
-#include "private/Interfaces/BaseStorageProvider_p.hpp"
+#include "Qv2rayBase/private/Interfaces/BaseStorageProvider_p.hpp"
 
 #include <QDir>
 #include <QStandardPaths>

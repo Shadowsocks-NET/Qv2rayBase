@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Interfaces/IStorageProvider.hpp"
-#include "Plugin/PluginManagerCore.hpp"
-#include "Qv2rayBaseLibrary.hpp"
-#include "QvPluginInterface.hpp"
+#include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
+#include "Qv2rayBase/Plugin/PluginManagerCore.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
+#include "QvPlugin/PluginInterface.hpp"
 #include "TestCommon.hpp"
 
 #include <QtTest>

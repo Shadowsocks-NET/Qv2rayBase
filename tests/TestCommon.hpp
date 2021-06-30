@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "Interfaces/IUserInteractionInterface.hpp"
+#include "Qv2rayBase/Interfaces/IUserInteractionInterface.hpp"
 
 #include <QtDebug>
 

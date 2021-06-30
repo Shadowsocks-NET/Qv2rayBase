@@ -14,15 +14,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Profile/ProfileManager.hpp"
+#include "Qv2rayBase/Profile/ProfileManager.hpp"
 
-#include "Common/HTTPRequestHelper.hpp"
-#include "Common/Utils.hpp"
-#include "Interfaces/IStorageProvider.hpp"
-#include "Plugin/LatencyTestHost.hpp"
-#include "Plugin/PluginAPIHost.hpp"
-#include "Profile/KernelManager.hpp"
-#include "private/Profile/ProfileManager_p.hpp"
+#include "Qv2rayBase/Common/HTTPRequestHelper.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
+#include "Qv2rayBase/Plugin/LatencyTestHost.hpp"
+#include "Qv2rayBase/Plugin/PluginAPIHost.hpp"
+#include "Qv2rayBase/Profile/KernelManager.hpp"
+#include "Qv2rayBase/private/Profile/ProfileManager_p.hpp"
 
 #include <QTimerEvent>
 

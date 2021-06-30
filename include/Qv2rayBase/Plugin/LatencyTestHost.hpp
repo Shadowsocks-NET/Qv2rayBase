@@ -16,9 +16,8 @@
 
 #pragma once
 
-#include "Handlers/LatencyTestHandler.hpp"
-
-#include <Qv2rayBase_export.h>
+#include "Qv2rayBase_export.h"
+#include "QvPlugin/Handlers/LatencyTestHandler.hpp"
 
 namespace Qv2rayBase::Plugin
 {

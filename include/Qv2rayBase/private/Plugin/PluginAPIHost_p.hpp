@@ -23,7 +23,7 @@
 // ************************ WARNING ************************
 
 #pragma once
-#include "QvPluginInterface.hpp"
+#include "QvPlugin/PluginInterface.hpp"
 
 namespace Qv2rayBase::Plugin
 {

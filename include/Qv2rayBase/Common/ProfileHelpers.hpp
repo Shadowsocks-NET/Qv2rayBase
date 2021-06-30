@@ -15,9 +15,8 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
-#include "Qv2rayBaseFeatures.hpp"
-#include "Qv2rayBase_export.h"
-#include "QvPluginInterface.hpp"
+#include "Qv2rayBase/Qv2rayBaseFeatures.hpp"
+#include "QvPlugin/PluginInterface.hpp"
 
 namespace Qv2rayBase::Utils
 {

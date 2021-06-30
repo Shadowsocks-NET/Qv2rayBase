@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "private/Common/SettingsUpgrade_p.hpp"
+#include "Qv2rayBase/private/Common/SettingsUpgrade_p.hpp"
 
-#include "Common/Settings.hpp"
-#include "Qv2rayBaseLibrary.hpp"
+#include "Qv2rayBase/Common/Settings.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
 #define QV_MODULE_NAME "SettingsUpgrade"
 

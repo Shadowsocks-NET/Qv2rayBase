@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "Qv2rayBaseFeatures.hpp"
-#include "QvPluginInterface.hpp"
+#include "Qv2rayBase/Qv2rayBaseFeatures.hpp"
+#include "QvPlugin/PluginInterface.hpp"
 
 namespace Qv2rayBase::Profile
 {

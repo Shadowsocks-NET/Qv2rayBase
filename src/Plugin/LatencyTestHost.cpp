@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Plugin/LatencyTestHost.hpp"
+#include "Qv2rayBase/Plugin/LatencyTestHost.hpp"
 
-#include "private/Plugin/LatencyTestHost_p.hpp"
-#include "private/Plugin/LatencyTestThread_p.hpp"
+#include "Qv2rayBase/private/Plugin/LatencyTestHost_p.hpp"
+#include "Qv2rayBase/private/Plugin/LatencyTestThread_p.hpp"
 
 namespace Qv2rayBase::Plugin
 {

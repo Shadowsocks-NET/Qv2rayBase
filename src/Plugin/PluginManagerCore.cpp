@@ -14,14 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Plugin/PluginManagerCore.hpp"
+#include "Qv2rayBase/Plugin/PluginManagerCore.hpp"
 
-#include "Common/Settings.hpp"
-#include "Common/Utils.hpp"
-#include "Interfaces/IStorageProvider.hpp"
-#include "Profile/ProfileManager.hpp"
-#include "Qv2rayBaseLibrary.hpp"
-#include "private/Plugin/PluginManagerCore_p.hpp"
+#include "Qv2rayBase/Common/Settings.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/Interfaces/IStorageProvider.hpp"
+#include "Qv2rayBase/Profile/ProfileManager.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
+#include "Qv2rayBase/private/Plugin/PluginManagerCore_p.hpp"
 
 #include <QDir>
 

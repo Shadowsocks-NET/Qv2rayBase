@@ -14,12 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Profile/KernelManager.hpp"
+#include "Qv2rayBase/Profile/KernelManager.hpp"
 
-#include "Common/Settings.hpp"
-#include "Common/Utils.hpp"
-#include "Handlers/KernelHandler.hpp"
-#include "private/Profile/KernelManager_p.hpp"
+#include "Qv2rayBase/Common/Settings.hpp"
+#include "Qv2rayBase/Common/Utils.hpp"
+#include "Qv2rayBase/private/Profile/KernelManager_p.hpp"
+#include "QvPlugin/Handlers/KernelHandler.hpp"
 
 #define QV_MODULE_NAME "KernelHandler"
 

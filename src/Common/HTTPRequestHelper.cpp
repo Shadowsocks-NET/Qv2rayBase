@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Common/HTTPRequestHelper.hpp"
+#include "Qv2rayBase/Common/HTTPRequestHelper.hpp"
 
-#include "Common/Settings.hpp"
-#include "Qv2rayBaseLibrary.hpp"
+#include "Qv2rayBase/Common/Settings.hpp"
+#include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
 #include <QByteArray>
 #include <QNetworkAccessManager>

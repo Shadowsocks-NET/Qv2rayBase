@@ -1,5 +1,5 @@
 generate_export_header(Qv2rayBase
-    EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBase_export.h)
+    EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBase/Qv2rayBase_export.h)
 
 configure_package_config_file(cmake/Qv2rayBase.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/Qv2rayBaseConfig.cmake
     INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/Qv2rayBase)

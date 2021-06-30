@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "Plugin/PluginManagerCore.hpp"
-#include "QvPluginInterface.hpp"
+#include "Qv2rayBase/Plugin/PluginManagerCore.hpp"
+#include "QvPlugin/PluginInterface.hpp"
 
 #include <QHash>
 #include <QPluginLoader>
