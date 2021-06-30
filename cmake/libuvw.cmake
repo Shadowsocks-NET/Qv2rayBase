@@ -6,8 +6,9 @@ if(USE_SYSTEM_UVW)
 endif()
 
 if(USE_SYSTEM_LIBUV)
-    if(WIN32)
-        find_package(unofficial-libuv CONFIG REQUIRED)
+    # Special package name from vcpkg
+    find_package(unofficial-libuv CONFIG)
+    if(${unofficial-libuv_FOUND})
         add_library(Qv2ray::libuv ALIAS unofficial::libuv::libuv)
     else()
         find_package(LibUV REQUIRED)
