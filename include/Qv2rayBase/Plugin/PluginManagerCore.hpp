@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "Qv2rayBase_export.h"
+#include "Qv2rayBase/Qv2rayBaseFeatures.hpp"
 #include "QvPlugin/PluginInterface.hpp"
 
 #include <QObject>

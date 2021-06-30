@@ -18,7 +18,6 @@
 
 #include "Interfaces/IUserInteractionInterface.hpp"
 #include "Qv2rayBaseFeatures.hpp"
-#include "Qv2rayBase_export.h"
 
 namespace Qv2rayBase
 {
