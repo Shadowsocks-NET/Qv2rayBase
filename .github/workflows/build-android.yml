@@ -53,7 +53,7 @@ jobs:
     - name: Install
       run: |
         cd build
-        cmake --install . --config Release
+        cmake --install . --config Release --component development
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
