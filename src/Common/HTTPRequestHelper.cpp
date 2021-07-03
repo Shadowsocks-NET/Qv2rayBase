@@ -87,7 +87,7 @@ namespace Qv2rayBase::Utils
         }
         //
         // Data or timeout?
-        QvLog() << "QNetworkReply:" << _reply->errorString();
+        QvLog() << _reply->error();
         auto data = _reply->readAll();
         return data;
     }
@@ -99,13 +99,11 @@ namespace Qv2rayBase::Utils
         auto accessManagerPtr = new QNetworkAccessManager();
         setAccessManagerAttributes(request, *accessManagerPtr);
         auto reply = accessManagerPtr->get(request);
-        QObject::connect(reply, &QNetworkReply::finished, context,
-                         [=]()
-                         {
-                             QvLog() << QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error());
-                             funcPtr(reply->readAll());
-                             accessManagerPtr->deleteLater();
-                         });
+        QObject::connect(reply, &QNetworkReply::finished, context, [=]() {
+            QvLog() << QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error());
+            funcPtr(reply->readAll());
+            accessManagerPtr->deleteLater();
+        });
     }
 
 } // namespace Qv2rayBase::Utils

@@ -33,7 +33,7 @@ namespace Qv2rayBase::Utils
 
     std::pair<quint64, quint64> GetConnectionUsageAmount(const ConnectionId &id, StatisticsObject::StatisticsType type)
     {
-        auto stat = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id).statistics;
+        const auto stat = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id).statistics;
         switch (type)
         {
             case StatisticsObject::ALL: return { stat.directUp + stat.proxyUp, stat.directDown + stat.proxyDown };

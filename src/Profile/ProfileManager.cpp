@@ -28,8 +28,11 @@
 
 #define QV_MODULE_NAME "ConfigHandler"
 #define CheckValidId(id, returnValue)                                                                                                                                    \
-    if (!IsValidId(id))                                                                                                                                                  \
-        return returnValue;
+    do                                                                                                                                                                   \
+    {                                                                                                                                                                    \
+        if (!IsValidId(id))                                                                                                                                              \
+            return returnValue;                                                                                                                                          \
+    } while (0)
 
 #define nothing
 
@@ -273,7 +276,7 @@ namespace Qv2rayBase::Profile
         {
             d->groups[id].name = tr("Default Group");
         }
-        return {};
+        return true;
     }
 
     bool ProfileManager::StartConnection(const ProfileId &identifier)
@@ -281,8 +284,22 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(identifier, false);
         ProfileContent root = GetConnection(identifier.connectionId);
+
+        const auto routingObject = GetRouting(d->groups[identifier.groupId].route_id);
+
+        if (!root.routing.overrideDNS)
+        {
+            root.routing.dns = routingObject.dns;
+            root.routing.fakedns = routingObject.fakedns;
+            JsonStructHelper::MergeJson(root.routing.extraOptions, routingObject.extraOptions);
+        }
+
+        if (!root.routing.overrideRules)
+            root.routing.rules = routingObject.rules;
+
         const auto newProfile = Qv2rayBaseLibrary::PluginAPIHost()->PreprocessProfile(root);
-        auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, newProfile, d->routings.value(d->groups[identifier.groupId].route_id));
+
+        auto errMsg = Qv2rayBaseLibrary::KernelManager()->StartConnection(identifier, newProfile);
         if (errMsg)
         {
             Qv2rayBaseLibrary::Warn(tr("Failed to start connection"), *errMsg);
@@ -338,10 +355,28 @@ namespace Qv2rayBase::Profile
     {
         Q_D(ProfileManager);
         if (d->groups[id].route_id.isNull())
-        {
             d->groups[id].route_id = RoutingId{ GenerateRandomString() };
-        }
         return d->groups[id].route_id;
+    }
+    
+    void ProfileManager::SetGroupRoutingId(const GroupId &gid, const RoutingId &rid)
+    {
+        Q_D(ProfileManager);
+        CheckValidId(gid, nothing);
+        d->groups[gid].route_id = rid;
+    }
+
+    RoutingObject ProfileManager::GetRouting(const RoutingId &id) const
+    {
+        Q_D(const ProfileManager);
+        return d->routings.contains(id) ? d->routings.value(id) : d->routings.value(DefaultRoutingId);
+    }
+
+    void ProfileManager::UpdateRouting(const RoutingId &id, const RoutingObject &o)
+    {
+        Q_D(ProfileManager);
+        CheckValidId(id, nothing);
+        d->routings[id] = o;
     }
 
     bool ProfileManager::RenameGroup(const GroupId &id, const QString &newName)
@@ -396,7 +431,7 @@ namespace Qv2rayBase::Profile
             if (!sDecoder)
             {
                 Qv2rayBaseLibrary::Warn(tr("Cannot Update Subscription"),
-                                        tr("Unknown subscription type: %1").arg(type) + NEWLINE + tr("A subscription plugin is missing?"));
+                                        tr("Unknown subscription type: %1").arg(type.toString()) + NEWLINE + tr("A subscription plugin is missing?"));
                 return false;
             }
             decoder = *sDecoder;
@@ -404,18 +439,20 @@ namespace Qv2rayBase::Profile
 
         const auto result = decoder->DecodeData(data);
 
-        QList<std::pair<QString, ProfileContent>> fetchedConnections;
-        fetchedConnections.reserve(result.connections.size() + result.links.size());
+        QMultiMap<QString, ProfileContent> fetchedConnections;
 
-        fetchedConnections << result.connections;
+        fetchedConnections += result.connections;
 
         for (const auto &link : result.links)
         {
             // Assign a group name, to pass the name check.
             const auto result = ConvertConfigFromString(link.trimmed());
             if (!result)
+            {
                 QvLog() << "Error: Cannot decode share link: " << link;
-            fetchedConnections << *result;
+                continue;
+            }
+            fetchedConnections.insert(result->first, result->second);
         }
 
         //
@@ -442,9 +479,11 @@ namespace Qv2rayBase::Profile
         std::copy(d->groups[id].connections.constBegin(), d->groups[id].connections.constEnd(), originalConnectionIdList.begin());
         d->groups[id].connections.clear();
 
-        QList<std::pair<QString, ProfileContent>> filteredConnections;
-        for (const auto &config : fetchedConnections)
+        QMultiMap<QString, ProfileContent> filteredConnections;
+        for (auto it = fetchedConnections.constKeyValueBegin(); it != fetchedConnections.constKeyValueEnd(); it++)
         {
+            const auto name = it->first;
+            const auto config = it->second;
             const auto includeRelation = d->groups[id].subscription_config.includeRelation;
             const auto excludeRelation = d->groups[id].subscription_config.excludeRelation;
 
@@ -469,7 +508,7 @@ namespace Qv2rayBase::Profile
                     // Matched cases:
                     // Case 1: Relation = OR  && Contains
                     // Case 2: Relation = AND && Not Contains
-                    if ((includeRelation == SubscriptionConfigObject::RELATION_OR) == config.first.contains(includeKey.trimmed()))
+                    if ((includeRelation == SubscriptionConfigObject::RELATION_OR) == name.contains(includeKey.trimmed()))
                     {
                         // Relation = OR  -> Should     include the connection
                         // Relation = AND -> Should not include the connection (since keyword is "Not Contained" in the connection name).
@@ -507,7 +546,7 @@ namespace Qv2rayBase::Profile
                     // Matched cases:
                     // Relation = OR  && Contains
                     // Relation = AND && Not Contains
-                    if (excludeRelation == SubscriptionConfigObject::RELATION_OR == config.first.contains(excludeKey.trimmed()))
+                    if (excludeRelation == SubscriptionConfigObject::RELATION_OR == name.contains(excludeKey.trimmed()))
                     {
                         // Relation = OR  -> Should not include the connection (since the EXCLUDED keyword is in the connection name).
                         // Relation = AND -> Should     include the connection (since we can say "not ALL exclude keywords can be found", so that the AND relation breaks)
@@ -530,11 +569,13 @@ namespace Qv2rayBase::Profile
 
             // So we finally made the decision.
             if (ShouldHaveThisConnection)
-                filteredConnections << config;
+                filteredConnections.insert(name, config);
         }
 
-        for (auto &[name, config] : filteredConnections)
+        for (auto it = filteredConnections.constKeyValueBegin(); it != filteredConnections.constKeyValueEnd(); it++)
         {
+            const auto name = it->first;
+            const auto config = it->second;
             // Should not have complex connection as we assume.
             const auto outboundData = GetOutboundInfo(config.outbounds.first());
 
@@ -658,23 +699,6 @@ namespace Qv2rayBase::Profile
         return k;
     }
 
-    bool ProfileManager::IsValidId(const ConnectionId &id) const
-    {
-        Q_D(const ProfileManager);
-        return d->connections.contains(id);
-    }
-
-    bool ProfileManager::IsValidId(const GroupId &id) const
-    {
-        Q_D(const ProfileManager);
-        return d->groups.contains(id);
-    }
-
-    bool ProfileManager::IsValidId(const ProfileId &id) const
-    {
-        return IsValidId(id.connectionId) && IsValidId(id.groupId);
-    }
-
     const ConnectionObject ProfileManager::GetConnectionObject(const ConnectionId &id) const
     {
         Q_D(const ProfileManager);
@@ -694,6 +718,28 @@ namespace Qv2rayBase::Profile
         return Qv2rayBaseLibrary::KernelManager()->CurrentConnection() == id;
     }
 
+    bool ProfileManager::IsValidId(const ConnectionId &id) const
+    {
+        Q_D(const ProfileManager);
+        return d->connections.contains(id);
+    }
+
+    bool ProfileManager::IsValidId(const GroupId &id) const
+    {
+        Q_D(const ProfileManager);
+        return d->groups.contains(id);
+    }
+
+    bool ProfileManager::IsValidId(const ProfileId &id) const
+    {
+        return IsValidId(id.connectionId) && IsValidId(id.groupId);
+    }
+
+    bool ProfileManager::IsValidId(const RoutingId &id) const
+    {
+        Q_D(const ProfileManager);
+        return d->routings.contains(id);
+    }
 } // namespace Qv2rayBase::Profile
 
 #undef CheckIdExistance

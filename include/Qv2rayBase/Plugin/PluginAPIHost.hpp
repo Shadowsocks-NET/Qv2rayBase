@@ -60,7 +60,7 @@ namespace Qv2rayBase::Plugin
         ProfileContent PreprocessProfile(const ProfileContent &) const;
 
         // Subscription Adapter API
-        std::optional<std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionDecoder>> Subscription_QueryType(const QString &type) const;
+        std::optional<std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionDecoder>> Subscription_QueryType(const SubscriptionDecoderId &type) const;
         QList<std::pair<const PluginInfo *, Qv2rayPlugin::Subscription::SubscriptionInfoObject>> Subscription_GetAllAdapters() const;
 
       private:

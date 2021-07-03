@@ -57,7 +57,7 @@ namespace Qv2rayBase::Profile
         StopConnection();
     }
 
-    std::optional<QString> KernelManager::StartConnection(const ProfileId &id, const ProfileContent &_root, const RoutingObject &routing)
+    std::optional<QString> KernelManager::StartConnection(const ProfileId &id, const ProfileContent &_root)
     {
         auto fullProfile = _root;
         Q_D(KernelManager);
@@ -160,7 +160,7 @@ namespace Qv2rayBase::Profile
         if (hasAllKernelPrepared)
         {
             auto defaultKernel = defaultKernelInfo.Create();
-            defaultKernel->SetProfileContent(fullProfile, routing);
+            defaultKernel->SetProfileContent(fullProfile);
             hasAllKernelPrepared &= defaultKernel->PrepareConfigurations();
             d->kernels.push_back({ d->QV2RAYBASE_DEFAULT_KERNEL_PLACEHOLDER, std::move(defaultKernel) });
             d->current = id;
