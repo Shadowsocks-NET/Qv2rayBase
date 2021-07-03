@@ -101,6 +101,7 @@ Qv2rayBase is a C++/Qt library, extracted from Qv2ray but is enhanced into a gen
         Use `find_package(Qv2rayBase REQUIRED)`
     - When using as a submodule:
         Use `add_subdirectory(path/to/Qv2rayBase)`
+
     ... Then link your target with `Qv2ray::Qv2rayBase`
 
 ## License
