@@ -331,8 +331,6 @@ namespace Qv2rayBase::Interfaces
         // Default behavior on Windows
         list << makeAbs(QCoreApplication::applicationDirPath() + "/" + dirName);
 
-        // WARNING BREAKING CHANGE
-        // list << makeAbs(instance()->d_ptr->configurationPaths + dirName);
         list << ":/" + dirName;
 
         list << QStandardPaths::locateAll(QStandardPaths::AppDataLocation, dirName, QStandardPaths::LocateDirectory);
