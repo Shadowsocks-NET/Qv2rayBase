@@ -152,7 +152,7 @@ namespace Qv2rayBase::Utils
 
     inline QString TimeToString(const std::chrono::system_clock::time_point &t)
     {
-        return QDateTime::fromMSecsSinceEpoch(std::chrono::system_clock::to_time_t(t)).toString();
+        return QDateTime::fromSecsSinceEpoch(std::chrono::system_clock::to_time_t(t)).toString();
     }
 
     inline bool IsIPv4Address(const QString &addr)
