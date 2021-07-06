@@ -179,7 +179,7 @@ namespace Qv2rayBase::Profile
             // We need to use old style runtime connection.
             connect(k.second.get(), SIGNAL(OnCrashed(QString)), this, SLOT(OnKernelCrashed_p(QString)), Qt::QueuedConnection);
             connect(k.second.get(), SIGNAL(OnLog(QString)), this, SLOT(OnKernelLog_p(QString)), Qt::QueuedConnection);
-            connect(k.second.get(), SIGNAL(OnStatsAvailable(StatisticsObject)), this, SLOT(OnPluginStatsDataRcvd_p(StatisticsObject)), Qt::QueuedConnection);
+            connect(k.second.get(), SIGNAL(OnStatsAvailable(StatisticsObject)), this, SLOT(OnKernelStatsDataRcvd_p(StatisticsObject)), Qt::QueuedConnection);
 
             k.second->Start();
         }
@@ -240,7 +240,7 @@ namespace Qv2rayBase::Profile
         d->kernels.clear();
     }
 
-    void KernelManager::OnPluginStatsDataRcvd_p(StatisticsObject s)
+    void KernelManager::OnKernelStatsDataRcvd_p(const StatisticsObject &s)
     {
         Q_D(KernelManager);
         emit OnStatsDataAvailable(d->current, s);

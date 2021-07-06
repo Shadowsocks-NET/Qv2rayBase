@@ -40,13 +40,10 @@ namespace Qv2rayBase::Profile
         void OnDisconnected(const ProfileId &id);
         void OnCrashed(const ProfileId &id, const QString &errMessage);
         void OnKernelLogAvailable(const ProfileId &id, const QString &log);
-
-      signals:
         void OnStatsDataAvailable(const ProfileId &id, StatisticsObject);
-      private slots:
-        void OnPluginStatsDataRcvd_p(StatisticsObject);
 
       private slots:
+        void OnKernelStatsDataRcvd_p(const StatisticsObject &);
         void OnKernelCrashed_p(const QString &msg);
         void OnKernelLog_p(const QString &log);
 
