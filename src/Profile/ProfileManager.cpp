@@ -375,8 +375,7 @@ namespace Qv2rayBase::Profile
     void ProfileManager::UpdateRouting(const RoutingId &id, const RoutingObject &o)
     {
         Q_D(ProfileManager);
-        CheckValidId(id, nothing);
-        d->routings[id] = o;
+        d->routings.insert(id, o);
     }
 
     bool ProfileManager::RenameGroup(const GroupId &id, const QString &newName)
