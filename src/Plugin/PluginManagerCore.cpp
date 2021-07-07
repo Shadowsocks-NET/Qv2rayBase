@@ -58,6 +58,8 @@ namespace Qv2rayBase::Plugin
         QvLog() << "Reloading plugin list";
         for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths(QStringLiteral("plugins")))
         {
+            QCoreApplication::addLibraryPath(pluginDirPath + "/libs");
+            QvLog() << "Added library path:" << pluginDirPath + "/libs";
             const auto entries = QDir(pluginDirPath).entryList(QDir::Files);
             for (const auto &fileName : entries)
             {
@@ -70,7 +72,7 @@ namespace Qv2rayBase::Plugin
             loadPluginImpl(QStringLiteral("[STATIC]"), plugin, nullptr);
         }
 
-        for (auto &plugin : d->plugins.keys())
+        for (const auto &plugin : d->plugins.keys())
         {
             auto wd = Qv2rayBaseLibrary::StorageProvider()->GetPluginWorkingDirectory(plugin);
             auto conf = Qv2rayBaseLibrary::StorageProvider()->GetPluginSettings(plugin);
