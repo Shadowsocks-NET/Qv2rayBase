@@ -24,14 +24,12 @@
 
 class TestStaticPlugin
     : public QObject
-    , public Qv2rayPlugin::Qv2rayInterface
+    , public Qv2rayPlugin::Qv2rayInterface<TestStaticPlugin>
 
 {
     Q_OBJECT
-    Q_INTERFACES(Qv2rayPlugin::Qv2rayInterface)
-    Q_PLUGIN_METADATA(IID Qv2rayInterface_IID)
+    QV2RAY_PLUGIN(TestStaticPlugin)
   public:
-    TestStaticPlugin(QObject *parent = nullptr) : QObject(parent){};
     virtual const Qv2rayPlugin::QvPluginMetadata GetMetadata() const override
     {
         return Qv2rayPlugin::QvPluginMetadata{ QStringLiteral("Static Plugin Loader Test Plugin"), //
@@ -45,12 +43,7 @@ class TestStaticPlugin
     {
         return true;
     }
-    virtual void SettingsUpdated() override
-    {
-    }
-  signals:
-    void PluginLog(QString) override;
-    void PluginErrorMessageBox(QString, QString) override;
+    virtual void SettingsUpdated() override{};
 };
 
 class PluginLoaderTest : public QObject

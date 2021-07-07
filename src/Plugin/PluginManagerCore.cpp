@@ -143,7 +143,7 @@ namespace Qv2rayBase::Plugin
 
     void PluginManagerCore::PluginLog(QString log)
     {
-        if (auto _interface = qobject_cast<Qv2rayInterface *>(sender()); _interface)
+        if (auto _interface = qobject_cast<Qv2rayInterfaceImpl *>(sender()); _interface)
         {
             QvLog() << _interface->GetMetadata().InternalID << ":" << log;
         }
@@ -155,7 +155,7 @@ namespace Qv2rayBase::Plugin
 
     void PluginManagerCore::PluginMessageBox(QString title, QString message)
     {
-        const auto pInterface = qobject_cast<Qv2rayInterface *>(sender());
+        const auto pInterface = qobject_cast<Qv2rayInterfaceImpl *>(sender());
         if (pInterface)
             Qv2rayBaseLibrary::Warn(pInterface->GetMetadata().Name + " - " + title, message);
         else
@@ -186,7 +186,7 @@ namespace Qv2rayBase::Plugin
         PluginInfo info;
         info.libraryPath = fullPath;
         info.loader = loader;
-        info.pinterface = qobject_cast<Qv2rayInterface *>(instance);
+        info.pinterface = qobject_cast<Qv2rayInterfaceImpl *>(instance);
 
         if (!info.pinterface)
         {

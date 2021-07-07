@@ -29,7 +29,7 @@ namespace Qv2rayBase::Plugin
     {
         QString libraryPath;
         QPluginLoader *loader;
-        Qv2rayPlugin::Qv2rayInterface *pinterface;
+        Qv2rayPlugin::Qv2rayInterfaceImpl *pinterface;
         Q_ALWAYS_INLINE Qv2rayPlugin::QvPluginMetadata metadata() const
         {
             return pinterface->GetMetadata();
