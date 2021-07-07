@@ -115,7 +115,7 @@ namespace Qv2rayBase::Interfaces
 
         {
             // Standard platform-independent configuration location
-            configSearchPaths << QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/" + QCoreApplication::applicationName().toLower() + "/";
+            configSearchPaths << QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/" + QCoreApplication::applicationName().toLower() + "/";
 
             // Application directory
             configSearchPaths << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
