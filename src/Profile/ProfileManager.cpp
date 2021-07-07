@@ -475,7 +475,8 @@ namespace Qv2rayBase::Profile
         // Copy construct here.
 
         QList<ConnectionId> originalConnectionIdList;
-        std::copy(d->groups[id].connections.constBegin(), d->groups[id].connections.constEnd(), originalConnectionIdList.begin());
+        for (const auto &id : d->groups[id].connections)
+            originalConnectionIdList << id;
         d->groups[id].connections.clear();
 
         QMultiMap<QString, ProfileContent> filteredConnections;
