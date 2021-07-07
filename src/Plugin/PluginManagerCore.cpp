@@ -58,9 +58,18 @@ namespace Qv2rayBase::Plugin
         QvLog() << "Reloading plugin list";
         for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths(QStringLiteral("plugins")))
         {
-            QCoreApplication::addLibraryPath(pluginDirPath + "/libs");
-            QvLog() << "Added library path:" << pluginDirPath + "/libs";
             const auto entries = QDir(pluginDirPath).entryList(QDir::Files);
+            if (entries.isEmpty())
+                continue;
+
+#ifdef Q_OS_WINDOWS
+            // qgetenv is lossy on Windows
+            qputenv("PATH", QDir::toNativeSeparators(qEnvironmentVariable("PATH") + ";" + pluginDirPath + "/libs").toUtf8());
+#else
+            // qEnvironmentVariable is lossy
+            qputenv("PATH", QDir::toNativeSeparators(qgetenv("PATH") + ":" + pluginDirPath + "/libs").toUtf8());
+#endif
+
             for (const auto &fileName : entries)
             {
                 tryLoadPlugin(QDir(pluginDirPath).absoluteFilePath(fileName));
@@ -72,16 +81,16 @@ namespace Qv2rayBase::Plugin
             loadPluginImpl(QStringLiteral("[STATIC]"), plugin, nullptr);
         }
 
-        for (const auto &plugin : d->plugins.keys())
+        for (auto it = d->plugins.constKeyValueBegin(); it != d->plugins.constKeyValueEnd(); it++)
         {
-            auto wd = Qv2rayBaseLibrary::StorageProvider()->GetPluginWorkingDirectory(plugin);
-            auto conf = Qv2rayBaseLibrary::StorageProvider()->GetPluginSettings(plugin);
+            auto wd = Qv2rayBaseLibrary::StorageProvider()->GetPluginWorkingDirectory(it->first);
+            auto conf = Qv2rayBaseLibrary::StorageProvider()->GetPluginSettings(it->first);
 
-            d->plugins[plugin].pinterface->m_Settings = conf;
-            d->plugins[plugin].pinterface->m_WorkingDirectory.setPath(wd.absolutePath());
-            d->plugins[plugin].pinterface->m_ProfileManager = Qv2rayBaseLibrary::ProfileManager();
-            d->plugins[plugin].pinterface->InitializePlugin();
-            d->plugins[plugin].pinterface->SettingsUpdated();
+            it->second.pinterface->m_Settings = conf;
+            it->second.pinterface->m_WorkingDirectory.setPath(wd.absolutePath());
+            it->second.pinterface->m_ProfileManager = Qv2rayBaseLibrary::ProfileManager();
+            it->second.pinterface->InitializePlugin();
+            it->second.pinterface->SettingsUpdated();
         }
     }
 
