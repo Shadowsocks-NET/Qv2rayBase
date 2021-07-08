@@ -113,12 +113,22 @@ namespace Qv2rayBase::Profile
     void ProfileManager::StartLatencyTest(const GroupId &id, const LatencyTestEngineId &engine)
     {
         Q_D(ProfileManager);
+        if (engine.isNull())
+        {
+            Qv2rayBaseLibrary::Warn(tr("Invalid Latency Test Engine"), tr("Latency test engine ID is null"));
+            return;
+        }
         for (const auto &connection : d->groups.value(id).connections)
             StartLatencyTest(connection, engine);
     }
 
     void ProfileManager::StartLatencyTest(const ConnectionId &id, const LatencyTestEngineId &engine)
     {
+        if (engine.isNull())
+        {
+            Qv2rayBaseLibrary::Warn(tr("Invalid Latency Test Engine"), tr("Latency test engine ID is null"));
+            return;
+        }
         emit OnLatencyTestStarted(id);
         Qv2rayBaseLibrary::LatencyTestHost()->TestLatency(id, engine);
     }
