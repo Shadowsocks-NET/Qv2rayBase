@@ -64,10 +64,10 @@ namespace Qv2rayBase::Plugin
 
 #ifdef Q_OS_WINDOWS
             // qgetenv is lossy on Windows
-            qputenv("PATH", QDir::toNativeSeparators(qEnvironmentVariable("PATH") + ";" + pluginDirPath + "/libs").toUtf8());
+            qputenv("PATH", QDir::toNativeSeparators(qEnvironmentVariable("PATH") + QDir::listSeparator() + pluginDirPath + "/libs").toUtf8());
 #else
             // qEnvironmentVariable is lossy
-            qputenv("PATH", QDir::toNativeSeparators(qgetenv("PATH") + ":" + pluginDirPath + "/libs").toUtf8());
+            qputenv("PATH", QDir::toNativeSeparators(qgetenv("PATH") + QDir::listSeparator() + pluginDirPath + "/libs").toUtf8());
 #endif
 
             for (const auto &fileName : entries)
