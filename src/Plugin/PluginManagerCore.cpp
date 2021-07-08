@@ -67,7 +67,7 @@ namespace Qv2rayBase::Plugin
             qputenv("PATH", QDir::toNativeSeparators(qEnvironmentVariable("PATH") + QDir::listSeparator() + pluginDirPath + "/libs").toUtf8());
 #else
             // qEnvironmentVariable is lossy
-            qputenv("PATH", QDir::toNativeSeparators(qgetenv("PATH") + QDir::listSeparator() + pluginDirPath + "/libs").toUtf8());
+            qputenv("PATH", QDir::toNativeSeparators(qgetenv("PATH") + QDir::listSeparator().toLatin1() + pluginDirPath + "/libs").toUtf8());
 #endif
 
             for (const auto &fileName : entries)
