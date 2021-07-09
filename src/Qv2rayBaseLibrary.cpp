@@ -40,7 +40,7 @@ namespace Qv2rayBase
     Qv2rayBaseLibrary *m_instance = nullptr;
 
     QV2RAYBASE_FAILED_REASON Qv2rayBaseLibrary::Initialize(Qv2rayStartFlags flags,                    //
-                                                           Interfaces::StorageContext &ctx,           //
+                                                           const Interfaces::StorageContext &ctx,     //
                                                            Interfaces::IUserInteractionInterface *ui, //
                                                            Interfaces::IStorageProvider *stor)
     {

@@ -71,7 +71,7 @@ namespace Qv2rayBase
         ~Qv2rayBaseLibrary();
 
         QV2RAYBASE_FAILED_REASON Initialize(Qv2rayStartFlags flags,                  //
-                                            Interfaces::StorageContext &ctx,         //
+                                            const Interfaces::StorageContext &ctx,   //
                                             Interfaces::IUserInteractionInterface *, //
                                             Interfaces::IStorageProvider * = nullptr);
 
