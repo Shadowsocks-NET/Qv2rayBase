@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "Interfaces/IStorageProvider.hpp"
 #include "Interfaces/IUserInteractionInterface.hpp"
 #include "Qv2rayBaseFeatures.hpp"
 
@@ -31,7 +32,6 @@ namespace Qv2rayBase
     namespace Profile { class ProfileManager; }
     namespace Profile { class KernelManager; }
     namespace Interfaces { class IStorageProvider; };
-    namespace Interfaces { struct StorageContext; }
     // clang-format on
 
     enum QV2RAYBASE_FAILED_REASON
@@ -71,7 +71,7 @@ namespace Qv2rayBase
         ~Qv2rayBaseLibrary();
 
         QV2RAYBASE_FAILED_REASON Initialize(Qv2rayStartFlags flags,                  //
-                                            Interfaces::StorageContext ctx,          //
+                                            Interfaces::StorageContext &ctx,         //
                                             Interfaces::IUserInteractionInterface *, //
                                             Interfaces::IStorageProvider * = nullptr);
 

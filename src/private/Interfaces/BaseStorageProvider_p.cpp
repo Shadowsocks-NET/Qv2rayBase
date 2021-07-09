@@ -31,7 +31,7 @@ const auto PLUGIN_FILES = "plugin_files";
 const auto PLUGIN_SETTINGS = "plugin_settings";
 const auto EXTRA_SETTINGS = "extra_settings";
 
-#define DEBUG_SUFFIX (RuntimeContext.isDebug ? QStringLiteral("_debug/") : QStringLiteral("/"))
+#define DEBUG_SUFFIX (RuntimeContext.contains(StorageContextFlags::STORAGE_CTX_IS_DEBUG) ? QStringLiteral("_debug/") : QStringLiteral("/"))
 
 #define ConnectionsJson ConfigDirPath + CONNECTIONS + ".json"
 #define GroupsJson ConfigDirPath + GROUPS + ".json"
@@ -51,6 +51,7 @@ bool CheckPathAvailability(const QString &_dirPath, bool checkExistingConfig)
     // Does not exist.
     if (!QDir(path).exists())
         return false;
+
     {
         // A temp file used to test file permissions in that folder.
         QFile testFile(path + ".qv2ray_test_file" + QString::number(QTime::currentTime().msecsSinceStartOfDay()));
@@ -114,11 +115,12 @@ namespace Qv2rayBase::Interfaces
         QStringList configSearchPaths;
 
         {
+            // Application directory
+            if (runtimeContext.contains(STORAGE_CTX_HAS_ASIDE_CONFIGURATION))
+                configSearchPaths << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
+
             // Standard platform-independent configuration location
             configSearchPaths << QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/" + QCoreApplication::applicationName().toLower() + "/";
-
-            // Application directory
-            configSearchPaths << qApp->applicationDirPath() + "/config" + DEBUG_SUFFIX;
         }
 
         // Custom configuration path

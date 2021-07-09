@@ -21,10 +21,13 @@
 
 namespace Qv2rayBase::Interfaces
 {
-    struct StorageContext
+    enum StorageContextFlags
     {
-        bool isDebug;
+        STORAGE_CTX_IS_DEBUG = 1,
+        STORAGE_CTX_HAS_ASIDE_CONFIGURATION = 2,
     };
+
+    typedef QList<StorageContextFlags> StorageContext;
 
     class IStorageProvider
     {
