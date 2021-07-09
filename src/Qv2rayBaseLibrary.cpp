@@ -31,7 +31,7 @@
 #include <QDir>
 #include <QStandardPaths>
 
-#define QV_MODULE_NAME "BaseApplication"
+#define QV_MODULE_NAME "BaseLibrary"
 
 namespace Qv2rayBase
 {
