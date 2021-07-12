@@ -20,6 +20,19 @@
 #include "Interfaces/IUserInteractionInterface.hpp"
 #include "Qv2rayBaseFeatures.hpp"
 
+// clang-format off
+// Do not use these within Qv2rayBase library itself.
+#ifndef Qv2rayBase_EXPORTS
+#define QvBaselib            Qv2rayBase::Qv2rayBaseLibrary::instance()
+#define QvKernelManager      Qv2rayBase::Qv2rayBaseLibrary::KernelManager()
+#define QvLatencyTestHost    Qv2rayBase::Qv2rayBaseLibrary::LatencyTestHost()
+#define QvProfileManager     Qv2rayBase::Qv2rayBaseLibrary::ProfileManager()
+#define QvPluginManagerCore  Qv2rayBase::Qv2rayBaseLibrary::PluginManagerCore()
+#define QvPluginAPIHost      Qv2rayBase::Qv2rayBaseLibrary::PluginAPIHost()
+#define QvStorageProvider    Qv2rayBase::Qv2rayBaseLibrary::StorageProvider()
+#endif
+// clang-format on
+
 namespace Qv2rayBase
 {
     Q_NAMESPACE
@@ -171,17 +184,3 @@ namespace Qv2rayBase
     };
 
 } // namespace Qv2rayBase
-
-// clang-format off
-#ifndef Qv2rayBase_EXPORTS
-// Do not use QvBaselib with Qv2rayBase library itself.
-#define QvBaselib                           Qv2rayBase::Qv2rayBaseLibrary::instance()
-#if 0
-    #define QvKernelManager                 Qv2rayBase::Qv2rayBaseLibrary::KernelManager()
-    #define QvProfileManager                Qv2rayBase::Qv2rayBaseLibrary::ProfileManager()
-    #define QvPluginManagerCore             Qv2rayBase::Qv2rayBaseLibrary::PluginManagerCore()
-    #define QvPluginHost                    Qv2rayBase::Qv2rayBaseLibrary::PluginAPIHost()
-    #define QvStorageProvider               Qv2rayBase::Qv2rayBaseLibrary::StorageProvider()
-#endif
-#endif
-// clang-format on
