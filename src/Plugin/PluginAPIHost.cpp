@@ -198,12 +198,6 @@ namespace Qv2rayBase::Plugin
             plugin->pinterface->EventHandler()->ProcessEvent(object);
     }
 
-    void PluginAPIHost::SendEventInternal(const SystemProxy::EventObject &object) const
-    {
-        for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(Qv2rayPlugin::COMPONENT_EVENT_HANDLER))
-            plugin->pinterface->EventHandler()->ProcessEvent(object);
-    }
-
     void PluginAPIHost::SendEventInternal(const Connectivity::EventObject &object) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(Qv2rayPlugin::COMPONENT_EVENT_HANDLER))

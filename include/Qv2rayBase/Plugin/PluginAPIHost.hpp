@@ -65,7 +65,6 @@ namespace Qv2rayBase::Plugin
 
       private:
         void SendEventInternal(const Qv2rayPlugin::Event::ConnectionStats::EventObject &) const;
-        void SendEventInternal(const Qv2rayPlugin::Event::SystemProxy::EventObject &) const;
         void SendEventInternal(const Qv2rayPlugin::Event::Connectivity::EventObject &) const;
         void SendEventInternal(const Qv2rayPlugin::Event::ConnectionEntry::EventObject &) const;
 
