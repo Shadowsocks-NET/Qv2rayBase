@@ -126,22 +126,22 @@ namespace Qv2rayBase::Plugin
         return false;
     }
 
-    std::optional<std::shared_ptr<SubscriptionDecoder>> PluginAPIHost::Subscription_QueryType(const SubscriptionDecoderId &type) const
+    std::optional<std::shared_ptr<SubscriptionProvider>> PluginAPIHost::Subscription_QueryType(const SubscriptionProviderId &id) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_SUBSCRIPTION_ADAPTER))
         {
             auto adapterInterface = plugin->pinterface->SubscriptionAdapter();
             if (adapterInterface)
                 for (const auto &subscriptionInfo : adapterInterface->GetInfo())
-                    if (subscriptionInfo.type == type)
+                    if (subscriptionInfo.id == id)
                         return subscriptionInfo.Creator();
         }
         return std::nullopt;
     }
 
-    QList<std::pair<const PluginInfo *, SubscriptionInfoObject>> PluginAPIHost::Subscription_GetAllAdapters() const
+    QList<std::pair<const PluginInfo *, SubscriptionProviderInfo>> PluginAPIHost::Subscription_GetAllAdapters() const
     {
-        QList<std::pair<const PluginInfo *, SubscriptionInfoObject>> list;
+        QList<std::pair<const PluginInfo *, SubscriptionProviderInfo>> list;
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_SUBSCRIPTION_ADAPTER))
         {
             auto adapterInterface = plugin->pinterface->SubscriptionAdapter();

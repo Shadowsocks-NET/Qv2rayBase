@@ -331,12 +331,12 @@ namespace Qv2rayBase::Profile
         return d->connectionRootCache.value(id);
     }
 
-    void ProfileManager::p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &result)
+    void ProfileManager::p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &data)
     {
         Q_D(ProfileManager);
         CheckValidId(id, nothing);
-        d->connections[id].latency = result.avg;
-        emit OnLatencyTestFinished(id, result.avg);
+        d->connections[id].latency = data.avg;
+        emit OnLatencyTestFinished(id, data.avg);
     }
 
     void ProfileManager::UpdateConnection(const ConnectionId &id, const ProfileContent &root)
@@ -432,9 +432,9 @@ namespace Qv2rayBase::Profile
         CheckValidId(id, false);
         //
         // ====================================================================================== Begin reading subscription
-        std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionDecoder> decoder;
+        std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionProvider> decoder;
         {
-            const auto type = d->groups[id].subscription_config.type;
+            const auto type = d->groups[id].subscription_config.providerId;
             const auto sDecoder = Qv2rayBaseLibrary::PluginAPIHost()->Subscription_QueryType(type);
 
             if (!sDecoder)
@@ -446,7 +446,7 @@ namespace Qv2rayBase::Profile
             decoder = *sDecoder;
         }
 
-        const auto result = decoder->DecodeData(data);
+        const auto result = decoder->DecodeSubscription(data);
 
         QMultiMap<QString, ProfileContent> fetchedConnections;
 
@@ -455,13 +455,13 @@ namespace Qv2rayBase::Profile
         for (const auto &link : result.links)
         {
             // Assign a group name, to pass the name check.
-            const auto result = ConvertConfigFromString(link.trimmed());
-            if (!result)
+            const auto linkResult = ConvertConfigFromString(link.trimmed());
+            if (!linkResult)
             {
                 QvLog() << "Error: Cannot decode share link: " << link;
                 continue;
             }
-            fetchedConnections.insert(result->first, result->second);
+            fetchedConnections.insert(linkResult->first, linkResult->second);
         }
 
         //
@@ -485,8 +485,8 @@ namespace Qv2rayBase::Profile
         // Copy construct here.
 
         QList<ConnectionId> originalConnectionIdList;
-        for (const auto &id : d->groups[id].connections)
-            originalConnectionIdList << id;
+        for (const auto &_id : d->groups[id].connections)
+            originalConnectionIdList << _id;
         d->groups[id].connections.clear();
 
         QMultiMap<QString, ProfileContent> filteredConnections;
@@ -646,24 +646,24 @@ namespace Qv2rayBase::Profile
             d->groups[group].updated = system_clock::now();
     }
 
-    void ProfileManager::p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speedData)
+    void ProfileManager::p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speed)
     {
         Q_D(ProfileManager);
         if (id.isNull())
             return;
 
         const auto &cid = id.connectionId;
-        d->connections[cid].statistics.directUp += speedData.directUp;
-        d->connections[cid].statistics.directDown += speedData.directDown;
-        d->connections[cid].statistics.proxyUp += speedData.proxyUp;
-        d->connections[cid].statistics.proxyDown += speedData.proxyDown;
+        d->connections[cid].statistics.directUp += speed.directUp;
+        d->connections[cid].statistics.directDown += speed.directDown;
+        d->connections[cid].statistics.proxyUp += speed.proxyUp;
+        d->connections[cid].statistics.proxyDown += speed.proxyDown;
 
         Qv2rayBaseLibrary::PluginAPIHost()->Event_Send<ConnectionStats>({ cid, d->connections[cid].statistics });
     }
 
-    const ProfileId ProfileManager::CreateConnection(const ProfileContent &_root, const QString &name, const GroupId &groupId)
+    const ProfileId ProfileManager::CreateConnection(const ProfileContent &root, const QString &name, const GroupId &groupId)
     {
-        ProfileContent newroot = _root;
+        ProfileContent newroot = root;
 
         Q_D(ProfileManager);
         QvLog() << "Creating new connection:" << name;
