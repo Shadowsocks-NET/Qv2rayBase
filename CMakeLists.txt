@@ -32,7 +32,7 @@ else()
     install(TARGETS QvPluginInterface)
 endif()
 
-find_package(Qt6 COMPONENTS Core Network REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Core Network REQUIRED)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     set(WASM ON)
