@@ -75,8 +75,7 @@ namespace Qv2rayBase::Profile
 
         // Subscription Related
         void IgnoreSubscriptionUpdate(const GroupId &group);
-        void UpdateSubscriptionAsync(const GroupId &id);
-        bool UpdateSubscription(const GroupId &id);
+        bool UpdateSubscription(const GroupId &id, bool async);
         void SetSubscriptionData(const GroupId &id, const SubscriptionConfigObject &config);
 
         // Statistics Related
@@ -90,7 +89,7 @@ namespace Qv2rayBase::Profile
       signals:
         void OnLatencyTestStarted(const ConnectionId &id);
         void OnLatencyTestFinished(const ConnectionId &id, const int average);
-        void OnSubscriptionAsyncUpdateFinished(const GroupId &id);
+        void OnSubscriptionUpdateFinished(const GroupId &id);
         void OnConnectionCreated(const ProfileId &Id, const QString &displayName);
         void OnConnectionModified(const ConnectionId &id);
         void OnConnectionRenamed(const ConnectionId &Id, const QString &originalName, const QString &newName);
@@ -103,7 +102,7 @@ namespace Qv2rayBase::Profile
         void OnGroupDeleted(const GroupId &id, const QList<ConnectionId> &connections);
 
       private slots:
-        bool p_CHUpdateSubscription(const GroupId &id, const QByteArray &data);
+        bool p_UpdateSubscriptionImpl(const GroupId &id, bool isAsync);
         void p_OnLatencyDataArrived(const ConnectionId &id, const Qv2rayPlugin::LatencyTestResponse &data);
         void p_OnStatsDataArrived(const ProfileId &id, const StatisticsObject &speed);
 

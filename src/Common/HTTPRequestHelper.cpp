@@ -47,7 +47,7 @@ namespace Qv2rayBase::Utils
             }
             case Models::NetworkProxyConfig::PROXY_SYSTEM:
             {
-                accessManager.setProxy(QNetworkProxyFactory::systemProxyForQuery().first());
+                accessManager.setProxy(QNetworkProxyFactory::systemProxyForQuery().constFirst());
                 break;
             }
             case Models::NetworkProxyConfig::PROXY_HTTP:
@@ -68,17 +68,17 @@ namespace Qv2rayBase::Utils
 
         request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
         auto ua = netconf.ua;
-        ua.replace("$VERSION", QV2RAY_BASELIB_VERSION);
+        ua.replace(u"$VERSION"_qs, QStringLiteral(QV2RAY_BASELIB_VERSION));
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader, ua);
     }
 
-    QByteArray NetworkRequestHelper::HttpGet(const QUrl &url)
+    std::tuple<QNetworkReply::NetworkError, QString, QByteArray> NetworkRequestHelper::HttpGet(const QUrl &url)
     {
         QNetworkRequest request;
         QNetworkAccessManager accessManager;
         request.setUrl(url);
         setAccessManagerAttributes(request, accessManager);
-        auto _reply = accessManager.get(request);
+        auto reply = accessManager.get(request);
         //
         {
             QEventLoop loop;
@@ -87,12 +87,11 @@ namespace Qv2rayBase::Utils
         }
         //
         // Data or timeout?
-        QvLog() << _reply->error();
-        auto data = _reply->readAll();
-        return data;
+        QvLog() << reply->error();
+        return { reply->error(), reply->errorString(), reply->readAll() };
     }
 
-    void NetworkRequestHelper::AsyncHttpGet(const QString &url, QObject *context, std::function<void(const QByteArray &)> funcPtr)
+    void NetworkRequestHelper::AsyncHttpGet(const QString &url, QObject *context, const std::function<void(const QByteArray &)> &funcPtr)
     {
         QNetworkRequest request;
         request.setUrl(url);
@@ -105,5 +104,4 @@ namespace Qv2rayBase::Utils
             accessManagerPtr->deleteLater();
         });
     }
-
 } // namespace Qv2rayBase::Utils

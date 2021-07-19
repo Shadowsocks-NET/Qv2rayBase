@@ -24,7 +24,9 @@
 #include "Qv2rayBase/Profile/KernelManager.hpp"
 #include "Qv2rayBase/private/Profile/ProfileManager_p.hpp"
 
+#include <QNetworkReply>
 #include <QTimerEvent>
+#include <QtConcurrent/QtConcurrent>
 
 #define QV_MODULE_NAME "ConfigHandler"
 #define CheckValidId(id, returnValue)                                                                                                                                    \
@@ -405,237 +407,279 @@ namespace Qv2rayBase::Profile
         d->groups[id].subscription_config = config;
     }
 
-    void ProfileManager::UpdateSubscriptionAsync(const GroupId &id)
-    {
-        Q_D(ProfileManager);
-        CheckValidId(id, nothing);
-        if (!d->groups[id].subscription_config.isSubscription)
-            return;
-        NetworkRequestHelper::AsyncHttpGet(d->groups[id].subscription_config.address, this, [this, id](const QByteArray &d) {
-            p_CHUpdateSubscription(id, d);
-            emit OnSubscriptionAsyncUpdateFinished(id);
-        });
-    }
-
-    bool ProfileManager::UpdateSubscription(const GroupId &id)
-    {
-        Q_D(ProfileManager);
-        if (!d->groups[id].subscription_config.isSubscription)
-            return false;
-        const auto data = NetworkRequestHelper::HttpGet(d->groups[id].subscription_config.address);
-        return p_CHUpdateSubscription(id, data);
-    }
-
-    bool ProfileManager::p_CHUpdateSubscription(const GroupId &id, const QByteArray &data)
+    bool ProfileManager::UpdateSubscription(const GroupId &id, bool async)
     {
         Q_D(ProfileManager);
         CheckValidId(id, false);
-        //
-        // ====================================================================================== Begin reading subscription
-        std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionProvider> decoder;
+        if (!d->groups[id].subscription_config.isSubscription)
+            return false;
+
+        return p_UpdateSubscriptionImpl(id, async);
+    }
+
+    bool ProfileManager::p_UpdateSubscriptionImpl(const GroupId &id, bool isAsync)
+    {
+        Q_D(ProfileManager);
+        CheckValidId(id, false);
+
+        ///
+        /// \brief Step 1: Select subscription provider.
+        const auto func_select_provider = [d, id]() -> Qv2rayPlugin::SubscriptionProviderInfo
         {
             const auto type = d->groups[id].subscription_config.providerId;
-            const auto sDecoder = Qv2rayBaseLibrary::PluginAPIHost()->Subscription_CreateProvider(type);
+            const auto [plugin, providerInfo] = Qv2rayBaseLibrary::PluginAPIHost()->Subscription_GetProviderInfo(type);
+            if (!plugin)
+                throw std::runtime_error("Cannot find appropriate subscription provider.");
+            return providerInfo;
+        };
 
-            if (!sDecoder)
-            {
-                Qv2rayBaseLibrary::Warn(tr("Cannot Update Subscription"),
-                                        tr("Unknown subscription type: %1").arg(type.toString()) + NEWLINE + tr("A subscription plugin is missing?"));
-                return false;
-            }
-            decoder = *sDecoder;
-        }
-
-        const auto result = decoder->DecodeSubscription(data);
-
-        QMultiMap<QString, ProfileContent> fetchedConnections;
-
-        fetchedConnections += result.connections;
-
-        for (const auto &link : result.links)
+        ///
+        /// \brief Step 2: Fetch and decode subscription according to the provider optiosn.
+        const auto fetch_decode_func = [id, d](const Qv2rayPlugin::SubscriptionProviderInfo &info) -> Qv2rayPlugin::SubscriptionResult
         {
-            // Assign a group name, to pass the name check.
-            const auto linkResult = ConvertConfigFromString(link.trimmed());
-            if (!linkResult)
+            const auto subscriptionConfig = d->groups[id].subscription_config;
+            switch (info.mode)
             {
-                QvLog() << "Error: Cannot decode share link: " << link;
-                continue;
+                case Qv2rayPlugin::Subscribe_Decoder:
+                {
+                    const auto &[err, errString, data] = NetworkRequestHelper::HttpGet(subscriptionConfig.address);
+                    if (err == QNetworkReply::NoError)
+                        return info.Creator()->DecodeSubscription(data);
+                    else
+                        throw std::runtime_error("Failed to download subscription:" NEWLINE + errString.toStdString());
+                }
+                case Qv2rayPlugin::Subscribe_FetcherAndDecoder:
+                {
+                    return info.Creator()->FetchDecodeSubscription(subscriptionConfig.providerSettings);
+                }
+                default: Q_UNREACHABLE(); break;
             }
-            fetchedConnections.insert(linkResult->first, linkResult->second);
-        }
+            Q_UNREACHABLE();
+        };
 
-        //
-        // ====================================================================================== Begin Connection Data Storage
-        // Anyway, we try our best to preserve the connection id.
-        QMultiMap<QString, ConnectionId> nameMap;
-        QMultiHash<IOBoundData, ConnectionId> typeMap;
+        ///
+        /// \brief Step 3: begin importing connections from the result.
+        const auto process_subscription_func = [this, d, id](const Qv2rayPlugin::SubscriptionResult &result) -> bool
         {
-            // Store connection type metadata into map.
-            for (const auto &conn : d->groups[id].connections)
+            QMultiMap<QString, ProfileContent> fetchedConnections;
+
+            fetchedConnections += result.connections;
+
+            for (const auto &link : result.links)
             {
-                nameMap.insert(GetDisplayName(conn), conn);
-                const auto info = GetOutboundInfo(GetConnection(conn).outbounds.first());
-                typeMap.insert(info, conn);
+                // Assign a group name, to pass the name check.
+                const auto linkResult = ConvertConfigFromString(link.trimmed());
+                if (!linkResult)
+                {
+                    QvLog() << "Error: Cannot decode share link: " << link;
+                    continue;
+                }
+                fetchedConnections.insert(linkResult->first, linkResult->second);
             }
-        }
-
-        // ====================================================================================== End Connection Data Storage
-        //
-        bool hasErrorOccured = false;
-        // Copy construct here.
-
-        QList<ConnectionId> originalConnectionIdList;
-        for (const auto &_id : d->groups[id].connections)
-            originalConnectionIdList << _id;
-        d->groups[id].connections.clear();
-
-        QMultiMap<QString, ProfileContent> filteredConnections;
-        for (auto it = fetchedConnections.constKeyValueBegin(); it != fetchedConnections.constKeyValueEnd(); it++)
-        {
-            const auto name = it->first;
-            const auto config = it->second;
-            const auto includeRelation = d->groups[id].subscription_config.includeRelation;
-            const auto excludeRelation = d->groups[id].subscription_config.excludeRelation;
-
-            const auto includeKeywords = d->groups[id].subscription_config.includeKeywords;
-            const auto excludeKeywords = d->groups[id].subscription_config.excludeKeywords;
 
             //
-            // Matched cases (when ShouldHaveThisConnection is NOT ALTERED by the loop below):
-            // Relation = OR  -> ShouldHaveThisConnection = FALSE --> None of the keywords can be found.       (Case 1: Since even one     match   will alter the value.)
-            // Relation = AND -> ShouldHaveThisConnection = TRUE  --> All keywords are in the connection name. (Case 2: Since even one not matched will alter the value.)
-            bool ShouldHaveThisConnection = includeRelation == SubscriptionConfigObject::RELATION_AND;
+            // ====================================================================================== Begin Connection Data Storage
+            // Anyway, we try our best to preserve the connection id.
+            QMultiMap<QString, ConnectionId> nameMap;
+            QMultiHash<IOBoundData, ConnectionId> typeMap;
             {
-                bool isIncludeKeywordsListEffective = false;
-                for (const auto &includeKey : includeKeywords)
+                // Store connection type metadata into map.
+                for (const auto &conn : d->groups[id].connections)
                 {
-                    // Empty, or spaced string is not "effective"
-                    if (includeKey.trimmed().isEmpty())
-                        continue;
+                    nameMap.insert(GetDisplayName(conn), conn);
+                    const auto info = GetOutboundInfo(GetConnection(conn).outbounds.first());
+                    typeMap.insert(info, conn);
+                }
+            }
 
-                    isIncludeKeywordsListEffective = true;
+            // ====================================================================================== End Connection Data Storage
+            //
+            bool hasErrorOccured = false;
+            // Copy construct here.
 
-                    // Matched cases:
-                    // Case 1: Relation = OR  && Contains
-                    // Case 2: Relation = AND && Not Contains
-                    if ((includeRelation == SubscriptionConfigObject::RELATION_OR) == name.contains(includeKey.trimmed()))
+            QList<ConnectionId> originalConnectionIdList;
+            originalConnectionIdList.reserve(d->groups[id].connections.size());
+            for (const auto &_id : d->groups[id].connections)
+                originalConnectionIdList << _id;
+            d->groups[id].connections.clear();
+
+            QMultiMap<QString, ProfileContent> filteredConnections;
+            for (auto it = fetchedConnections.constKeyValueBegin(); it != fetchedConnections.constKeyValueEnd(); it++)
+            {
+                const auto name = it->first;
+                const auto config = it->second;
+                const auto includeRelation = d->groups[id].subscription_config.includeRelation;
+                const auto excludeRelation = d->groups[id].subscription_config.excludeRelation;
+
+                const auto includeKeywords = d->groups[id].subscription_config.includeKeywords;
+                const auto excludeKeywords = d->groups[id].subscription_config.excludeKeywords;
+
+                //
+                // Matched cases (when ShouldHaveThisConnection is NOT ALTERED by the loop below):
+                // Relation = OR  -> ShouldHaveThisConnection = FALSE --> None of the keywords can be found.       (Case 1: Since even one     match   will alter the
+                // value.) Relation = AND -> ShouldHaveThisConnection = TRUE  --> All keywords are in the connection name. (Case 2: Since even one not matched will alter
+                // the value.)
+                bool ShouldHaveThisConnection = includeRelation == SubscriptionConfigObject::RELATION_AND;
+                {
+                    bool isIncludeKeywordsListEffective = false;
+                    for (const auto &includeKey : includeKeywords)
                     {
-                        // Relation = OR  -> Should     include the connection
-                        // Relation = AND -> Should not include the connection (since keyword is "Not Contained" in the connection name).
-                        ShouldHaveThisConnection = includeRelation == SubscriptionConfigObject::RELATION_OR;
+                        // Empty, or spaced string is not "effective"
+                        if (includeKey.trimmed().isEmpty())
+                            continue;
 
-                        // We have already made the decision, skip checking for other "include" keywords.
-                        break;
+                        isIncludeKeywordsListEffective = true;
+
+                        // Matched cases:
+                        // Case 1: Relation = OR  && Contains
+                        // Case 2: Relation = AND && Not Contains
+                        if ((includeRelation == SubscriptionConfigObject::RELATION_OR) == name.contains(includeKey.trimmed()))
+                        {
+                            // Relation = OR  -> Should     include the connection
+                            // Relation = AND -> Should not include the connection (since keyword is "Not Contained" in the connection name).
+                            ShouldHaveThisConnection = includeRelation == SubscriptionConfigObject::RELATION_OR;
+
+                            // We have already made the decision, skip checking for other "include" keywords.
+                            break;
+                        }
+                        else
+                        {
+                            // -- For other two cases:
+                            // Case 3: Relation = OR  && Not Contains -> Check Next.
+                            // Case 4: Relation = AND && Contains     -> Check Next: Cannot determine if all keywords are contained in the connection name.
+                            continue;
+                        }
                     }
-                    else
-                    {
-                        // -- For other two cases:
-                        // Case 3: Relation = OR  && Not Contains -> Check Next.
-                        // Case 4: Relation = AND && Contains     -> Check Next: Cannot determine if all keywords are contained in the connection name.
-                        continue;
-                    }
+
+                    // In case of the list of include keywords is empty: (We consider a QList<QString> with only empty strings, or just spaces, is still empty)
+                    if (!isIncludeKeywordsListEffective)
+                        ShouldHaveThisConnection = true;
                 }
 
-                // In case of the list of include keywords is empty: (We consider a QList<QString> with only empty strings, or just spaces, is still empty)
-                if (!isIncludeKeywordsListEffective)
-                    ShouldHaveThisConnection = true;
-            }
-
-            // Continue check for exclude relation if we still want this connection for now.
-            if (ShouldHaveThisConnection)
-            {
-                bool isExcludeKeywordsListEffective = false;
-                ShouldHaveThisConnection = excludeRelation == SubscriptionConfigObject::RELATION_OR;
-                for (const auto &excludeKey : excludeKeywords)
+                // Continue check for exclude relation if we still want this connection for now.
+                if (ShouldHaveThisConnection)
                 {
-                    if (excludeKey.trimmed().isEmpty())
-                        continue;
-
-                    isExcludeKeywordsListEffective = true;
-
-                    // Matched cases:
-                    // Relation = OR  && Contains
-                    // Relation = AND && Not Contains
-                    if (excludeRelation == SubscriptionConfigObject::RELATION_OR == name.contains(excludeKey.trimmed()))
+                    bool isExcludeKeywordsListEffective = false;
+                    ShouldHaveThisConnection = excludeRelation == SubscriptionConfigObject::RELATION_OR;
+                    for (const auto &excludeKey : excludeKeywords)
                     {
-                        // Relation = OR  -> Should not include the connection (since the EXCLUDED keyword is in the connection name).
-                        // Relation = AND -> Should     include the connection (since we can say "not ALL exclude keywords can be found", so that the AND relation breaks)
-                        ShouldHaveThisConnection = excludeRelation == SubscriptionConfigObject::RELATION_AND;
-                        break;
+                        if (excludeKey.trimmed().isEmpty())
+                            continue;
+
+                        isExcludeKeywordsListEffective = true;
+
+                        // Matched cases:
+                        // Relation = OR  && Contains
+                        // Relation = AND && Not Contains
+                        if (excludeRelation == SubscriptionConfigObject::RELATION_OR == name.contains(excludeKey.trimmed()))
+                        {
+                            // Relation = OR  -> Should not include the connection (since the EXCLUDED keyword is in the connection name).
+                            // Relation = AND -> Should     include the connection (since we can say "not ALL exclude keywords can be found", so that the AND relation
+                            // breaks)
+                            ShouldHaveThisConnection = excludeRelation == SubscriptionConfigObject::RELATION_AND;
+                            break;
+                        }
+                        else
+                        {
+                            // -- For other two cases:
+                            // Relation = OR  && Not Contains -> Check Next.
+                            // Relation = AND && Contains     -> Check Next: Cannot determine if all keywords are contained in the connection name.
+                            continue;
+                        }
                     }
-                    else
-                    {
-                        // -- For other two cases:
-                        // Relation = OR  && Not Contains -> Check Next.
-                        // Relation = AND && Contains     -> Check Next: Cannot determine if all keywords are contained in the connection name.
-                        continue;
-                    }
+
+                    // See above comment for "isIncludeKeywordsListEffective"
+                    if (!isExcludeKeywordsListEffective)
+                        ShouldHaveThisConnection = true;
                 }
 
-                // See above comment for "isIncludeKeywordsListEffective"
-                if (!isExcludeKeywordsListEffective)
-                    ShouldHaveThisConnection = true;
+                // So we finally made the decision.
+                if (ShouldHaveThisConnection)
+                    filteredConnections.insert(name, config);
             }
 
-            // So we finally made the decision.
-            if (ShouldHaveThisConnection)
-                filteredConnections.insert(name, config);
-        }
+            for (auto it = filteredConnections.constKeyValueBegin(); it != filteredConnections.constKeyValueEnd(); it++)
+            {
+                const auto name = it->first;
+                const auto config = it->second;
+                // Should not have complex connection as we assume.
+                const auto outboundData = GetOutboundInfo(config.outbounds.first());
 
-        for (auto it = filteredConnections.constKeyValueBegin(); it != filteredConnections.constKeyValueEnd(); it++)
+                // Firstly we try to preserve connection ids by comparing with names.
+                if (nameMap.contains(name))
+                {
+                    // Just go and save the connection...
+                    QvLog() << "Reused connection id from name:" << name;
+                    const auto _conn = nameMap.take(name);
+                    d->groups[id].connections << _conn;
+                    UpdateConnection(_conn, config);
+                    // Remove Connection Id from the list.
+                    originalConnectionIdList.removeAll(_conn);
+                    typeMap.remove(typeMap.key(_conn));
+                    continue;
+                }
+
+                if (typeMap.contains(outboundData))
+                {
+                    QvLog() << "Reused connection id from protocol/host/port pair for connection:" << name;
+                    const auto _conn = typeMap.take(outboundData);
+                    d->groups[id].connections << _conn;
+                    // Update Connection Properties
+                    UpdateConnection(_conn, config);
+                    RenameConnection(_conn, name);
+                    // Remove Connection Id from the list.
+                    originalConnectionIdList.removeAll(_conn);
+                    nameMap.remove(nameMap.key(_conn));
+                    continue;
+                }
+
+                // New connection id is required since nothing matched found...
+                QvLog() << "Generated new connection id for connection:" << name;
+                CreateConnection(config, name, id);
+            }
+
+            // In case there are deltas
+            if (!originalConnectionIdList.isEmpty())
+            {
+                QvLog() << "Removed old d->connections not have been matched.";
+                for (const auto &conn : originalConnectionIdList)
+                {
+                    QvLog() << "Removing d->connections not in the new subscription:" << conn;
+                    RemoveFromGroup(conn, id);
+                }
+            }
+
+            // Update the time
+            d->groups[id].updated = system_clock::now();
+            return hasErrorOccured;
+        };
+
+        QFuture<bool> future = QtConcurrent::run(func_select_provider).then(fetch_decode_func).then(process_subscription_func);
+
+        // Thread hack: to keep Messagebox always on the main thread.
+        if (!isAsync)
         {
-            const auto name = it->first;
-            const auto config = it->second;
-            // Should not have complex connection as we assume.
-            const auto outboundData = GetOutboundInfo(config.outbounds.first());
-
-            // Firstly we try to preserve connection ids by comparing with names.
-            if (nameMap.contains(name))
+            try
             {
-                // Just go and save the connection...
-                QvLog() << "Reused connection id from name:" << name;
-                const auto _conn = nameMap.take(name);
-                d->groups[id].connections << _conn;
-                UpdateConnection(_conn, config);
-                // Remove Connection Id from the list.
-                originalConnectionIdList.removeAll(_conn);
-                typeMap.remove(typeMap.key(_conn));
-                continue;
+                return future.result();
             }
-
-            if (typeMap.contains(outboundData))
+            catch (const std::runtime_error &e)
             {
-                QvLog() << "Reused connection id from protocol/host/port pair for connection:" << name;
-                const auto _conn = typeMap.take(outboundData);
-                d->groups[id].connections << _conn;
-                // Update Connection Properties
-                UpdateConnection(_conn, config);
-                RenameConnection(_conn, name);
-                // Remove Connection Id from the list.
-                originalConnectionIdList.removeAll(_conn);
-                nameMap.remove(nameMap.key(_conn));
-                continue;
+                Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
+                return false;
             }
-
-            // New connection id is required since nothing matched found...
-            QvLog() << "Generated new connection id for connection:" << name;
-            CreateConnection(config, name, id);
         }
-
-        // In case there are deltas
-        if (!originalConnectionIdList.isEmpty())
+        else
         {
-            QvLog() << "Removed old d->connections not have been matched.";
-            for (const auto &conn : originalConnectionIdList)
-            {
-                QvLog() << "Removing d->connections not in the new subscription:" << conn;
-                RemoveFromGroup(conn, id);
-            }
+            future.onFailed(
+                [](const std::runtime_error &e)
+                {
+                    Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
+                    return false;
+                });
         }
 
-        // Update the time
-        d->groups[id].updated = system_clock::now();
-        return hasErrorOccured;
+        return true;
     }
 
     void ProfileManager::IgnoreSubscriptionUpdate(const GroupId &group)

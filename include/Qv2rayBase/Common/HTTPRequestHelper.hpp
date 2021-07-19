@@ -17,6 +17,7 @@
 #pragma once
 
 #include <QByteArray>
+#include <QNetworkReply>
 #include <QUrl>
 #include <functional>
 
@@ -31,8 +32,8 @@ namespace Qv2rayBase::Utils
         ~NetworkRequestHelper() = default;
 
       public:
-        static void AsyncHttpGet(const QString &url, QObject *context, std::function<void(const QByteArray &)> funcPtr);
-        static QByteArray HttpGet(const QUrl &url);
+        static void AsyncHttpGet(const QString &url, QObject *context, const std::function<void(const QByteArray &)> &funcPtr);
+        static std::tuple<QNetworkReply::NetworkError, QString, QByteArray> HttpGet(const QUrl &url);
 
       private:
         static void setAccessManagerAttributes(QNetworkRequest &request, QNetworkAccessManager &accessManager);
