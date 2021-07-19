@@ -25,10 +25,10 @@
 
 namespace Qv2rayBase::Utils
 {
-    int64_t GetConnectionLatency(const ConnectionId &id)
+    int GetConnectionLatency(const ConnectionId &id)
     {
         const auto connection = Qv2rayBaseLibrary::ProfileManager()->GetConnectionObject(id);
-        return std::max(connection.latency, 0L);
+        return std::max(connection.latency, 0);
     }
 
     std::pair<quint64, quint64> GetConnectionUsageAmount(const ConnectionId &id, StatisticsObject::StatisticsType type)

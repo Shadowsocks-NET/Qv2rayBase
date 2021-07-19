@@ -50,6 +50,10 @@ namespace Qv2rayBase
         d->startupFlags = flags;
 
         d->uiInterface = ui;
+        connect(
+            this, &Qv2rayBaseLibrary::_warnInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxWarn(title, content); }, Qt::BlockingQueuedConnection);
+        connect(
+            this, &Qv2rayBaseLibrary::_infoInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxInfo(title, content); }, Qt::BlockingQueuedConnection);
 
         if (stor)
             d->storageProvider = stor;
@@ -151,12 +155,12 @@ namespace Qv2rayBase
 
     void Qv2rayBaseLibrary::Warn(const QString &title, const QString &text)
     {
-        instance()->d_ptr->uiInterface->p_MessageBoxWarn(title, text);
+        emit instance()->_warnInternal(title, text, QPrivateSignal{});
     }
 
     void Qv2rayBaseLibrary::Info(const QString &title, const QString &text)
     {
-        instance()->d_ptr->uiInterface->p_MessageBoxInfo(title, text);
+        emit instance()->_infoInternal(title, text, QPrivateSignal{});
     }
 
     MessageOpt Qv2rayBaseLibrary::Ask(const QString &title, const QString &text, const QList<MessageOpt> &options)

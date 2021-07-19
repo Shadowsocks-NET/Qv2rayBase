@@ -73,8 +73,10 @@ namespace Qv2rayBase
     /// \brief The Qv2rayBaseLibrary class
     /// This is the class used by Qv2ray baselib, and must be initialized before using the library,
     ///
-    class QV2RAYBASE_EXPORT Qv2rayBaseLibrary
+    class QV2RAYBASE_EXPORT Qv2rayBaseLibrary : public QObject
     {
+        Q_OBJECT
+
       public:
         ///
         /// \brief Qv2rayBaseLibrary
@@ -177,6 +179,10 @@ namespace Qv2rayBase
         /// \return The pointer to the storage provider
         ///
         static Qv2rayBase::Interfaces::IStorageProvider *StorageProvider();
+
+      signals:
+        void _warnInternal(const QString &title, const QString &text, QPrivateSignal);
+        void _infoInternal(const QString &title, const QString &text, QPrivateSignal);
 
       private:
         Q_DECLARE_PRIVATE_D(d_ptr, Qv2rayBaseLibrary)

@@ -684,7 +684,15 @@ namespace Qv2rayBase::Profile
 
         return true;
 #else
-        return process_subscription_func(fetch_decode_func(func_select_provider()));
+        try
+        {
+            return process_subscription_func(fetch_decode_func(func_select_provider()));
+        }
+        catch (const std::runtime_error &e)
+        {
+            Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
+            return false;
+        }
 #endif
     }
 
