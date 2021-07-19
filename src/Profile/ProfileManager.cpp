@@ -26,7 +26,10 @@
 
 #include <QNetworkReply>
 #include <QTimerEvent>
+
+#if QT_CONFIG(concurrent)
 #include <QtConcurrent/QtConcurrent>
+#endif
 
 #define QV_MODULE_NAME "ConfigHandler"
 #define CheckValidId(id, returnValue)                                                                                                                                    \
@@ -654,8 +657,8 @@ namespace Qv2rayBase::Profile
             return hasErrorOccured;
         };
 
+#if QT_CONFIG(concurrent)
         QFuture<bool> future = QtConcurrent::run(func_select_provider).then(fetch_decode_func).then(process_subscription_func);
-
         // Thread hack: to keep Messagebox always on the main thread.
         if (!isAsync)
         {
@@ -680,6 +683,9 @@ namespace Qv2rayBase::Profile
         }
 
         return true;
+#else
+        return process_subscription_func(fetch_decode_func(func_select_provider()));
+#endif
     }
 
     void ProfileManager::IgnoreSubscriptionUpdate(const GroupId &group)
