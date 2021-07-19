@@ -435,7 +435,7 @@ namespace Qv2rayBase::Profile
         std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionProvider> decoder;
         {
             const auto type = d->groups[id].subscription_config.providerId;
-            const auto sDecoder = Qv2rayBaseLibrary::PluginAPIHost()->Subscription_QueryType(type);
+            const auto sDecoder = Qv2rayBaseLibrary::PluginAPIHost()->Subscription_CreateProvider(type);
 
             if (!sDecoder)
             {

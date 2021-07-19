@@ -126,7 +126,7 @@ namespace Qv2rayBase::Plugin
         return false;
     }
 
-    std::optional<std::shared_ptr<SubscriptionProvider>> PluginAPIHost::Subscription_QueryType(const SubscriptionProviderId &id) const
+    std::optional<std::shared_ptr<SubscriptionProvider>> PluginAPIHost::Subscription_CreateProvider(const SubscriptionProviderId &id) const
     {
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_SUBSCRIPTION_ADAPTER))
         {
@@ -139,7 +139,7 @@ namespace Qv2rayBase::Plugin
         return std::nullopt;
     }
 
-    QList<std::pair<const PluginInfo *, SubscriptionProviderInfo>> PluginAPIHost::Subscription_GetAllAdapters() const
+    QList<std::pair<const PluginInfo *, SubscriptionProviderInfo>> PluginAPIHost::Subscription_GetProviderInfoList() const
     {
         QList<std::pair<const PluginInfo *, SubscriptionProviderInfo>> list;
         for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_SUBSCRIPTION_ADAPTER))
@@ -150,6 +150,19 @@ namespace Qv2rayBase::Plugin
                     list << std::make_pair(plugin, subscriptionInfo);
         }
         return list;
+    }
+
+    std::pair<const PluginInfo *, SubscriptionProviderInfo> PluginAPIHost::Subscription_GetProviderInfo(const SubscriptionProviderId &id) const
+    {
+        for (const auto &plugin : Qv2rayBaseLibrary::PluginManagerCore()->GetPlugins(COMPONENT_SUBSCRIPTION_ADAPTER))
+        {
+            auto adapterInterface = plugin->pinterface->SubscriptionAdapter();
+            if (adapterInterface)
+                for (const auto &subscriptionInfo : adapterInterface->GetInfo())
+                    if (subscriptionInfo.id == id)
+                        return std::make_pair(plugin, subscriptionInfo);
+        }
+        return {};
     }
 
     std::optional<QString> PluginAPIHost::Outbound_Serialize(const QString &name, const IOConnectionSettings &outbound) const
