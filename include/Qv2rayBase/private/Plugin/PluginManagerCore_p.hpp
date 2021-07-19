@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "Qv2rayBase/Common/HTTPRequestHelper.hpp"
 #include "Qv2rayBase/Plugin/PluginManagerCore.hpp"
 #include "QvPlugin/PluginInterface.hpp"
 
@@ -36,6 +37,7 @@ namespace Qv2rayBase::Plugin
     {
       public:
         QHash<PluginId, PluginInfo> plugins;
+        Qv2rayBase::Utils::NetworkRequestHelper helperstub;
     };
 
 } // namespace Qv2rayBase::Plugin

@@ -89,6 +89,7 @@ namespace Qv2rayBase::Plugin
             it->second.pinterface->m_Settings = conf;
             it->second.pinterface->m_WorkingDirectory.setPath(wd.absolutePath());
             it->second.pinterface->m_ProfileManager = Qv2rayBaseLibrary::ProfileManager();
+            it->second.pinterface->m_NetworkRequestHelper = &d->helperstub;
             it->second.pinterface->InitializePlugin();
             it->second.pinterface->SettingsUpdated();
         }

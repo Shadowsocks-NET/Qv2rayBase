@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "QvPlugin/Utils/INetworkRequestHelper.hpp"
+
 #include <QByteArray>
 #include <QNetworkReply>
 #include <QUrl>
@@ -26,10 +28,13 @@ class QNetworkAccessManager;
 
 namespace Qv2rayBase::Utils
 {
-    class NetworkRequestHelper
+    class NetworkRequestHelper : public Qv2rayPlugin::Utils::INetworkRequestHelper
     {
-        explicit NetworkRequestHelper() = default;
-        ~NetworkRequestHelper() = default;
+      public:
+        virtual std::tuple<QNetworkReply::NetworkError, QString, QByteArray> Get(const QUrl &url) override
+        {
+            return HttpGet(url);
+        }
 
       public:
         static void AsyncHttpGet(const QString &url, QObject *context, const std::function<void(const QByteArray &)> &funcPtr);
