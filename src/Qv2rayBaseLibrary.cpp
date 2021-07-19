@@ -51,9 +51,9 @@ namespace Qv2rayBase
 
         d->uiInterface = ui;
         connect(
-            this, &Qv2rayBaseLibrary::_warnInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxWarn(title, content); }, Qt::BlockingQueuedConnection);
+            this, &Qv2rayBaseLibrary::_warnInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxWarn(title, content); }, Qt::QueuedConnection);
         connect(
-            this, &Qv2rayBaseLibrary::_infoInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxInfo(title, content); }, Qt::BlockingQueuedConnection);
+            this, &Qv2rayBaseLibrary::_infoInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxInfo(title, content); }, Qt::QueuedConnection);
 
         if (stor)
             d->storageProvider = stor;
