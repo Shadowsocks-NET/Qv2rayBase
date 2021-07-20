@@ -66,42 +66,54 @@ namespace Qv2rayBase::Utils
             default: Q_UNREACHABLE();
         }
 
+#pragma message("TODO: See https://bugreports.qt.io/browse/QTBUG-95277, QNetworkReply::encrypted will not be emitted when HTTP2 is used")
+        request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
+
         request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
         auto ua = netconf.ua;
         ua.replace(u"$VERSION"_qs, QStringLiteral(QV2RAY_BASELIB_VERSION));
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader, ua);
     }
 
-    std::tuple<QNetworkReply::NetworkError, QString, QByteArray> NetworkRequestHelper::HttpGet(const QUrl &url)
+    Qv2rayPlugin::Utils::INetworkRequestHelper::GetResult NetworkRequestHelper::StaticGet(const QUrl &url, const EncryptedCallback &callback)
     {
         QNetworkRequest request;
         QNetworkAccessManager accessManager;
         request.setUrl(url);
         setAccessManagerAttributes(request, accessManager);
-        auto reply = accessManager.get(request);
-        //
+
         {
             QEventLoop loop;
-            QObject::connect(&accessManager, &QNetworkAccessManager::finished, &loop, &QEventLoop::quit);
+            if (callback)
+                QObject::connect(&accessManager, &QNetworkAccessManager::encrypted, callback);
+            auto reply = accessManager.get(request);
+            QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+            QObject::connect(reply, &QNetworkReply::errorOccurred, &loop, &QEventLoop::quit);
             loop.exec();
+
+            QvLog() << reply->error();
+            return { reply->error(), reply->errorString(), reply->readAll() };
         }
-        //
-        // Data or timeout?
-        QvLog() << reply->error();
-        return { reply->error(), reply->errorString(), reply->readAll() };
     }
 
-    void NetworkRequestHelper::AsyncHttpGet(const QString &url, QObject *context, const std::function<void(const QByteArray &)> &funcPtr)
+    Qv2rayPlugin::Utils::INetworkRequestHelper::GetResult NetworkRequestHelper::Get(const QUrl &url, const EncryptedCallback &onEncrypted)
+    {
+        return StaticGet(url, onEncrypted);
+    }
+
+    void NetworkRequestHelper::StaticAsyncGet(const QString &url, QObject *ctx,
+                                              const std::function<void(const Qv2rayPlugin::Utils::INetworkRequestHelper::GetResult &)> &func)
     {
         QNetworkRequest request;
         request.setUrl(url);
         auto accessManagerPtr = new QNetworkAccessManager();
         setAccessManagerAttributes(request, *accessManagerPtr);
         auto reply = accessManagerPtr->get(request);
-        QObject::connect(reply, &QNetworkReply::finished, context, [=]() {
-            QvLog() << QMetaEnum::fromType<QNetworkReply::NetworkError>().key(reply->error());
-            funcPtr(reply->readAll());
-            accessManagerPtr->deleteLater();
-        });
+        QObject::connect(reply, &QNetworkReply::finished, ctx,
+                         [=]()
+                         {
+                             func({ reply->error(), reply->errorString(), reply->readAll() });
+                             accessManagerPtr->deleteLater();
+                         });
     }
 } // namespace Qv2rayBase::Utils

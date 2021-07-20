@@ -445,7 +445,7 @@ namespace Qv2rayBase::Profile
             {
                 case Qv2rayPlugin::Subscribe_Decoder:
                 {
-                    const auto &[err, errString, data] = NetworkRequestHelper::HttpGet(subscriptionConfig.address);
+                    const auto &[err, errString, data] = NetworkRequestHelper::StaticGet(subscriptionConfig.address);
                     if (err == QNetworkReply::NoError)
                         return info.Creator()->DecodeSubscription(data);
                     else
@@ -666,7 +666,7 @@ namespace Qv2rayBase::Profile
             {
                 return future.result();
             }
-            catch (const std::runtime_error &e)
+            catch (const std::exception &e)
             {
                 Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
                 return false;
@@ -675,7 +675,7 @@ namespace Qv2rayBase::Profile
         else
         {
             future.onFailed(
-                [](const std::runtime_error &e)
+                [](const std::exception &e)
                 {
                     Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
                     return false;

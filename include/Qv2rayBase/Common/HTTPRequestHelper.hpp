@@ -31,14 +31,11 @@ namespace Qv2rayBase::Utils
     class NetworkRequestHelper : public Qv2rayPlugin::Utils::INetworkRequestHelper
     {
       public:
-        virtual std::tuple<QNetworkReply::NetworkError, QString, QByteArray> Get(const QUrl &url) override
-        {
-            return HttpGet(url);
-        }
+        virtual GetResult Get(const QUrl &url, const EncryptedCallback &onEncrypted = {}) override;
 
       public:
-        static void AsyncHttpGet(const QString &url, QObject *context, const std::function<void(const QByteArray &)> &funcPtr);
-        static std::tuple<QNetworkReply::NetworkError, QString, QByteArray> HttpGet(const QUrl &url);
+        static GetResult StaticGet(const QUrl &url, const EncryptedCallback & = {});
+        static void StaticAsyncGet(const QString &url, QObject *ctx, const std::function<void(const GetResult &)> &func);
 
       private:
         static void setAccessManagerAttributes(QNetworkRequest &request, QNetworkAccessManager &accessManager);
