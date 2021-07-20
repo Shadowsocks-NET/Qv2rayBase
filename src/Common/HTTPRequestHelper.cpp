@@ -84,8 +84,12 @@ namespace Qv2rayBase::Utils
 
         {
             QEventLoop loop;
+#ifndef QT_NO_SSL
             if (callback)
                 QObject::connect(&accessManager, &QNetworkAccessManager::encrypted, callback);
+#else
+            Q_UNUSED(callback)
+#endif
             auto reply = accessManager.get(request);
             QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
             QObject::connect(reply, &QNetworkReply::errorOccurred, &loop, &QEventLoop::quit);
