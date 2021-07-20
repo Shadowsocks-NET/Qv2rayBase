@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "Qv2rayBase/Qv2rayBase_export.h"
 #include "QvPlugin/Utils/INetworkRequestHelper.hpp"
 
 #include <QByteArray>
@@ -28,7 +29,7 @@ class QNetworkAccessManager;
 
 namespace Qv2rayBase::Utils
 {
-    class NetworkRequestHelper : public Qv2rayPlugin::Utils::INetworkRequestHelper
+    class QV2RAYBASE_EXPORT NetworkRequestHelper : public Qv2rayPlugin::Utils::INetworkRequestHelper
     {
       public:
         virtual GetResult Get(const QUrl &url, const EncryptedCallback &onEncrypted = {}) override;
