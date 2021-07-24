@@ -44,6 +44,7 @@ namespace Qv2rayBase::Profile
         const QList<ConnectionId> GetConnections(const GroupId &groupId) const override;
         const ConnectionObject GetConnectionObject(const ConnectionId &id) const override;
         const ProfileId CreateConnection(const ProfileContent &root, const QString &name, const GroupId &groupId = DefaultGroupId) override;
+        void SetConnectionTags(const ConnectionId &id, const QStringList &tags) override;
         void UpdateConnection(const ConnectionId &id, const ProfileContent &root) override;
         void RenameConnection(const ConnectionId &id, const QString &newName) override;
 

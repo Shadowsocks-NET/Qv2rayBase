@@ -746,6 +746,13 @@ namespace Qv2rayBase::Profile
         return { newId, groupId };
     }
 
+    void ProfileManager::SetConnectionTags(const ConnectionId &id, const QStringList &tags)
+    {
+        Q_D(ProfileManager);
+        CheckValidId(id, nothing);
+        d->connections[id].tags = tags;
+    }
+
     const QList<ConnectionId> ProfileManager::GetConnections() const
     {
         Q_D(const ProfileManager);
