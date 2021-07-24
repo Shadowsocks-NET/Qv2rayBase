@@ -468,6 +468,9 @@ namespace Qv2rayBase::Profile
 
             fetchedConnections += result.GetValue<Qv2rayPlugin::SR_ProfileContents>();
 
+            for (const auto &[name, outbound] : result.GetValue<Qv2rayPlugin::SR_OutboundObjects>().toStdMultiMap())
+                fetchedConnections.insert(name, ProfileContent(outbound));
+
             for (const auto &link : result.GetValue<Qv2rayPlugin::SR_Links>())
             {
                 // Assign a group name, to pass the name check.
@@ -479,6 +482,8 @@ namespace Qv2rayBase::Profile
                 }
                 fetchedConnections.insert(linkResult->first, linkResult->second);
             }
+
+            const auto tags = result.GetValue<Qv2rayPlugin::SR_Tags>();
 
             //
             // ====================================================================================== Begin Connection Data Storage
@@ -613,32 +618,38 @@ namespace Qv2rayBase::Profile
                 {
                     // Just go and save the connection...
                     QvLog() << "Reused connection id from name:" << name;
-                    const auto _conn = nameMap.take(name);
-                    d->groups[id].connections << _conn;
-                    UpdateConnection(_conn, config);
+                    const auto cid = nameMap.take(name);
+                    d->groups[id].connections << cid;
+
+                    UpdateConnection(cid, config);
+                    SetConnectionTags(cid, tags.value(name));
+
                     // Remove Connection Id from the list.
-                    originalConnectionIdList.removeAll(_conn);
-                    typeMap.remove(typeMap.key(_conn));
+                    originalConnectionIdList.removeAll(cid);
+                    typeMap.remove(typeMap.key(cid));
                     continue;
                 }
 
                 if (typeMap.contains(outboundData))
                 {
                     QvLog() << "Reused connection id from protocol/host/port pair for connection:" << name;
-                    const auto _conn = typeMap.take(outboundData);
-                    d->groups[id].connections << _conn;
-                    // Update Connection Properties
-                    UpdateConnection(_conn, config);
-                    RenameConnection(_conn, name);
+                    const auto cid = typeMap.take(outboundData);
+                    d->groups[id].connections << cid;
+
+                    UpdateConnection(cid, config);
+                    RenameConnection(cid, name);
+                    SetConnectionTags(cid, tags.value(name));
+
                     // Remove Connection Id from the list.
-                    originalConnectionIdList.removeAll(_conn);
-                    nameMap.remove(nameMap.key(_conn));
+                    originalConnectionIdList.removeAll(cid);
+                    nameMap.remove(nameMap.key(cid));
                     continue;
                 }
 
                 // New connection id is required since nothing matched found...
                 QvLog() << "Generated new connection id for connection:" << name;
-                CreateConnection(config, name, id);
+                const auto cid = CreateConnection(config, name, id);
+                SetConnectionTags(cid.connectionId, tags.value(name));
             }
 
             // In case there are deltas
@@ -750,7 +761,7 @@ namespace Qv2rayBase::Profile
     {
         Q_D(ProfileManager);
         CheckValidId(id, nothing);
-        d->connections[id].tags = tags;
+        d->connections[id].tags = { tags.begin(), tags.end() };
     }
 
     const QList<ConnectionId> ProfileManager::GetConnections() const
