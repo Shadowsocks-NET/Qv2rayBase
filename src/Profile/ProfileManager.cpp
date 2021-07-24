@@ -466,9 +466,9 @@ namespace Qv2rayBase::Profile
         {
             QMultiMap<QString, ProfileContent> fetchedConnections;
 
-            fetchedConnections += result.connections;
+            fetchedConnections += result.GetValue<Qv2rayPlugin::SR_ProfileContents>();
 
-            for (const auto &link : result.links)
+            for (const auto &link : result.GetValue<Qv2rayPlugin::SR_Links>())
             {
                 // Assign a group name, to pass the name check.
                 const auto linkResult = ConvertConfigFromString(link.trimmed());
