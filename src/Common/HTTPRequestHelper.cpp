@@ -66,9 +66,6 @@ namespace Qv2rayBase::Utils
             default: Q_UNREACHABLE();
         }
 
-#pragma message("TODO: See https://bugreports.qt.io/browse/QTBUG-95277, QNetworkReply::encrypted will not be emitted when HTTP2 is used")
-        request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
-
         request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
         auto ua = netconf.ua;
         ua.replace(u"$VERSION"_qs, QStringLiteral(QV2RAY_BASELIB_VERSION));
