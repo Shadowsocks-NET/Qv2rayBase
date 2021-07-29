@@ -31,16 +31,16 @@ namespace Qv2rayBase
     class Qv2rayBaseLibraryPrivate
     {
       public:
-        Qv2rayBase::Models::Qv2rayBaseConfigObject *configuration;
+        Qv2rayBase::Models::Qv2rayBaseConfigObject *configuration = nullptr;
 
-        Plugin::LatencyTestHost *latencyTestHost;
-        Plugin::PluginAPIHost *pluginAPIHost;
-        Plugin::PluginManagerCore *pluginCore;
-        Profile::ProfileManager *profileManager;
-        Profile::KernelManager *kernelManager;
+        Plugin::LatencyTestHost *latencyTestHost = nullptr;
+        Plugin::PluginAPIHost *pluginAPIHost = nullptr;
+        Plugin::PluginManagerCore *pluginCore = nullptr;
+        Profile::ProfileManager *profileManager = nullptr;
+        Profile::KernelManager *kernelManager = nullptr;
         Qv2rayStartFlags startupFlags;
 
-        Interfaces::IStorageProvider *storageProvider;
-        Interfaces::IUserInteractionInterface *uiInterface;
+        Interfaces::IStorageProvider *storageProvider = nullptr;
+        Interfaces::IUserInteractionInterface *uiInterface = nullptr;
     };
 } // namespace Qv2rayBase

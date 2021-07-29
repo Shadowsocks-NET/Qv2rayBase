@@ -54,6 +54,7 @@ namespace Qv2rayBase
         // Anything larger than this value is considered to be an error.
         ERROR = 100,
         ERR_LOCATE_CONFIGURATION,
+        ERR_MIGRATE_CONFIGURATION,
     };
     Q_ENUM_NS(QV2RAYBASE_FAILED_REASON)
 

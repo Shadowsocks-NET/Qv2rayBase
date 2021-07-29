@@ -47,13 +47,12 @@ namespace Qv2rayBase
         Q_ASSERT_X(m_instance == nullptr, "Qv2rayBaseLibrary", "m_instance is not null! Cannot construct another Qv2rayBaseLibrary when there's one existed");
         m_instance = this;
         Q_D(Qv2rayBaseLibrary);
-        d->startupFlags = flags;
 
+        d->startupFlags = flags;
         d->uiInterface = ui;
-        connect(
-            this, &Qv2rayBaseLibrary::_warnInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxWarn(title, content); }, Qt::QueuedConnection);
-        connect(
-            this, &Qv2rayBaseLibrary::_infoInternal, this, [ui](auto title, auto content) { ui->p_MessageBoxInfo(title, content); }, Qt::QueuedConnection);
+
+        connect(this, &Qv2rayBaseLibrary::_warnInternal, this, [d](auto title, auto content) { d->uiInterface->p_MessageBoxWarn(title, content); });
+        connect(this, &Qv2rayBaseLibrary::_infoInternal, this, [d](auto title, auto content) { d->uiInterface->p_MessageBoxInfo(title, content); });
 
         if (stor)
             d->storageProvider = stor;
@@ -64,11 +63,18 @@ namespace Qv2rayBase
 
         if (!d->storageProvider->LookupConfigurations(ctx))
         {
-            m_instance = nullptr;
+            Shutdown();
             return ERR_LOCATE_CONFIGURATION;
         }
 
-        QJsonObject configuration = _private::MigrateSettings(d->storageProvider->GetBaseConfiguration());
+        auto configuration = d->storageProvider->GetBaseConfiguration();
+        const auto result = _private::MigrateSettings(configuration);
+        if (!result)
+        {
+            Shutdown();
+            return ERR_MIGRATE_CONFIGURATION;
+        }
+
         d->configuration->loadJson(configuration);
 
         d->pluginCore = new Plugin::PluginManagerCore;
@@ -92,20 +98,31 @@ namespace Qv2rayBase
     void Qv2rayBaseLibrary::SaveConfigurations() const
     {
         Q_D(const Qv2rayBaseLibrary);
-        d->profileManager->SaveConnectionConfig();
-        d->latencyTestHost->StopAllLatencyTest();
-        d->pluginCore->SavePluginSettings();
-        d->storageProvider->EnsureSaved();
+
+        assert(d->profileManager), d->profileManager->SaveConnectionConfig();
+        assert(d->latencyTestHost), d->latencyTestHost->StopAllLatencyTest();
+        assert(d->pluginCore), d->pluginCore->SavePluginSettings();
+        assert(d->storageProvider), d->storageProvider->EnsureSaved();
     }
 
     void Qv2rayBaseLibrary::Shutdown()
     {
         Q_D(Qv2rayBaseLibrary);
-        d->kernelManager->StopConnection();
-        d->profileManager->SaveConnectionConfig();
-        d->latencyTestHost->StopAllLatencyTest();
-        d->pluginCore->SavePluginSettings();
-        d->storageProvider->EnsureSaved();
+
+        if (d->kernelManager)
+            d->kernelManager->StopConnection();
+
+        if (d->profileManager)
+            d->profileManager->SaveConnectionConfig();
+
+        if (d->latencyTestHost)
+            d->latencyTestHost->StopAllLatencyTest();
+
+        if (d->pluginCore)
+            d->pluginCore->SavePluginSettings();
+
+        if (d->storageProvider)
+            d->storageProvider->EnsureSaved();
 
         delete d->kernelManager;
         delete d->latencyTestHost;
@@ -113,10 +130,11 @@ namespace Qv2rayBase
         delete d->pluginCore;
         delete d->profileManager;
 
-        d->storageProvider->StoreBaseConfiguration(d->configuration->toJson());
-        delete d->configuration;
-
+        if (d->storageProvider)
+            d->storageProvider->StoreBaseConfiguration(d->configuration->toJson());
         delete d->storageProvider;
+
+        delete d->configuration;
 
         // delete d->uiInterface;
         m_instance = nullptr;
