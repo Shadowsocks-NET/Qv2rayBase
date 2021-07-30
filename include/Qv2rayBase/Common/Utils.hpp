@@ -125,19 +125,18 @@ namespace Qv2rayBase::Utils
         return Base64Decode(string.replace(QChar('-'), QChar('+')).replace(QChar('_'), QChar('/')));
     }
 
-    inline QString FormatBytes(const int64_t b)
+    inline QString FormatBytes(int64_t b)
     {
         const static char *sizes[5] = { "B", "KB", "MB", "GB", "TB" };
-        auto _bytes = b;
         char str[64];
         int i;
 
-        double dblByte = _bytes;
-        for (i = 0; i < 5 && _bytes >= 1000; i++, _bytes /= 1000)
-            dblByte = _bytes / 1000.0;
+        double dblByte = b;
+        for (i = 0; i < 5 && b >= 1000; i++, b /= 1000)
+            dblByte = b / 1000.0;
 
         sprintf(str, "%.2f", dblByte);
-        return QString(str) + " " + QString(sizes[i]);
+        return QString(str) + " " + sizes[i];
     }
 
     inline QStringList SplitLines(const QString &_string)
