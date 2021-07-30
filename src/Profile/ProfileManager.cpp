@@ -302,17 +302,38 @@ namespace Qv2rayBase::Profile
         CheckValidId(identifier, false);
         ProfileContent root = GetConnection(identifier.connectionId);
 
-        const auto routingObject = GetRouting(d->groups[identifier.groupId].route_id);
+        const auto groupRouting = GetRouting(d->groups[identifier.groupId].route_id);
+        const auto globalRouting = GetRouting(DefaultRoutingId);
 
         if (!root.routing.overrideDNS)
         {
-            root.routing.dns = routingObject.dns;
-            root.routing.fakedns = routingObject.fakedns;
-            JsonStructHelper::MergeJson(root.routing.extraOptions, routingObject.extraOptions);
+            if (groupRouting.overrideDNS)
+            {
+                root.routing.dns = groupRouting.dns;
+                root.routing.fakedns = groupRouting.fakedns;
+                JsonStructHelper::MergeJson(root.routing.extraOptions, groupRouting.extraOptions);
+            }
+            else
+            {
+                root.routing.dns = globalRouting.dns;
+                root.routing.fakedns = globalRouting.fakedns;
+                JsonStructHelper::MergeJson(root.routing.extraOptions, globalRouting.extraOptions);
+            }
         }
 
         if (!root.routing.overrideRules)
-            root.routing.rules = routingObject.rules;
+        {
+            if (groupRouting.overrideRules)
+            {
+                root.routing.rules = groupRouting.rules;
+                JsonStructHelper::MergeJson(root.routing.extraOptions, groupRouting.extraOptions);
+            }
+            else
+            {
+                root.routing.rules = globalRouting.rules;
+                JsonStructHelper::MergeJson(root.routing.extraOptions, globalRouting.extraOptions);
+            }
+        }
 
         const auto newProfile = Qv2rayBaseLibrary::PluginAPIHost()->PreprocessProfile(root);
 
