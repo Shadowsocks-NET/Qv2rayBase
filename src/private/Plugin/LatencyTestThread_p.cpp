@@ -100,7 +100,7 @@ namespace Qv2rayBase::Plugin
             if (requests.empty())
                 return;
             std::unique_lock<std::mutex> lockGuard{ m };
-            for (auto &req : requests)
+            for (const auto &req : requests)
             {
                 const auto engineInfo = Qv2rayBaseLibrary::PluginAPIHost()->Latency_GetEngine(req.engine);
                 // This is a blocking call

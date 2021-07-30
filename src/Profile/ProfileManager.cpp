@@ -52,6 +52,8 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         QvDebug() << "ProfileManager Constructor.";
 
+        connect(Qv2rayBaseLibrary::LatencyTestHost(), &Qv2rayBase::Plugin::LatencyTestHost::OnLatencyTestCompleted, this, &ProfileManager::p_OnLatencyDataArrived);
+
         d->connections = Qv2rayBaseLibrary::StorageProvider()->GetConnections();
         const auto _groups = Qv2rayBaseLibrary::StorageProvider()->GetGroups();
         const auto _routings = Qv2rayBaseLibrary::StorageProvider()->GetRoutings();
@@ -341,7 +343,6 @@ namespace Qv2rayBase::Profile
         Q_D(ProfileManager);
         CheckValidId(id, nothing);
         d->connections[id].latency = data.avg;
-        emit OnLatencyTestFinished(id, data.avg);
     }
 
     void ProfileManager::UpdateConnection(const ConnectionId &id, const ProfileContent &root)

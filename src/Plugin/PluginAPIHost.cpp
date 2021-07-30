@@ -53,6 +53,12 @@ namespace Qv2rayBase::Plugin
                 d->latencyTesters.insert(linterface.Id, linterface);
     }
 
+    QList<LatencyTestEngineInfo> PluginAPIHost::Latency_GetAllEngines() const
+    {
+        Q_D(const PluginAPIHost);
+        return d->latencyTesters.values();
+    }
+
     LatencyTestEngineInfo PluginAPIHost::Latency_GetEngine(const LatencyTestEngineId &id) const
     {
         Q_D(const PluginAPIHost);

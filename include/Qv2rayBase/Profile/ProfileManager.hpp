@@ -89,7 +89,6 @@ namespace Qv2rayBase::Profile
 
       signals:
         void OnLatencyTestStarted(const ConnectionId &id);
-        void OnLatencyTestFinished(const ConnectionId &id, const int average);
         void OnSubscriptionUpdateFinished(const GroupId &id);
         void OnConnectionCreated(const ProfileId &Id, const QString &displayName);
         void OnConnectionModified(const ConnectionId &id);

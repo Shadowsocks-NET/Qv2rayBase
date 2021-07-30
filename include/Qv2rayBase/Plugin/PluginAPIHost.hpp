@@ -34,7 +34,8 @@ namespace Qv2rayBase::Plugin
 
       public:
         // Latency tester API
-        Qv2rayPlugin::Latency::LatencyTestEngineInfo Latency_GetEngine(const LatencyTestEngineId &id) const;
+        QList<Qv2rayPlugin::LatencyTestEngineInfo> Latency_GetAllEngines() const;
+        Qv2rayPlugin::LatencyTestEngineInfo Latency_GetEngine(const LatencyTestEngineId &id) const;
 
         // Kernel API
         Qv2rayPlugin::KernelFactory Kernel_GetInfo(const KernelId &kid) const;
@@ -60,14 +61,14 @@ namespace Qv2rayBase::Plugin
         ProfileContent PreprocessProfile(const ProfileContent &) const;
 
         // Subscription Adapter API
-        std::optional<std::shared_ptr<Qv2rayPlugin::Subscription::SubscriptionProvider>> Subscription_CreateProvider(const SubscriptionProviderId &id) const;
-        QList<std::pair<const PluginInfo *, Qv2rayPlugin::Subscription::SubscriptionProviderInfo>> Subscription_GetProviderInfoList() const;
-        std::pair<const PluginInfo *, Qv2rayPlugin::Subscription::SubscriptionProviderInfo> Subscription_GetProviderInfo(const SubscriptionProviderId &id) const;
+        std::optional<std::shared_ptr<Qv2rayPlugin::SubscriptionProvider>> Subscription_CreateProvider(const SubscriptionProviderId &id) const;
+        QList<std::pair<const PluginInfo *, Qv2rayPlugin::SubscriptionProviderInfo>> Subscription_GetProviderInfoList() const;
+        std::pair<const PluginInfo *, Qv2rayPlugin::SubscriptionProviderInfo> Subscription_GetProviderInfo(const SubscriptionProviderId &id) const;
 
       private:
-        void SendEventInternal(const Qv2rayPlugin::Event::ConnectionStats::EventObject &) const;
-        void SendEventInternal(const Qv2rayPlugin::Event::Connectivity::EventObject &) const;
-        void SendEventInternal(const Qv2rayPlugin::Event::ConnectionEntry::EventObject &) const;
+        void SendEventInternal(const Qv2rayPlugin::ConnectionStats::EventObject &) const;
+        void SendEventInternal(const Qv2rayPlugin::Connectivity::EventObject &) const;
+        void SendEventInternal(const Qv2rayPlugin::ConnectionEntry::EventObject &) const;
 
       private:
         QScopedPointer<PluginAPIHostPrivate> d_ptr;
