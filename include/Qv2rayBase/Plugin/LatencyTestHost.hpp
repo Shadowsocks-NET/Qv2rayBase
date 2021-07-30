@@ -28,11 +28,14 @@ namespace Qv2rayBase::Plugin
       public:
         explicit LatencyTestHost(QObject *parent = nullptr);
         virtual ~LatencyTestHost();
-        void TestLatency(const ConnectionId &connectionId, const LatencyTestEngineId &id);
+        void TestLatency(const ConnectionId &id, const LatencyTestEngineId &engineId);
         void StopAllLatencyTest();
 
       signals:
         void OnLatencyTestCompleted(const ConnectionId &id, const Qv2rayPlugin::Latency::LatencyTestResponse &data);
+
+      private slots:
+        void onLatencyTestCompleted_p(const ConnectionId &id, const Qv2rayPlugin::Latency::LatencyTestResponse &data);
 
       private:
         QScopedPointer<LatencyTestHostPrivate> d_ptr;

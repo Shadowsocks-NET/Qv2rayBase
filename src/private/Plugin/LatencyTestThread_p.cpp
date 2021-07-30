@@ -103,15 +103,22 @@ namespace Qv2rayBase::Plugin
             for (const auto &req : requests)
             {
                 const auto engineInfo = Qv2rayBaseLibrary::PluginAPIHost()->Latency_GetEngine(req.engine);
-                // This is a blocking call
-                Qv2rayPlugin::LatencyTestResponse resp;
 #ifndef QV2RAYBASE_NO_LIBUV
                 if (engineInfo.isAsync)
-                    resp = engineInfo.Create()->TestLatencyAsync(loop, req);
+                {
+                    const auto engine = engineInfo.Create();
+                    const auto obj = engine.get();
+                    connect(obj, SIGNAL(OnLatencyTestFinishedSignal(const ConnectionId &, const Qv2rayPlugin::Latency::LatencyTestResponse &)), parent,
+                            SLOT(onLatencyTestCompleted_p(const ConnectionId &, const Qv2rayPlugin::Latency::LatencyTestResponse &)));
+                    engine->TestLatencyAsync(loop, req);
+                }
                 else
 #endif
-                    resp = engineInfo.Create()->TestLatency(req);
-                emit parent->OnLatencyTestCompleted(req.id, resp);
+                {
+                    // This is a blocking call
+                    const auto resp = engineInfo.Create()->TestLatency(req);
+                    emit parent->OnLatencyTestCompleted(req.id, resp);
+                }
             }
             requests.clear();
         }

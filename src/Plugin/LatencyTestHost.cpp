@@ -36,10 +36,15 @@ namespace Qv2rayBase::Plugin
         d->latencyThread->wait();
     }
 
-    void LatencyTestHost::TestLatency(const ConnectionId &connectionId, const LatencyTestEngineId &engine)
+    void LatencyTestHost::onLatencyTestCompleted_p(const ConnectionId &id, const Qv2rayPlugin::Latency::LatencyTestResponse &data)
+    {
+        emit OnLatencyTestCompleted(id, data);
+    }
+
+    void LatencyTestHost::TestLatency(const ConnectionId &id, const LatencyTestEngineId &engineId)
     {
         Q_D(LatencyTestHost);
-        d->latencyThread->pushRequest(connectionId, engine);
+        d->latencyThread->pushRequest(id, engineId);
     }
 
     void LatencyTestHost::StopAllLatencyTest()
