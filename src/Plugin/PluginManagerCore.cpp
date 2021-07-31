@@ -1,3 +1,4 @@
+
 //  Qv2rayBase, the modular feature-rich infrastructure library for Qv2ray.
 //  Copyright (C) 2021 Moody and relavent Qv2ray contributors.
 //
@@ -56,6 +57,12 @@ namespace Qv2rayBase::Plugin
     {
         Q_D(PluginManagerCore);
         QvLog() << "Reloading plugin list";
+
+        for (const auto &plugin : QPluginLoader::staticInstances())
+        {
+            loadPluginImpl(QStringLiteral("[STATIC]"), plugin, nullptr);
+        }
+#ifndef QT_STATIC
         for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths(QStringLiteral("plugins")))
         {
             const auto entries = QDir(pluginDirPath).entryList(QDir::Files);
@@ -75,11 +82,9 @@ namespace Qv2rayBase::Plugin
                 tryLoadPlugin(QDir(pluginDirPath).absoluteFilePath(fileName));
             }
         }
-
-        for (const auto &plugin : QPluginLoader::staticInstances())
-        {
-            loadPluginImpl(QStringLiteral("[STATIC]"), plugin, nullptr);
-        }
+#else
+        QvLog() << "Qv2rayBase is statically linked with Qt, skipping loading dynamic plugins.";
+#endif
 
         for (auto it = d->plugins.constKeyValueBegin(); it != d->plugins.constKeyValueEnd(); it++)
         {
@@ -146,7 +151,7 @@ namespace Qv2rayBase::Plugin
         {
             const auto errMessage = loader->errorString();
             QvLog() << errMessage;
-            Qv2rayBaseLibrary::Warn(tr("Failed to load plugin"), errMessage);
+            Qv2rayBaseLibrary::Warn(tr("Failed to load plugin"), errMessage + NEWLINE + tr("Plugin Path: ") + pluginFullPath);
             return false;
         }
 
