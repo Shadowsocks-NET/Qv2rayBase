@@ -59,11 +59,11 @@ namespace Qv2rayBase::Profile
 
     std::optional<QString> KernelManager::StartConnection(const ProfileId &id, const ProfileContent &_root)
     {
-        auto fullProfile = _root;
         Q_D(KernelManager);
         StopConnection();
         Q_ASSERT_X(d->kernels.empty(), Q_FUNC_INFO, "Kernel list isn't empty.");
 
+        auto fullProfile = _root;
         //
         // Ensure every inbound, rule and outbound has a name.
         for (auto &in : fullProfile.inbounds)
