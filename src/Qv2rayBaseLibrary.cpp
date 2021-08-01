@@ -89,8 +89,10 @@ namespace Qv2rayBase
         qRegisterMetaType<StatisticsObject>();
 
         d->latencyTestHost = new Plugin::LatencyTestHost;
-        d->profileManager = new Profile::ProfileManager;
+
+        // ProfileManager needs to connect a statistics signal from KernelManager, so construct kernel manager first.
         d->kernelManager = new Profile::KernelManager;
+        d->profileManager = new Profile::ProfileManager;
 
         return NORMAL;
     }

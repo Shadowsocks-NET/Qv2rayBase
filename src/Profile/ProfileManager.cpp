@@ -53,6 +53,7 @@ namespace Qv2rayBase::Profile
         QvDebug() << "ProfileManager Constructor.";
 
         connect(Qv2rayBaseLibrary::LatencyTestHost(), &Qv2rayBase::Plugin::LatencyTestHost::OnLatencyTestCompleted, this, &ProfileManager::p_OnLatencyDataArrived);
+        connect(Qv2rayBaseLibrary::KernelManager(), &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &ProfileManager::p_OnStatsDataArrived);
 
         d->connections = Qv2rayBaseLibrary::StorageProvider()->GetConnections();
         const auto _groups = Qv2rayBaseLibrary::StorageProvider()->GetGroups();
