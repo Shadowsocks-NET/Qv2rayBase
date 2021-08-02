@@ -31,7 +31,7 @@ const auto PLUGIN_FILES = "plugin_files";
 const auto PLUGIN_SETTINGS = "plugin_settings";
 const auto EXTRA_SETTINGS = "extra_settings";
 
-#define DEBUG_SUFFIX (RuntimeContext.contains(StorageContextFlags::STORAGE_CTX_IS_DEBUG) ? QStringLiteral("_debug/") : QStringLiteral("/"))
+#define DEBUG_SUFFIX (RuntimeContext.contains(StorageContextFlags::STORAGE_CTX_IS_DEBUG) ? u"_debug/"_qs : u"/"_qs)
 
 #define ConnectionsJson ConfigDirPath + CONNECTIONS + ".json"
 #define GroupsJson ConfigDirPath + GROUPS + ".json"

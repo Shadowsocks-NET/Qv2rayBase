@@ -38,20 +38,20 @@ namespace Qv2rayBase::_private
                 return false;
             }
         }
-        root[QStringLiteral("config_version")] = root[QStringLiteral("config_version")].toInt() + 1;
+        root[u"config_version"_qs] = root[u"config_version"_qs].toInt() + 1;
         return true;
     }
 
     bool MigrateSettings(QJsonObject &original)
     {
-        const auto fileVersion = original[QStringLiteral("config_version")].toInt(QV2RAY_SETTINGS_VERSION);
+        const auto fileVersion = original[u"config_version"_qs].toInt(QV2RAY_SETTINGS_VERSION);
         QvLog() << "Migrating config from version" << fileVersion;
 
         for (int i = fileVersion; i < QV2RAY_SETTINGS_VERSION; i++)
             if (!UpgradeConfigInc(i, original))
                 return false;
 
-        original[QStringLiteral("config_version")] = QV2RAY_SETTINGS_VERSION;
+        original[u"config_version"_qs] = QV2RAY_SETTINGS_VERSION;
         return true;
     }
 } // namespace Qv2rayBase::_private

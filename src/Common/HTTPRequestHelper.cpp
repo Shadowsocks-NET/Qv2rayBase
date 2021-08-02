@@ -68,7 +68,7 @@ namespace Qv2rayBase::Utils
 
         request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
         auto ua = netconf.ua;
-        ua.replace(u"$VERSION"_qs, QStringLiteral(QV2RAY_BASELIB_VERSION));
+        ua.replace(u"$VERSION"_qs, QV2RAY_BASELIB_VERSION);
         request.setHeader(QNetworkRequest::KnownHeaders::UserAgentHeader, ua);
     }
 

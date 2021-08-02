@@ -133,7 +133,7 @@ namespace Qv2rayBase::Profile
 
             IOConnectionSettings pluginOutSettings;
             pluginOutSettings.protocolSettings = IOProtocolSettings{ QJsonObject{ { "address", "127.0.0.1" }, { "port", pluginPort } } };
-            outbound.outboundSettings.protocol = QStringLiteral("socks");
+            outbound.outboundSettings.protocol = u"socks"_qs;
             outbound.outboundSettings = pluginOutSettings;
 
             // Add the integration outbound to the list.
@@ -207,10 +207,10 @@ namespace Qv2rayBase::Profile
                 d->logPadding = std::max(d->logPadding, Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kernel->GetKernelId()).Name.length());
 
         const auto kernel = static_cast<PluginKernel *>(sender());
-        const auto name = kernel ? Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kernel->GetKernelId()).Name : QStringLiteral("UNKNOWN");
+        const auto name = kernel ? Qv2rayBaseLibrary::PluginAPIHost()->Kernel_GetInfo(kernel->GetKernelId()).Name : u"UNKNOWN"_qs;
 
         for (const auto &line : SplitLines(log))
-            emit OnKernelLogAvailable(d->current, QStringLiteral("[%1] ").arg(name, d->logPadding) + line.trimmed());
+            emit OnKernelLogAvailable(d->current, u"[%1] "_qs.arg(name, d->logPadding) + line.trimmed());
     }
 
     void KernelManager::StopConnection()

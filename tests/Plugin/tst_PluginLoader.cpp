@@ -32,11 +32,11 @@ class TestStaticPlugin
   public:
     virtual const Qv2rayPlugin::QvPluginMetadata GetMetadata() const override
     {
-        return Qv2rayPlugin::QvPluginMetadata{ QStringLiteral("Static Plugin Loader Test Plugin"), //
-                                               QStringLiteral("Moody"),                            //
-                                               PluginId(QStringLiteral("static_plugin_test")),
-                                               QStringLiteral(""),
-                                               QStringLiteral(""),
+        return Qv2rayPlugin::QvPluginMetadata{ u"Static Plugin Loader Test Plugin"_qs, //
+                                               u"Moody"_qs,                            //
+                                               PluginId(u"static_plugin_test"_qs),
+                                               u""_qs,
+                                               u""_qs,
                                                {} };
     }
     virtual bool InitializePlugin() override
@@ -61,7 +61,7 @@ class PluginLoaderTest : public QObject
     {
         baselib = new Qv2rayBase::Qv2rayBaseLibrary;
         baselib->Initialize({ Qv2rayBase::START_NO_PLUGINS }, {}, new Qv2rayBase::Tests::UIInterface);
-        QCOMPARE(baselib->PluginManagerCore()->GetPlugin(PluginId(QStringLiteral("static_plugin_test"))), nullptr);
+        QCOMPARE(baselib->PluginManagerCore()->GetPlugin(PluginId(u"static_plugin_test"_qs)), nullptr);
         delete baselib;
     }
 
@@ -69,7 +69,7 @@ class PluginLoaderTest : public QObject
     {
         baselib = new Qv2rayBase::Qv2rayBaseLibrary;
         baselib->Initialize({}, {}, new Qv2rayBase::Tests::UIInterface);
-        const auto pluginInfo = baselib->PluginManagerCore()->GetPlugin(PluginId(QStringLiteral("static_plugin_test")));
+        const auto pluginInfo = baselib->PluginManagerCore()->GetPlugin(PluginId(u"static_plugin_test"_qs));
         QVERIFY2(pluginInfo != nullptr, "PluginInfo should not be nullptr, that is, PluginManagerCore should find the static plugin.");
         QCOMPARE(pluginInfo->libraryPath, "[STATIC]");
         delete baselib;

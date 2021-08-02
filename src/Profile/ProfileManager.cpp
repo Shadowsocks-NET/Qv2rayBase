@@ -396,7 +396,7 @@ namespace Qv2rayBase::Profile
             d->groups[id].route_id = RoutingId{ GenerateRandomString() };
         return d->groups[id].route_id;
     }
-    
+
     void ProfileManager::SetGroupRoutingId(const GroupId &gid, const RoutingId &rid)
     {
         Q_D(ProfileManager);
@@ -762,11 +762,11 @@ namespace Qv2rayBase::Profile
 
         for (auto i = 0; i < newroot.inbounds.size(); i++)
             if (newroot.inbounds.at(i).name.isEmpty())
-                newroot.inbounds[i].name = name + QStringLiteral("-inbound-") + QString::number(i + 1);
+                newroot.inbounds[i].name = name + u"-inbound-"_qs + QString::number(i + 1);
 
         for (auto i = 0; i < newroot.outbounds.size(); i++)
             if (newroot.outbounds.at(i).name.isEmpty())
-                newroot.outbounds[i].name = name + QStringLiteral("-outbound-") + QString::number(i + 1);
+                newroot.outbounds[i].name = name + u"-outbound-"_qs + QString::number(i + 1);
 
         ConnectionId newId(GenerateRandomString());
         d->groups[groupId].connections << newId;

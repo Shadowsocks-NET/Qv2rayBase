@@ -60,10 +60,10 @@ namespace Qv2rayBase::Plugin
 
         for (const auto &plugin : QPluginLoader::staticInstances())
         {
-            loadPluginImpl(QStringLiteral("[STATIC]"), plugin, nullptr);
+            loadPluginImpl(u"[STATIC]"_qs, plugin, nullptr);
         }
 #ifndef QT_STATIC
-        for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths(QStringLiteral("plugins")))
+        for (const auto &pluginDirPath : Qv2rayBaseLibrary::GetAssetsPaths(u"plugins"_qs))
         {
             const auto entries = QDir(pluginDirPath).entryList(QDir::Files);
             if (entries.isEmpty())
@@ -138,7 +138,7 @@ namespace Qv2rayBase::Plugin
 
     bool PluginManagerCore::tryLoadPlugin(const QString &pluginFullPath)
     {
-        if (!pluginFullPath.endsWith(QStringLiteral(".dll")) && !pluginFullPath.endsWith(QStringLiteral(".so")) && !pluginFullPath.endsWith(QStringLiteral(".dylib")))
+        if (!pluginFullPath.endsWith(u".dll"_qs) && !pluginFullPath.endsWith(u".so"_qs) && !pluginFullPath.endsWith(u".dylib"_qs))
             return false;
 
         if (pluginFullPath.isEmpty())

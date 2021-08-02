@@ -100,7 +100,7 @@ namespace Qv2rayBase::Utils
     {
         const auto root = Qv2rayBaseLibrary::ProfileManager()->GetConnection(id);
         if (root.outbounds.isEmpty())
-            return QStringLiteral("");
+            return u""_qs;
 
         const auto outbound = root.outbounds.first();
         QStringList result;
@@ -108,14 +108,14 @@ namespace Qv2rayBase::Utils
 
         const auto streamSettings = outbound.outboundSettings.streamSettings;
 
-        if (streamSettings.contains(QStringLiteral("network")))
-            result << streamSettings[QStringLiteral("network")].toString();
+        if (streamSettings.contains(u"network"_qs))
+            result << streamSettings[u"network"_qs].toString();
 
-        const auto security = streamSettings[QStringLiteral("security")].toString();
-        if (!security.isEmpty() && security != QStringLiteral("none"))
-            result << streamSettings[QStringLiteral("security")].toString();
+        const auto security = streamSettings[u"security"_qs].toString();
+        if (!security.isEmpty() && security != u"none"_qs)
+            result << streamSettings[u"security"_qs].toString();
 
-        return result.join(QStringLiteral("+"));
+        return result.join(u"+"_qs);
     }
 
     std::optional<std::pair<QString, ProfileContent>> ConvertConfigFromString(const QString &link)
@@ -138,7 +138,7 @@ namespace Qv2rayBase::Utils
     std::optional<QString> ConvertConfigToString(const QString &alias, const ProfileContent &root)
     {
         if (root.outbounds.isEmpty())
-            return QStringLiteral("");
+            return u""_qs;
         const auto outbound = root.outbounds.first();
         return Qv2rayBaseLibrary::PluginAPIHost()->Outbound_Serialize(alias, outbound.outboundSettings);
     }
@@ -201,7 +201,8 @@ namespace Qv2rayBase::Utils
 
                 const auto isFirstOutbound = i == outbountTagCount - 1;
                 const auto isLastOutbound = i == 0;
-                const auto newOutboundTag = [&]() {
+                const auto newOutboundTag = [&]()
+                {
                     if (isFirstOutbound)
                         return firstOutboundTag;
                     else if (isLastOutbound)
@@ -224,14 +225,14 @@ namespace Qv2rayBase::Utils
                     const auto inboundTag = firstOutboundTag + ":" + QString::number(nextInboundPort) + "->" + newOutboundTag;
 
                     IOProtocolSettings inboundSettings;
-                    inboundSettings[QStringLiteral("address")] = std::get<1>(lastOutbound);
-                    inboundSettings[QStringLiteral("port")] = std::get<2>(lastOutbound).from;
-                    inboundSettings[QStringLiteral("network")] = "tcp,udp";
+                    inboundSettings[u"address"_qs] = std::get<1>(lastOutbound);
+                    inboundSettings[u"port"_qs] = std::get<2>(lastOutbound).from;
+                    inboundSettings[u"network"_qs] = "tcp,udp";
 
                     InboundObject newInbound;
                     newInbound.name = inboundTag;
-                    newInbound.inboundSettings.protocol = QStringLiteral("dokodemo-door");
-                    newInbound.inboundSettings.address = QStringLiteral("127.0.0.1");
+                    newInbound.inboundSettings.protocol = u"dokodemo-door"_qs;
+                    newInbound.inboundSettings.address = u"127.0.0.1"_qs;
                     newInbound.inboundSettings.port = nextInboundPort;
                     newInbound.inboundSettings.protocolSettings = inboundSettings;
 
