@@ -19,6 +19,9 @@
 #include "Qv2rayBase/Common/Utils.hpp"
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
+#include <QCoreApplication>
+#include <QStandardPaths>
+
 #define QV_MODULE_NAME "BuiltinStorageProvider"
 
 const auto QV2RAY_CONFIG_PATH_ENV_NAME = "QV2RAY_CONFIG_PATH";

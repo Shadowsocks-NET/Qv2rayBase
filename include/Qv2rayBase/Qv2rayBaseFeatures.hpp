@@ -18,8 +18,7 @@
 
 #include "Qv2rayBase/Qv2rayBase_export.h"
 
-#include <QtCore>
-#include <QtDebug>
+#include <QDebug>
 
 #define QV2RAYBASE_FEATURE(feat) ((1 / QVFEATURE_##feat) == 1)
 

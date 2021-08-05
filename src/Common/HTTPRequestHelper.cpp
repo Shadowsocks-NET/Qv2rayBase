@@ -20,6 +20,7 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
 #include <QByteArray>
+#include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkProxy>
 #include <QNetworkReply>
