@@ -50,7 +50,7 @@ namespace Qv2rayBase::Profile
     {
         d_ptr.reset(new ProfileManagerPrivate);
         Q_D(ProfileManager);
-        QvDebug() << "ProfileManager Constructor.";
+        qDebug() << "ProfileManager Constructor.";
 
         connect(Qv2rayBaseLibrary::LatencyTestHost(), &Qv2rayBase::Plugin::LatencyTestHost::OnLatencyTestCompleted, this, &ProfileManager::p_OnLatencyDataArrived);
         connect(Qv2rayBaseLibrary::KernelManager(), &Qv2rayBase::Profile::KernelManager::OnStatsDataAvailable, this, &ProfileManager::p_OnStatsDataArrived);
@@ -87,12 +87,12 @@ namespace Qv2rayBase::Profile
             {
                 d->connections.remove(id);
                 Qv2rayBaseLibrary::StorageProvider()->DeleteConnection(id);
-                QvLog() << "Dropped connection id:" << id << "since it's not in a group";
+                qInfo() << "Dropped connection id:" << id << "since it's not in a group";
             }
             else
             {
                 d->connectionRootCache[id] = Qv2rayBaseLibrary::StorageProvider()->GetConnectionContent(id);
-                QvDebug() << "Loaded connection id:" << id << "into cache.";
+                qDebug() << "Loaded connection id:" << id << "into cache.";
             }
         }
 
@@ -189,13 +189,13 @@ namespace Qv2rayBase::Profile
     {
         Q_D(ProfileManager);
         CheckValidId(id, false);
-        QvLog() << "Removing connection:" << id;
+        qInfo() << "Removing connection:" << id;
         if (d->groups[gid].connections.contains(id))
         {
             auto removedEntries = d->groups[gid].connections.removeAll(id);
             if (removedEntries > 1)
             {
-                QvLog() << "Found same connection occured multiple times in a group.";
+                qInfo() << "Found same connection occured multiple times in a group.";
             }
             // Decrease reference count.
             d->connections[id]._group_ref -= removedEntries;
@@ -207,7 +207,7 @@ namespace Qv2rayBase::Profile
 
         if (d->connections[id]._group_ref <= 0)
         {
-            QvLog() << "Fully removing a connection from cache.";
+            qInfo() << "Fully removing a connection from cache.";
             d->connectionRootCache.remove(id);
             Qv2rayBaseLibrary::StorageProvider()->DeleteConnection(id);
             d->connections.remove(id);
@@ -221,7 +221,7 @@ namespace Qv2rayBase::Profile
         CheckValidId(id, false);
         if (d->groups[newGroupId].connections.contains(id))
         {
-            QvLog() << "Connection not linked since" << id << "is already in the group" << newGroupId;
+            qInfo() << "Connection not linked since" << id << "is already in the group" << newGroupId;
             return false;
         }
         d->groups[newGroupId].connections.append(id);
@@ -240,12 +240,12 @@ namespace Qv2rayBase::Profile
 
         if (!d->groups[sourceGid].connections.contains(id))
         {
-            QvLog() << "Trying to move a connection away from a group it does not belong to.";
+            qInfo() << "Trying to move a connection away from a group it does not belong to.";
             return false;
         }
         if (d->groups[targetGid].connections.contains(id))
         {
-            QvLog() << "The connection:" << id << "is already in the target group:" << targetGid;
+            qInfo() << "The connection:" << id << "is already in the target group:" << targetGid;
             const auto removedCount = d->groups[sourceGid].connections.removeAll(id);
             d->connections[id]._group_ref -= removedCount;
         }
@@ -500,7 +500,7 @@ namespace Qv2rayBase::Profile
                 const auto linkResult = ConvertConfigFromString(link.trimmed());
                 if (!linkResult)
                 {
-                    QvLog() << "Error: Cannot decode share link: " << link;
+                    qInfo() << "Error: Cannot decode share link: " << link;
                     continue;
                 }
                 fetchedConnections.insert(linkResult->first, linkResult->second);
@@ -640,7 +640,7 @@ namespace Qv2rayBase::Profile
                 if (nameMap.contains(name))
                 {
                     // Just go and save the connection...
-                    QvLog() << "Reused connection id from name:" << name;
+                    qInfo() << "Reused connection id from name:" << name;
                     const auto cid = nameMap.take(name);
                     d->groups[id].connections << cid;
 
@@ -655,7 +655,7 @@ namespace Qv2rayBase::Profile
 
                 if (typeMap.contains(outboundData))
                 {
-                    QvLog() << "Reused connection id from protocol/host/port pair for connection:" << name;
+                    qInfo() << "Reused connection id from protocol/host/port pair for connection:" << name;
                     const auto cid = typeMap.take(outboundData);
                     d->groups[id].connections << cid;
 
@@ -670,7 +670,7 @@ namespace Qv2rayBase::Profile
                 }
 
                 // New connection id is required since nothing matched found...
-                QvLog() << "Generated new connection id for connection:" << name;
+                qInfo() << "Generated new connection id for connection:" << name;
                 const auto cid = CreateConnection(config, name, id);
                 SetConnectionTags(cid.connectionId, tags.value(name));
             }
@@ -678,10 +678,10 @@ namespace Qv2rayBase::Profile
             // In case there are deltas
             if (!originalConnectionIdList.isEmpty())
             {
-                QvLog() << "Removed old d->connections not have been matched.";
+                qInfo() << "Removed old d->connections not have been matched.";
                 for (const auto &conn : originalConnectionIdList)
                 {
-                    QvLog() << "Removing d->connections not in the new subscription:" << conn;
+                    qInfo() << "Removing d->connections not in the new subscription:" << conn;
                     RemoveFromGroup(conn, id);
                 }
             }
@@ -758,7 +758,7 @@ namespace Qv2rayBase::Profile
         ProfileContent newroot = root;
 
         Q_D(ProfileManager);
-        QvLog() << "Creating new connection:" << name;
+        qInfo() << "Creating new connection:" << name;
 
         for (auto i = 0; i < newroot.inbounds.size(); i++)
             if (newroot.inbounds.at(i).name.isEmpty())

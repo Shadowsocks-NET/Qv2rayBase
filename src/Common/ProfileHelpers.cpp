@@ -182,7 +182,7 @@ namespace Qv2rayBase::Utils
 
             if (outbound.chainSettings.chains.isEmpty())
             {
-                QvLog() << "Trying to expand an empty chain.";
+                qInfo() << "Trying to expand an empty chain.";
                 continue;
             }
 
@@ -213,7 +213,7 @@ namespace Qv2rayBase::Utils
 
                 if (!outboundCache.contains(chainOutboundTag))
                 {
-                    QvLog() << "Cannot build outbound chain: Missing tag:" << firstOutboundTag;
+                    qInfo() << "Cannot build outbound chain: Missing tag:" << firstOutboundTag;
                     return false;
                 }
 
@@ -252,7 +252,7 @@ namespace Qv2rayBase::Utils
                     const auto info = Qv2rayBaseLibrary::PluginAPIHost()->Outbound_GetData(outboundSettings);
                     if (!info)
                     {
-                        QvLog() << "Cannot find SNI";
+                        qInfo() << "Cannot find SNI";
                         return false;
                     }
 

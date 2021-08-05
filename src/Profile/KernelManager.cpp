@@ -89,7 +89,7 @@ namespace Qv2rayBase::Profile
         protocols.reserve(fullProfile.outbounds.size());
         for (const auto &out : fullProfile.outbounds)
         {
-            QvLog() << "Found protocol:" << out.outboundSettings.protocol;
+            qInfo() << "Found protocol:" << out.outboundSettings.protocol;
             protocols << out.outboundSettings.protocol;
         }
 
@@ -113,7 +113,7 @@ namespace Qv2rayBase::Profile
             if (kid.isNull())
             {
                 // Expected a plugin, but found nothing
-                QvLog() << "Outbound protocol" << outbound.outboundSettings.protocol << "is not a registered plugin outbound.";
+                qInfo() << "Outbound protocol" << outbound.outboundSettings.protocol << "is not a registered plugin outbound.";
                 return tr("Cannot find a kernel for outbound protocol: ") + outbound.outboundSettings.protocol;
             }
 
@@ -125,7 +125,7 @@ namespace Qv2rayBase::Profile
                 kernelOption.insert(KERNEL_SOCKS_ENABLED, true);
                 kernelOption.insert(KERNEL_SOCKS_PORT, pluginPort);
                 kernelOption.insert(KERNEL_LISTEN_ADDRESS, "127.0.0.1");
-                QvLog() << "Sending connection settings to kernel.";
+                qInfo() << "Sending connection settings to kernel.";
                 pkernel->SetConnectionSettings(kernelOption, outbound.outboundSettings);
             }
 
@@ -141,17 +141,17 @@ namespace Qv2rayBase::Profile
             pluginPort++;
         }
 
-        QvLog() << "Applying new outbound settings.";
+        qInfo() << "Applying new outbound settings.";
         fullProfile.outbounds = processedOutbounds;
 
         bool hasAllKernelPrepared = true;
         for (auto &[protocol, kernel] : d->kernels)
         {
-            QvLog() << "Preparing kernel for starting:" << protocol;
+            qInfo() << "Preparing kernel for starting:" << protocol;
             hasAllKernelPrepared &= kernel->PrepareConfigurations();
             if (!hasAllKernelPrepared)
             {
-                QvLog() << "Plugin Kernel:" << protocol << "failed to initialize.";
+                qInfo() << "Plugin Kernel:" << protocol << "failed to initialize.";
                 break;
             }
         }
@@ -174,7 +174,7 @@ namespace Qv2rayBase::Profile
 
         for (auto &k : d->kernels)
         {
-            QvLog() << "Starting kernel:" << k.first;
+            qInfo() << "Starting kernel:" << k.first;
 
             // We need to use old style runtime connection.
             connect(k.second.get(), SIGNAL(OnCrashed(QString)), this, SLOT(OnKernelCrashed_p(QString)), Qt::QueuedConnection);
@@ -220,7 +220,7 @@ namespace Qv2rayBase::Profile
 
         if (d->kernels.empty())
         {
-            QvLog() << "Cannot disconnect when there's nothing connected.";
+            qInfo() << "Cannot disconnect when there's nothing connected.";
             return;
         }
 
@@ -228,7 +228,7 @@ namespace Qv2rayBase::Profile
 
         for (const auto &[kernel, kernelObject] : d->kernels)
         {
-            QvLog() << "Stopping plugin kernel:" << kernel;
+            qInfo() << "Stopping plugin kernel:" << kernel;
             kernelObject->Stop();
         }
 

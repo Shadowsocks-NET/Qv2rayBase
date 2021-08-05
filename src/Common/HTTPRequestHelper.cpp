@@ -30,7 +30,7 @@ namespace Qv2rayBase::Utils
 {
     void NetworkRequestHelper::setHeader(QNetworkRequest &request, const QByteArray &key, const QByteArray &value)
     {
-        QvDebug() << "Adding HTTP request header:" << key << ":" << value;
+        qDebug() << "Adding HTTP request header:" << key << ":" << value;
         request.setRawHeader(key, value);
     }
 
@@ -41,7 +41,7 @@ namespace Qv2rayBase::Utils
         {
             case Models::NetworkProxyConfig::PROXY_NONE:
             {
-                QvDebug() << "Get without proxy.";
+                qDebug() << "Get without proxy.";
                 accessManager.setProxy(QNetworkProxy(QNetworkProxy::ProxyType::NoProxy));
                 break;
             }
@@ -92,7 +92,7 @@ namespace Qv2rayBase::Utils
             QObject::connect(reply, &QNetworkReply::errorOccurred, &loop, &QEventLoop::quit);
             loop.exec();
 
-            QvLog() << reply->error();
+            qInfo() << reply->error();
             return { reply->error(), reply->errorString(), reply->readAll() };
         }
     }

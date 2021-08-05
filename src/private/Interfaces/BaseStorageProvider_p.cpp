@@ -57,8 +57,8 @@ bool CheckPathAvailability(const QString &_dirPath, bool checkExistingConfig)
         QFile testFile(path + ".qv2ray_test_file" + QString::number(QTime::currentTime().msecsSinceStartOfDay()));
         if (!testFile.open(QFile::OpenModeFlag::ReadWrite))
         {
-            QvLog() << "Directory at:" << path << "cannot be used as a valid config file path.";
-            QvLog() << "---> Cannot create a new file or open a file for writing.";
+            qInfo() << "Directory at:" << path << "cannot be used as a valid config file path.";
+            qInfo() << "---> Cannot create a new file or open a file for writing.";
             return false;
         }
         testFile.write("Qv2ray test file, feel free to remove.");
@@ -67,8 +67,8 @@ bool CheckPathAvailability(const QString &_dirPath, bool checkExistingConfig)
         if (!testFile.remove())
         {
             // This is rare, as we can create a file but failed to remove it.
-            QvLog() << "Directory at:" << path << "cannot be used as a valid config file path.";
-            QvLog() << "---> Cannot remove a file.";
+            qInfo() << "Directory at:" << path << "cannot be used as a valid config file path.";
+            qInfo() << "---> Cannot remove a file.";
             return false;
         }
     }
@@ -87,14 +87,14 @@ bool CheckPathAvailability(const QString &_dirPath, bool checkExistingConfig)
 
     if (!configFile.open(QIODevice::ReadWrite))
     {
-        QvLog() << "File:" << configFile.fileName() << " cannot be opened!";
+        qInfo() << "File:" << configFile.fileName() << " cannot be opened!";
         return false;
     }
 
     const auto err = VerifyJsonString(configFile.readAll());
     if (err)
     {
-        QvLog() << "Json parse returns:" << *err;
+        qInfo() << "Json parse returns:" << *err;
         return false;
     }
 
@@ -127,7 +127,7 @@ namespace Qv2rayBase::Interfaces
         if (qEnvironmentVariableIsSet(QV2RAY_CONFIG_PATH_ENV_NAME))
         {
             const auto manualConfigPath = qEnvironmentVariable(QV2RAY_CONFIG_PATH_ENV_NAME);
-            QvLog() << "Using config path from env:" << manualConfigPath;
+            qInfo() << "Using config path from env:" << manualConfigPath;
             configSearchPaths.clear();
             configSearchPaths << manualConfigPath;
         }
@@ -142,11 +142,11 @@ namespace Qv2rayBase::Interfaces
 
             if (isValidConfigPath)
             {
-                QvDebug() << "Path:" << dirPath << "is valid.";
+                qDebug() << "Path:" << dirPath << "is valid.";
                 selectedConfigurationFile = dirPath + QV2RAY_CONFIG_FILE_NAME;
                 break;
             }
-            QvLog() << "Path:" << dirPath << "does not contain a valid config file.";
+            qInfo() << "Path:" << dirPath << "does not contain a valid config file.";
         }
 
         if (selectedConfigurationFile.isEmpty())
@@ -161,12 +161,12 @@ namespace Qv2rayBase::Interfaces
             {
                 // None of the path above can be used as a dir for storing config.
                 // Even the last folder failed to pass the check.
-                QvLog() << "FATAL:";
-                QvLog() << "Cannot load configuration file Qv2ray";
-                QvLog() << "Cannot find a place to store config files." << NEWLINE << "Qv2ray has searched these paths below:";
-                QvLog() << "";
-                QvLog() << configSearchPaths;
-                QvLog() << "It usually means you don't have the write permission to all of those locations.";
+                qInfo() << "FATAL:";
+                qInfo() << "Cannot load configuration file Qv2ray";
+                qInfo() << "Cannot find a place to store config files." << NEWLINE << "Qv2ray has searched these paths below:";
+                qInfo() << "";
+                qInfo() << configSearchPaths;
+                qInfo() << "It usually means you don't have the write permission to all of those locations.";
                 return false;
             }
 
@@ -182,11 +182,11 @@ namespace Qv2rayBase::Interfaces
                 //
                 // Otherwise Qv2ray would have loaded this config already instead of notifying to create a new config in this folder.
                 //
-                QvLog() << "This should not occur: Qv2ray config exists but cannot be load.";
-                QvLog() << "Failed to initialise Qv2rayBase";
-                QvLog() << "Qv2ray has found a config file, but it failed to be loaded due to some errors.";
-                QvLog() << "A workaround is to remove the this file and restart Qv2ray:";
-                QvLog() << selectedConfigurationFile;
+                qInfo() << "This should not occur: Qv2ray config exists but cannot be load.";
+                qInfo() << "Failed to initialise Qv2rayBase";
+                qInfo() << "Qv2ray has found a config file, but it failed to be loaded due to some errors.";
+                qInfo() << "A workaround is to remove the this file and restart Qv2ray:";
+                qInfo() << selectedConfigurationFile;
                 return false;
             }
 
@@ -200,7 +200,7 @@ namespace Qv2rayBase::Interfaces
         ExecutableDirPath = qApp->applicationDirPath();
         ConfigFilePath = selectedConfigurationFile;
         ConfigDirPath = QFileInfo(ConfigFilePath).path() + "/";
-        QvLog() << "Using" << selectedConfigurationFile << "as the config path.";
+        qInfo() << "Using" << selectedConfigurationFile << "as the config path.";
         return true;
     }
 

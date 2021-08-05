@@ -150,8 +150,8 @@ namespace Qv2rayBase
 
     Qv2rayBaseLibrary::Qv2rayBaseLibrary() : d_ptr(new Qv2rayBaseLibraryPrivate)
     {
-        QvLog() << "Qv2ray Base Library" << QV2RAY_BASELIB_VERSION << "on" << QSysInfo::prettyProductName() << QSysInfo::currentCpuArchitecture();
-        QvDebug() << "Qv2ray Start Time:" << QTime::currentTime().msecsSinceStartOfDay();
+        qInfo() << "Qv2ray Base Library" << QV2RAY_BASELIB_VERSION << "on" << QSysInfo::prettyProductName() << QSysInfo::currentCpuArchitecture();
+        qDebug() << "Qv2ray Start Time:" << QTime::currentTime().msecsSinceStartOfDay();
     }
 
     Qv2rayBaseLibrary::~Qv2rayBaseLibrary()

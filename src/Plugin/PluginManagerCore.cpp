@@ -41,7 +41,7 @@ namespace Qv2rayBase::Plugin
         Q_D(PluginManagerCore);
         for (auto &&plugin : d->plugins)
         {
-            QvDebug() << "Unloading plugin:" << plugin.metadata().Name;
+            qDebug() << "Unloading plugin:" << plugin.metadata().Name;
 
             // Static plugins doesn't have a loader.
             if (plugin.loader)
@@ -56,7 +56,7 @@ namespace Qv2rayBase::Plugin
     void PluginManagerCore::LoadPlugins()
     {
         Q_D(PluginManagerCore);
-        QvLog() << "Reloading plugin list";
+        qInfo() << "Reloading plugin list";
 
         for (const auto &plugin : QPluginLoader::staticInstances())
         {
@@ -83,7 +83,7 @@ namespace Qv2rayBase::Plugin
             }
         }
 #else
-        QvLog() << "Qv2rayBase is statically linked with Qt, skipping loading dynamic plugins.";
+        qInfo() << "Qv2rayBase is statically linked with Qt, skipping loading dynamic plugins.";
 #endif
 
         for (auto it = d->plugins.constKeyValueBegin(); it != d->plugins.constKeyValueEnd(); it++)
@@ -150,7 +150,7 @@ namespace Qv2rayBase::Plugin
         if (!instance)
         {
             const auto errMessage = loader->errorString();
-            QvLog() << errMessage;
+            qInfo() << errMessage;
             Qv2rayBaseLibrary::Warn(tr("Failed to load plugin"), errMessage + NEWLINE + tr("Plugin Path: ") + pluginFullPath);
             return false;
         }
@@ -162,11 +162,11 @@ namespace Qv2rayBase::Plugin
     {
         if (auto _interface = qobject_cast<Qv2rayInterfaceImpl *>(sender()); _interface)
         {
-            QvLog() << _interface->GetMetadata().InternalID << ":" << log;
+            qInfo() << _interface->GetMetadata().InternalID << ":" << log;
         }
         else
         {
-            QvLog() << "Unknown Plugin:" << log;
+            qInfo() << "Unknown Plugin:" << log;
         }
     }
 
@@ -207,7 +207,7 @@ namespace Qv2rayBase::Plugin
 
         if (!info.pinterface)
         {
-            QvLog() << "Failed to cast from QObject to Qv2rayPluginInterface";
+            qInfo() << "Failed to cast from QObject to Qv2rayPluginInterface";
             // Static plugins doesn't have a loader.
             if (info.loader)
             {
@@ -220,7 +220,7 @@ namespace Qv2rayBase::Plugin
         if (info.pinterface->QvPluginInterfaceVersion != QV2RAY_PLUGIN_INTERFACE_VERSION)
         {
             // The plugin was built for a not-compactable version of Qv2ray. Don't load the plugin by default.
-            QvLog() << info.libraryPath << " is built with an older Interface, ignoring";
+            qInfo() << info.libraryPath << " is built with an older Interface, ignoring";
             Qv2rayBaseLibrary::Warn(tr("Cannot load plugin"), tr("The plugin cannot be loaded: ") + "\n" + info.libraryPath + "\n\n" +
                                                                   tr("This plugin was built against a different version of the Plugin Interface.") + "\n" +
                                                                   tr("Please contact the plugin provider or report the issue to Qv2ray Workgroup."));
@@ -230,7 +230,7 @@ namespace Qv2rayBase::Plugin
 
         if (d->plugins.contains(info.metadata().InternalID))
         {
-            QvLog() << "Found another plugin with the same internal name:" << info.metadata().InternalID << ". Skipped";
+            qInfo() << "Found another plugin with the same internal name:" << info.metadata().InternalID << ". Skipped";
             return false;
         }
 
@@ -240,7 +240,7 @@ namespace Qv2rayBase::Plugin
         connect(instance, SIGNAL(PluginErrorMessageBox(QString,QString)), this, SLOT(PluginMessageBox(QString,QString)));
         // clang-format on
 
-        QvLog() << "Loaded plugin:" << info.metadata().Name << "made by:" << info.metadata().Author;
+        qInfo() << "Loaded plugin:" << info.metadata().Name << "made by:" << info.metadata().Author;
         d->plugins.insert(info.metadata().InternalID, info);
         return true;
     }
