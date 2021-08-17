@@ -31,7 +31,6 @@
 #include <QtConcurrent/QtConcurrent>
 #endif
 
-#define QV_MODULE_NAME "ConfigHandler"
 #define CheckValidId(id, returnValue)                                                                                                                                    \
     do                                                                                                                                                                   \
     {                                                                                                                                                                    \

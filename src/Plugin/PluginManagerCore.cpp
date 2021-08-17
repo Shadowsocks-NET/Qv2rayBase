@@ -24,10 +24,6 @@
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 #include "Qv2rayBase/private/Plugin/PluginManagerCore_p.hpp"
 
-#include <QDir>
-
-#define QV_MODULE_NAME "PluginManagerCore"
-
 namespace Qv2rayBase::Plugin
 {
     using namespace Qv2rayPlugin;

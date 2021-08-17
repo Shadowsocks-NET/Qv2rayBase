@@ -19,8 +19,6 @@
 #include "Qv2rayBase/Common/Settings.hpp"
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
-#define QV_MODULE_NAME "SettingsUpgrade"
-
 namespace Qv2rayBase::_private
 {
     bool UpgradeConfigInc(int fromVersion, const QJsonObject &original)

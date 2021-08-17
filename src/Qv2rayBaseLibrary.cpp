@@ -31,8 +31,6 @@
 #include <QDir>
 #include <QStandardPaths>
 
-#define QV_MODULE_NAME "BaseLibrary"
-
 namespace Qv2rayBase
 {
     using namespace Qv2rayBase::Profile;

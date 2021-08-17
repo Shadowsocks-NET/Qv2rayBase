@@ -25,8 +25,6 @@
 #include <QNetworkProxy>
 #include <QNetworkReply>
 
-#define QV_MODULE_NAME "NetworkCore"
-
 namespace Qv2rayBase::Utils
 {
     void NetworkRequestHelper::setHeader(QNetworkRequest &request, const QByteArray &key, const QByteArray &value)

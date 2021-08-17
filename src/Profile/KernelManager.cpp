@@ -21,8 +21,6 @@
 #include "Qv2rayBase/private/Profile/KernelManager_p.hpp"
 #include "QvPlugin/Handlers/KernelHandler.hpp"
 
-#define QV_MODULE_NAME "KernelHandler"
-
 namespace Qv2rayBase::Profile
 {
     using namespace Qv2rayPlugin::Kernel;

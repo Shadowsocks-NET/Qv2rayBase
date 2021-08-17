@@ -22,8 +22,6 @@
 #include "Qv2rayBase/private/Plugin/PluginAPIHost_p.hpp"
 #include "Qv2rayBase/private/Plugin/PluginManagerCore_p.hpp"
 
-#define QV_MODULE_NAME "PluginAPIHost"
-
 using namespace Qv2rayPlugin;
 
 namespace Qv2rayBase::Plugin

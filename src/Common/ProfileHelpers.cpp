@@ -21,8 +21,6 @@
 #include "Qv2rayBase/Profile/ProfileManager.hpp"
 #include "Qv2rayBase/Qv2rayBaseLibrary.hpp"
 
-#define QV_MODULE_NAME "CoreUtils"
-
 namespace Qv2rayBase::Utils
 {
     int GetConnectionLatency(const ConnectionId &id)

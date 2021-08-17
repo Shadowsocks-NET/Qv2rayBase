@@ -22,8 +22,6 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 
-#define QV_MODULE_NAME "BuiltinStorageProvider"
-
 const auto QV2RAY_CONFIG_PATH_ENV_NAME = "QV2RAY_CONFIG_PATH";
 const auto QV2RAY_CONFIG_FILE_NAME = "Qv2ray.conf";
 const auto CONNECTIONS = "connections";
@@ -328,6 +326,16 @@ namespace Qv2rayBase::Interfaces
         WriteFile(JsonToString(obj).toUtf8(), PluginSettingsJson(pid.toString()));
     }
 
+    QJsonObject Qv2rayBasePrivateStorageProvider::GetExtraSettings(const QString &key)
+    {
+        return JsonFromString(ReadFile(ConfigDirPath + EXTRA_SETTINGS + "/" + key + ".json"));
+    }
+
+    bool Qv2rayBasePrivateStorageProvider::StoreExtraSettings(const QString &key, const QJsonObject &j)
+    {
+        return WriteFile(JsonToString(j).toUtf8(), ConfigDirPath + EXTRA_SETTINGS + "/" + key + ".json");
+    }
+
     QStringList Qv2rayBasePrivateStorageProvider::GetAssetsPath(const QString &dirName)
     {
         static const auto makeAbs = [](const QDir &p) { return p.absolutePath(); };
@@ -341,29 +349,25 @@ namespace Qv2rayBase::Interfaces
         list << QStandardPaths::locateAll(QStandardPaths::AppDataLocation, dirName, QStandardPaths::LocateDirectory);
         list << QStandardPaths::locateAll(QStandardPaths::AppConfigLocation, dirName, QStandardPaths::LocateDirectory);
 
-#ifdef Q_OS_UNIX
-        if (qEnvironmentVariableIsSet("APPIMAGE"))
-            list << makeAbs(QCoreApplication::applicationDirPath() + "/../share/qv2ray" + DEBUG_SUFFIX + dirName);
-
-        if (qEnvironmentVariableIsSet("SNAP"))
-            list << makeAbs(qEnvironmentVariable("SNAP") + "/usr/share/qv2ray" + DEBUG_SUFFIX + dirName);
-
         if (qEnvironmentVariableIsSet("XDG_DATA_DIRS"))
             list << makeAbs(qEnvironmentVariable("XDG_DATA_DIRS") + "/" + dirName);
 
-        list << makeAbs("/usr/local/share/qv2ray" + DEBUG_SUFFIX + dirName);
-        list << makeAbs("/usr/local/lib/qv2ray" + DEBUG_SUFFIX + dirName);
-        list << makeAbs("/usr/share/qv2ray" + DEBUG_SUFFIX + dirName);
-        list << makeAbs("/usr/lib/qv2ray" + DEBUG_SUFFIX + dirName);
-        list << makeAbs("/lib/qv2ray" + DEBUG_SUFFIX + dirName);
+#ifdef Q_OS_UNIX
+        if (qEnvironmentVariableIsSet("APPIMAGE"))
+            list << makeAbs(QCoreApplication::applicationDirPath() + "/../share/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+
+        if (qEnvironmentVariableIsSet("SNAP"))
+            list << makeAbs(qEnvironmentVariable("SNAP") + "/usr/share/Qv2rayBase" + DEBUG_SUFFIX + dirName);
 
         list << makeAbs("/usr/local/share/Qv2rayBase" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/usr/local/lib/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/local/lib64/Qv2rayBase" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/usr/share/Qv2rayBase" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/usr/lib/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/usr/lib64/Qv2rayBase" + DEBUG_SUFFIX + dirName);
         list << makeAbs("/lib/Qv2rayBase" + DEBUG_SUFFIX + dirName);
+        list << makeAbs("/lib64/Qv2rayBase" + DEBUG_SUFFIX + dirName);
 #endif
-
         list << ConfigDirPath + dirName;
 
 #ifdef Q_OS_MAC
@@ -373,13 +377,3 @@ namespace Qv2rayBase::Interfaces
         return list;
     }
 } // namespace Qv2rayBase::Interfaces
-
-QJsonObject Qv2rayBase::Interfaces::Qv2rayBasePrivateStorageProvider::GetExtraSettings(const QString &key)
-{
-    return JsonFromString(ReadFile(ConfigDirPath + EXTRA_SETTINGS + "/" + key + ".json"));
-}
-
-bool Qv2rayBase::Interfaces::Qv2rayBasePrivateStorageProvider::StoreExtraSettings(const QString &key, const QJsonObject &j)
-{
-    return WriteFile(JsonToString(j).toUtf8(), ConfigDirPath + EXTRA_SETTINGS + "/" + key + ".json");
-}
