@@ -517,8 +517,16 @@ namespace Qv2rayBase::Profile
                 for (const auto &conn : d->groups[id].connections)
                 {
                     nameMap.insert(GetDisplayName(conn), conn);
-                    const auto info = GetOutboundInfo(GetConnection(conn).outbounds.first());
-                    typeMap.insert(info, conn);
+                    const auto outbounds = GetConnection(conn).outbounds;
+                    if (!outbounds.isEmpty())
+                    {
+                        const auto info = GetOutboundInfo(outbounds.first());
+                        typeMap.insert(info, conn);
+                    }
+                    else
+                    {
+                        qWarning() << "Met a connection with no outbounds, not saving to type maps.";
+                    }
                 }
             }
 
