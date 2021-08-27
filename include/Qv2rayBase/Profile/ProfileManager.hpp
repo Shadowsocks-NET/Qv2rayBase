@@ -89,7 +89,7 @@ namespace Qv2rayBase::Profile
 
       signals:
         void OnLatencyTestStarted(const ConnectionId &id);
-        void OnSubscriptionUpdateFinished(const GroupId &id);
+        void OnSubscriptionUpdateFinished(const GroupId &id, const QList<ProfileId> &newConnections);
         void OnConnectionCreated(const ProfileId &Id, const QString &displayName);
         void OnConnectionModified(const ConnectionId &id);
         void OnConnectionRenamed(const ConnectionId &Id, const QString &originalName, const QString &newName);
