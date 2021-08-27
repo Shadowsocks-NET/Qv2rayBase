@@ -484,7 +484,7 @@ namespace Qv2rayBase::Profile
 
         ///
         /// \brief Step 3: begin importing connections from the result.
-        const auto process_subscription_func = [this, d, id](const Qv2rayPlugin::SubscriptionResult &result) -> bool
+        const auto process_subscription_func = [this, id, d](const Qv2rayPlugin::SubscriptionResult &result) -> std::tuple<bool, QList<ProfileId>>
         {
             QMultiMap<QString, ProfileContent> fetchedConnections;
 
@@ -636,6 +636,8 @@ namespace Qv2rayBase::Profile
                     filteredConnections.insert(name, config);
             }
 
+            QList<ProfileId> newConnections;
+
             for (auto it = filteredConnections.constKeyValueBegin(); it != filteredConnections.constKeyValueEnd(); it++)
             {
                 const auto name = it->first;
@@ -679,6 +681,7 @@ namespace Qv2rayBase::Profile
                 // New connection id is required since nothing matched found...
                 qInfo() << "Generated new connection id for connection:" << name;
                 const auto cid = CreateConnection(config, name, id);
+                newConnections << cid;
                 SetConnectionTags(cid.connectionId, tags.value(name));
             }
 
@@ -695,32 +698,41 @@ namespace Qv2rayBase::Profile
 
             // Update the time
             d->groups[id].updated = system_clock::now();
-            return hasErrorOccured;
+            return { hasErrorOccured, newConnections };
         };
 
 #if QT_CONFIG(concurrent)
-        QFuture<bool> future = QtConcurrent::run(func_select_provider).then(fetch_decode_func).then(process_subscription_func);
+        QFuture<std::tuple<bool, QList<ProfileId>>> future = QtConcurrent::run(func_select_provider).then(fetch_decode_func).then(process_subscription_func);
         // Thread hack: to keep Messagebox always on the main thread.
-        if (!isAsync)
+        if (isAsync)
+        {
+            auto newfuture = future
+                                 .then(this,
+                                       [this, id](const std::tuple<bool, QList<ProfileId>> &tup)
+                                       {
+                                           if (const auto [r, newconnections] = tup; r)
+                                               emit OnSubscriptionUpdateFinished(id, newconnections);
+                                       })
+                                 .onFailed(
+                                     [](const std::exception &e)
+                                     {
+                                         Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
+                                         return false;
+                                     });
+        }
+        else
         {
             try
             {
-                return future.result();
+                const auto [r, conns] = future.result();
+                emit OnSubscriptionUpdateFinished(id, conns);
+                return r;
             }
             catch (const std::exception &e)
             {
                 Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
                 return false;
             }
-        }
-        else
-        {
-            future.onFailed(
-                [](const std::exception &e)
-                {
-                    Qv2rayBaseLibrary::Warn(tr("Cannot update subscription"), QString::fromStdString(e.what()));
-                    return false;
-                });
         }
 
         return true;
