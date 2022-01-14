@@ -6,6 +6,10 @@ project(Qv2rayBase
     LANGUAGES CXX
     DESCRIPTION "Base library for Qv2ray")
 
+if (NOT DEFINED BUILD_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS ON)
+endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
