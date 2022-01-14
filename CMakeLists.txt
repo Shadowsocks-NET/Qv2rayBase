@@ -26,7 +26,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 option(USE_SYSTEM_PLUGIN_INTERFACE "Use system provided plugin interface headers." OFF)
 
 if(USE_SYSTEM_PLUGIN_INTERFACE)
-    find_package(QvPluginInterface 4.0 REQUIRED)
+    find_package(QvPluginInterface 5.0 REQUIRED)
 else()
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/src/PluginInterface)
     install(TARGETS QvPluginInterface)
