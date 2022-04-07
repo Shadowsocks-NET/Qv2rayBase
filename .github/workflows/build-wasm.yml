@@ -43,13 +43,13 @@ jobs:
       - name: Install Host Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: 6.2.1
+          version: 6.3.0
           set-env: false
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: 6.2.1
+          version: 6.3.0
           arch: wasm_32
           set-env: true
 
@@ -66,7 +66,7 @@ jobs:
           export Qt6_DIR=$(realpath $Qt6_DIR/../wasm_32)
           export QT_PLUGIN_PATH=$(realpath $Qt6_DIR/plugins)
           export QML2_IMPORT_PATH=$(realpath $Qt6_DIR/qml)
-          sed -i "s,/home/qt/work/install,/home/runner/work/Qv2rayBase/Qt/6.2.0/gcc_64,g" $Qt6_DIR/lib/cmake/Qt6/qt.toolchain.cmake
+          sed -i "s,/home/qt/work/install,/home/runner/work/Qv2rayBase/Qt/6.3.0/gcc_64,g" $Qt6_DIR/lib/cmake/Qt6/qt.toolchain.cmake
           
           source $EMSDK_PATH/emsdk_env.sh
           mkdir build && cd build
