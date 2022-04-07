@@ -28,7 +28,7 @@ else()
     # BEGIN - the hack to install libuvw as static libraries
     if(NOT BUILD_SHARED_LIBS)
         # See https://github.com/skypjack/uvw/pull/264
-        # export(EXPORT uvwConfig)
+        export(EXPORT uvwConfig)
     endif()
     # END  - the hack to install libuvw as static libraries
 endif()
