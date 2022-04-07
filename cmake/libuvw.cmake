@@ -17,7 +17,7 @@ if(USE_SYSTEM_UVW)
     add_library(Qv2ray::libuvw ALIAS Qv2ray_uvw)
 else()
     set(BUILD_UVW_LIBS ON)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/uvw)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/uvw)
     add_library(Qv2ray::libuvw ALIAS uvw)
 
     # BEGIN - the hack to install libuvw as static libraries
