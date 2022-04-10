@@ -475,7 +475,11 @@ namespace Qv2rayBase::Profile
                 }
                 case Qv2rayPlugin::Subscribe_FetcherAndDecoder:
                 {
-                    return info.Creator()->FetchDecodeSubscription(subscriptionConfig.providerSettings);
+                    const auto subscriptionResult = info.Creator()->FetchDecodeSubscription(subscriptionConfig.providerSettings);
+                    if (subscriptionResult.size() > 0)
+                        return subscriptionResult;
+                    else
+                        throw std::nullopt; // Already handled by FetchDecodeSubscription
                 }
                 default: Q_UNREACHABLE(); break;
             }
